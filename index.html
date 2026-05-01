@@ -2190,7 +2190,7 @@
         const GROQ_KEY = ""; // Đã xóa để bảo mật khi đưa lên GitHub
         let activeChatFriendId = null;
 
-        let currentBestModel = "gemini-1.5-flash"; // Mặc định
+        let currentBestModel = ""; 
 
         async function findBestModel() {
             try {
@@ -2198,24 +2198,22 @@
                 const r = await fetch(`https://generativelanguage.googleapis.com/v1/models?key=${key}`);
                 const d = await r.json();
                 if (d.models) {
-                    // Tìm flash trước, sau đó đến pro
                     const models = d.models.map(m => m.name.replace('models/', ''));
                     if (models.includes('gemini-1.5-flash')) currentBestModel = 'gemini-1.5-flash';
                     else if (models.includes('gemini-1.5-flash-8b')) currentBestModel = 'gemini-1.5-flash-8b';
                     else if (models.includes('gemini-pro')) currentBestModel = 'gemini-pro';
                     else currentBestModel = models[0];
-                    console.log("🚀 Đã tìm thấy model tốt nhất cho Key của bạn:", currentBestModel);
                 }
-            } catch(e) { console.error("Không thể dò model:", e); }
+            } catch(e) { console.error(e); }
         }
 
         async function callGeminiAPI(prompt) {
             const key = GEMINI_KEY.trim();
-            // Nếu chưa tìm model tốt nhất thì tìm ngay
-            if (!currentBestModel || currentBestModel === "gemini-1.5-flash") await findBestModel();
+            if (!currentBestModel) await findBestModel();
             
+            const modelToUse = currentBestModel || "gemini-1.5-flash";
             try {
-                const url = `https://generativelanguage.googleapis.com/v1/models/${currentBestModel}:generateContent?key=${key}`;
+                const url = `https://generativelanguage.googleapis.com/v1/models/${modelToUse}:generateContent?key=${key}`;
                 const r = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2225,15 +2223,8 @@
                 const d = await r.json();
                 if (r.ok && d.candidates?.[0]) {
                     return d.candidates[0].content.parts[0].text;
-                } else if (d.error) {
-                    // Nếu lỗi thì thử lại một lần với model mặc định pro
-                    if (currentBestModel !== 'gemini-pro') {
-                        currentBestModel = 'gemini-pro';
-                        return await callGeminiAPI(prompt);
-                    }
-                    alert("LỖI AI:\n" + d.error.message);
                 }
-            } catch(e) { alert("LỖI KẾT NỐI:\n" + e.message); }
+            } catch(e) { console.error(e); }
             return null;
         }
 
