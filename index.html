@@ -1,0 +1,2434 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAD Chinese Pro - HSK6 Mastery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Thiết lập chung --- */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            height: 100vh;
+            background-color: #f4f7f6;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 260px;
+            flex-shrink: 0;
+            background-color: #2c3e50;
+            color: white;
+            display: none;
+            flex-direction: column;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            z-index: 5;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            background-color: #1a252f;
+            border-bottom: 1px solid #34495e;
+            cursor: pointer;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .menu-title {
+            padding: 15px 20px;
+            display: block;
+            color: #ecf0f1;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 600;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .menu-title.active {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .user-profile {
+            padding: 20px 15px;
+            background: #1a252f;
+            text-align: center;
+            color: #bdc3c7;
+            border-top: 1px solid #34495e;
+        }
+
+        .sidebar-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #3498db;
+            margin-bottom: 10px;
+            background: #eee;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+            position: relative;
+            display: none;
+        }
+
+        /* --- Dashboard Blocks --- */
+        .welcome-panel {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            margin-bottom: 25px;
+            border-left: 5px solid #3498db;
+        }
+
+        .welcome-panel h2 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+            font-size: 26px;
+        }
+
+        .welcome-panel .stay-days {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .quote-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-style: italic;
+            color: #555;
+            border-left: 3px solid #f39c12;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .stats-section {
+            margin-bottom: 30px;
+        }
+
+        .total-words-panel {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(46, 204, 113, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+        }
+
+        .srs-title {
+            font-size: 18px;
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .srs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .srs-card {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .srs-card:hover {
+            transform: translateY(-5px);
+            filter: brightness(1.1);
+        }
+
+        .srs-card .val {
+            font-size: 28px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .srs-card .lbl {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* SRS Colors */
+        .bg-today {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        /* Đỏ: Khẩn cấp */
+        .bg-3d {
+            background: linear-gradient(135deg, #e67e22, #d35400);
+        }
+
+        /* Cam */
+        .bg-7d {
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+        }
+
+        /* Vàng */
+        .bg-14d {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        /* Xanh dương */
+        .bg-30d {
+            background: linear-gradient(135deg, #1abc9c, #16a085);
+        }
+
+        /* Xanh ngọc */
+        .bg-60d {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        /* Tím */
+
+        /* --- Buttons --- */
+        .btn {
+            border: none;
+            padding: 10px 18px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+        }
+
+        .btn-create {
+            background-color: #27ae60;
+        }
+
+        .btn-flashcard {
+            background-color: #f39c12;
+            font-size: 16px;
+        }
+
+        .btn-back {
+            background-color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+
+        .btn-back:hover {
+            background-color: #34495e;
+        }
+
+        .btn-audio-mini {
+            background: #9b59b6;
+            padding: 5px 8px;
+            font-size: 12px;
+        }
+
+        /* --- Vocab Master-Detail --- */
+        .vocab-layout {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 280px);
+        }
+        .vocab-list-col {
+            flex: 6;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #eee;
+            overflow-y: auto;
+            display: flex;
+            align-content: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .vocab-detail-col {
+            flex: 4;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .word-chip {
+            padding: 15px 25px;
+            font-size: 26px;
+            font-weight: bold;
+            font-family: 'KaiTi', 'STKaiti', serif;
+            background: white;
+            color: #2c3e50;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .word-chip:hover, .word-chip.active {
+            border-color: #3498db;
+            background: #eaf2f8;
+            transform: translateY(-2px);
+        }
+
+        /* --- Grammar Accordion --- */
+        .grammar-item {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .grammar-header {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            font-weight: bold;
+            font-size: 18px;
+            color: #2c3e50;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .grammar-header:hover {
+            background: #eaf2f8;
+        }
+        .grammar-body {
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            display: none;
+        }
+
+        /* --- Tabs & Grids --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- Tabs & Grids --- */
+        .tabs {
+            display: flex;
+            gap: 15px;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .tab-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #7f8c8d;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-item.active {
+            color: #3498db;
+            border-bottom-color: #3498db;
+        }
+
+        .grid-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 25px 20px;
+            width: 220px;
+            cursor: pointer;
+            text-align: center;
+            position: relative;
+            transition: 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #3498db;
+            box-shadow: 0 8px 15px rgba(52, 152, 219, 0.1);
+        }
+
+        /* --- Workspace --- */
+        .workspace-layout {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 30px;
+            margin-top: 10px;
+        }
+
+        .panel {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #34495e;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccd1d9;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .word-scroll {
+            height: calc(100vh - 280px);
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .word-card {
+            border-bottom: 1px solid #eee;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .word-card:hover {
+            background: #f9f9f9;
+        }
+
+        /* --- Profile --- */
+        .profile-container {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            max-width: 650px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* --- Flashcard Layer --- */
+        #viewFlashcard {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #2c3e50;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .fc-scene {
+            width: 550px;
+            min-height: 400px;
+            perspective: 1000px;
+            margin: 0 auto;
+        }
+
+        .fc-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .fc-container.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .fc-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ffffff 0%, #fdfbfb 100%);
+            border-radius: 20px;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            box-sizing: border-box;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+            color: #2c3e50;
+            border: 1px solid #eaeaea;
+        }
+
+        .fc-face-back {
+            transform: rotateY(180deg);
+        }
+
+        #loadingScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        /* Highlight bài đọc */
+        .reading-char {
+            transition: all 0.2s;
+            border-radius: 4px;
+            padding: 0 1px;
+        }
+        .active-word {
+            background: #f1c40f;
+            color: #2c3e50;
+            transform: scale(1.2);
+            display: inline-block;
+            box-shadow: 0 2px 10px rgba(241, 196, 15, 0.4);
+            z-index: 10;
+        }
+        .is-vocab-added {
+            border-bottom: 3px solid #3498db;
+            background-color: rgba(52, 152, 219, 0.15);
+            cursor: pointer;
+        }
+        .is-vocab-added:hover {
+            background-color: rgba(52, 152, 219, 0.3);
+        }
+
+        /* Tooltip cho từ vựng */
+        #wordTooltip {
+            position: fixed;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            padding: 12px;
+            z-index: 10000;
+            display: none;
+            min-width: 150px;
+            max-width: 250px;
+            border: 1px solid #eee;
+            pointer-events: auto;
+        }
+        #wordTooltip h4 { margin: 0 0 5px 0; color: #2c3e50; font-size: 18px; }
+        #wordTooltip p { margin: 0 0 10px 0; color: #7f8c8d; font-size: 14px; line-height: 1.4; }
+        .tooltip-btns { display: flex; gap: 8px; }
+        .btn-tool { font-size: 11px; padding: 4px 8px; border-radius: 4px; cursor: pointer; border: none; }
+    </style>
+</head>
+
+    <!-- Tooltip hiển thị nghĩa -->
+    <div id="wordTooltip">
+        <h4 id="ttHanzi"></h4>
+        <div id="ttPinyin" style="font-style:italic; color:#95a5a6; margin-bottom:5px;"></div>
+        <p id="ttNghia"></p>
+        <div class="tooltip-btns">
+            <button class="btn-tool" style="background:#3498db; color:white;" onclick="ttViewDetail()">Chi tiết</button>
+            <button class="btn-tool" style="background:#e74c3c; color:white;" onclick="ttRemoveWord()">Xóa từ</button>
+        </div>
+    </div>
+
+    <div id="authScreen"
+        style="position: absolute; top:0; left:0; right:0; bottom:0; background: #2c3e50; display: flex; justify-content: center; align-items: center; z-index: 100;">
+        <div style="background: white; padding: 40px; border-radius: 15px; width: 350px; text-align: center;">
+            <h1>TAD Chinese Pro</h1>
+            <input type="email" id="authEmail" placeholder="Email (VD: user@gmail.com)"
+                style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
+            <input type="password" id="authPassword" placeholder="Mật khẩu"
+                style="width:100%; padding:12px; margin-bottom:20px; border-radius:8px; border:1px solid #ddd;">
+            <button class="btn btn-primary" style="width:100%" onclick="login()">Đăng nhập Hệ thống</button>
+            <div style="margin-top:15px"><span style="color:#3498db; cursor:pointer; font-size:14px"
+                    onclick="registerPrompt()">Tạo tài khoản mới</span></div>
+        </div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header" onclick="showDashboard()">TAD Chinese</div>
+        <ul class="menu">
+            <li class="menu-title active" id="menu-dashboard" onclick="showDashboard()">🏠 TRANG CHỦ</li>
+            <li class="menu-title" id="menu-courses" onclick="showCourses()">📚 KHÔNG GIAN HỌC</li>
+            <li class="menu-title" id="menu-public-vocab" onclick="showPublicVocab()">🌍 TỪ CHUYÊN NGÀNH</li>
+            <li class="menu-title" id="menu-mandarin" onclick="showMandarinBean()">🎧 MANDARIN BEAN</li>
+            <li class="menu-title" id="menu-hsk" onclick="showHSKTest()">📝 TEST HSK</li>
+            <li class="menu-title" id="menu-profile" onclick="showProfile()">👤 HỒ SƠ CÁ NHÂN</li>
+        </ul>
+        <div class="user-profile">
+            <img id="sidebarAvatar" class="sidebar-avatar"
+                src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png">
+            <div id="userDisplayName" style="font-size: 15px; font-weight: bold; color: white;"></div>
+            <button class="btn btn-back btn-small" style="margin-top:10px; background:#e74c3c" onclick="logout()">🚪
+                Thoát</button>
+        </div>
+    </div>
+
+    <div class="main-content" id="mainArea">
+        <div id="loadingScreen">
+            <div class="loader"></div>
+        </div>
+
+        <!-- MÀN HÌNH CHÍNH (DASHBOARD) -->
+        <!-- MÀN HÌNH CHÍNH (DASHBOARD) -->
+        <div id="viewDashboard">
+            <!-- 1. Khối Xin Chào riêng -->
+            <div class="welcome-panel">
+                <h2>Xin chào <span id="dashName" style="color:#3498db"></span>!</h2>
+                <div style="font-size:15px; color:#27ae60; font-weight:bold; margin-bottom:10px;">Từ giờ bạn đã có hệ thống của riêng mình, cố gắng lên nhé!</div>
+                <div class="stay-days">ID: <span id="dashEmail"></span> | Bạn đã đồng hành cùng hệ thống được
+                    <strong id="stayDuration" style="color:#e74c3c; font-size:16px">0</strong> ngày.
+                </div>
+                <div class="quote-box" id="dashQuote"></div>
+            </div>
+
+            <!-- 2. Khối Thống kê riêng -->
+            <div class="stats-section">
+                <!-- BẢNG VÀNG HÔM NAY (LEADERBOARD) -->
+                <div class="panel" style="margin-bottom: 25px; border-left: 5px solid #f1c40f;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                        <h3 style="margin:0; color:#f39c12">🏆 BẢNG VÀNG HÔM NAY</h3>
+                        <button class="btn btn-primary" onclick="addFriend()">+ KẾT BẠN (ID / Email)</button>
+                    </div>
+                    <div style="font-size:14px; color:#7f8c8d; margin-bottom:15px;">Mã kết bạn của bạn: <strong id="myFriendCode" style="color:#2c3e50; user-select:all;">...</strong></div>
+                    <div id="leaderboardList" style="background:#f9f9f9; padding:15px; border-radius:8px;">
+                        Đang tải bảng xếp hạng...
+                    </div>
+                </div>
+
+                <div class="total-words-panel">
+                    <div style="text-align:left;">
+                        <div style="font-size:14px; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px; opacity:0.9;">BẠN ĐÃ THÊM</div>
+                        <div style="font-size:24px; font-weight:bold; margin:0;">TỪ VÀO HỆ THỐNG</div>
+                    </div>
+                    <div style="font-size:45px; font-weight:bold; line-height:1;"><span id="totalWords">0</span></div>
+                </div>
+
+                <h3 class="srs-title">Nhiệm vụ hôm nay (Bấm vào thẻ để bắt đầu)</h3>
+                <div class="srs-grid" style="margin-bottom: 25px;">
+                    <div class="srs-card bg-today" onclick="startGlobalReview('new')"><span class="val"><span id="dueNew">0</span> từ</span><span class="lbl">Từ mới cần học</span></div>
+                    <div class="srs-card bg-today" style="background: linear-gradient(135deg, #e67e22, #d35400);" onclick="startGlobalReview('review')"><span class="val"><span id="dueReview">0</span> từ</span><span class="lbl">Từ cần ôn tập</span></div>
+                </div>
+
+                <h3 class="srs-title">Kế hoạch ôn tập tương lai</h3>
+                <div class="srs-grid">
+                    <div class="srs-card bg-3d" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="startGlobalReview('1')"><span class="val"><span id="due1d">0</span> từ</span><span class="lbl">Ngày mai</span></div>
+                    <div class="srs-card bg-3d" onclick="startGlobalReview('3')"><span class="val"><span id="due3d">0</span> từ</span><span class="lbl">Sau 3 ngày</span></div>
+                    <div class="srs-card bg-7d" onclick="startGlobalReview('7')"><span class="val"><span id="due7d">0</span> từ</span><span class="lbl">Sau 7 ngày</span></div>
+                    <div class="srs-card bg-14d" onclick="startGlobalReview('14')"><span class="val"><span id="due14d">0</span> từ</span><span class="lbl">Sau 14 ngày</span></div>
+                    <div class="srs-card bg-30d" onclick="startGlobalReview('30')"><span class="val"><span id="due30d">0</span> từ</span><span class="lbl">Sau 30 ngày</span></div>
+                    <div class="srs-card bg-60d" onclick="startGlobalReview('60')"><span class="val"><span id="due60d">0</span> từ</span><span class="lbl">Hơn 60 ngày</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MÀN HÌNH DANH SÁCH KHÓA HỌC -->
+        <div id="viewCourseList" style="display:none">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:20px">
+                <h2 style="margin:0; color:#2c3e50">KHÔNG GIAN HỌC TẬP</h2>
+                <button class="btn btn-create" onclick="createNewCourse()">+ TẠO KHÓA HỌC MỚI</button>
+            </div>
+            <div class="grid-container" id="courseGrid"></div>
+        </div>
+
+        <!-- MÀN HÌNH TỪ CHUYÊN NGÀNH -->
+        <div id="viewPublicVocab" style="display:none; padding:20px; background:white; border-radius:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:20px">
+                <h2 style="margin:0; color:#2c3e50">TỪ CHUYÊN NGÀNH CỘNG ĐỒNG</h2>
+                <button class="btn btn-create" onclick="addPublicVocab()">+ ĐÓNG GÓP TỪ MỚI</button>
+            </div>
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <select id="publicCategoryFilter" class="btn" style="background:#ecf0f1; color:#2c3e50; border:1px solid #ddd;" onchange="loadPublicVocab()">
+                    <option value="IT">Công nghệ thông tin</option>
+                    <option value="Kinh Tế">Kinh tế & Thương mại</option>
+                    <option value="Y Tế">Y tế</option>
+                    <option value="Du Lịch">Du lịch</option>
+                    <option value="Khác">Khác</option>
+                </select>
+            </div>
+            <div class="grid-container" id="publicVocabGrid"></div>
+        </div>
+
+
+        <!-- MÀN HÌNH MANDARIN BEAN -->
+        <div id="viewMandarinBean" style="display:none; height:100%; flex-direction:column; background:white; border-radius:10px; padding:20px; box-sizing:border-box;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                <h2 style="margin:0; color:#2c3e50">Luyện Đọc / Nghe - Mandarin Bean</h2>
+            </div>
+            <iframe src="https://mandarinbean.com/all-lessons/" style="width:100%; flex-grow:1; border:1px solid #eee; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.05)"></iframe>
+        </div>
+
+        <!-- MÀN HÌNH TEST HSK -->
+        <div id="viewHSKTest" style="display:none; height:100%; flex-direction:column; background:white; border-radius:10px; padding:20px; box-sizing:border-box;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                <h2 style="margin:0; color:#2c3e50">Test HSK Online - Mandarin Bean</h2>
+            </div>
+            <iframe src="https://mandarinbean.com/hsk-chinese-test-online/" style="width:100%; flex-grow:1; border:1px solid #eee; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.05)"></iframe>
+        </div>
+
+        <!-- MÀN HÌNH KHÓA HỌC -->
+        <div id="viewCourseDetail">
+            <button class="btn btn-back" onclick="showDashboard()">⬅ Trang chủ</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                <h2 id="courseTitleDisplay" style="margin:0"></h2>
+                <button class="btn btn-create" onclick="createNewLesson()">+ TẠO BÀI HỌC MỚI</button>
+            </div>
+            <div class="grid-container" id="lessonGrid"></div>
+        </div>
+
+        <!-- MÀN HÌNH BÀI HỌC (WORKSPACE) -->
+        <div id="viewLessonDetail">
+            <button class="btn btn-back" onclick="openCourse(currentCourseIndex)">⬅ Trở lại Khóa học</button>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 id="pageTitle" style="margin:0"></h2>
+            </div>
+            
+            <div class="tabs" style="margin-top: 20px;">
+                <div class="tab-item active" id="tabLessonReading" onclick="switchLessonTab('reading')">BÀI ĐỌC</div>
+                <div class="tab-item" id="tabLessonVocab" onclick="switchLessonTab('vocab')">TỪ VỰNG</div>
+                <div class="tab-item" id="tabLessonGrammar" onclick="switchLessonTab('grammar')">NGỮ PHÁP</div>
+                <div class="tab-item" id="tabLessonDictation" onclick="switchLessonTab('dictation')">NGHE CHÉP CHÍNH TẢ</div>
+            </div>
+
+            <!-- TAB BÀI ĐỌC -->
+            <div id="lessonReadingArea" class="panel">
+                <div id="readingControlHeader" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+                    <h3 style="margin:0">Bài đọc</h3>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <div id="readingModeToggle" style="background:#ecf0f1; padding:5px; border-radius:8px; display:flex; gap:5px;">
+                            <button id="btnEditMode" class="btn btn-audio-mini" style="background:#bdc3c7; color:white;" onclick="switchReadingMode('edit')">✏️ Sửa</button>
+                            <button id="btnReadMode" class="btn btn-audio-mini" style="background:#2ecc71; color:white;" onclick="switchReadingMode('read')">📖 Đọc</button>
+                        </div>
+                        <div id="readActions" style="display:none; gap:10px;">
+                            <button class="btn btn-audio-mini" style="background:#f39c12;" onclick="playReadingAudio(0.75)">Chậm</button>
+                            <button class="btn btn-audio-mini" style="background:#2ecc71;" onclick="playReadingAudio(1)">Bình thường</button>
+                            <button class="btn btn-audio-mini" style="background:#7f8c8d;" onclick="stopReadingAudio()">⏹</button>
+                        </div>
+                        <button id="btnSaveReading" class="btn btn-primary" style="padding:5px 15px;" onclick="saveLessonContent('reading')">💾 LƯU</button>
+                    </div>
+                </div>
+
+                <!-- Thanh chọn phần đọc -->
+                <div id="readingPartsBar" style="display:flex; gap:8px; margin-bottom:15px; overflow-x:auto; padding-bottom:5px; border-bottom:1px solid #eee;">
+                    <div id="readingPartList" style="display:flex; gap:8px;"></div>
+                    <button class="btn btn-audio-mini" style="background:#3498db; color:white; min-width:30px;" onclick="addReadingPart()">+</button>
+                </div>
+                <div style="position:relative; width:100%; height:calc(100vh - 350px);">
+                    <textarea id="lessonReadingText" style="width:100%; height:100%; padding:15px; border-radius:10px; border:1px solid #ddd; font-size:24px; font-family:'KaiTi', 'STKaiti', serif; line-height:1.6; box-sizing:border-box;" placeholder="Nhập chữ Hán của bài đọc vào đây..."></textarea>
+                    <div id="lessonReadingDisplay" style="display:none; width:100%; height:100%; padding:15px; border-radius:10px; border:1px solid #ddd; background:white; font-size:32px; font-family:'KaiTi', 'STKaiti', serif; line-height:1.8; overflow-y:auto; box-sizing:border-box; white-space:pre-wrap; cursor:text;"></div>
+                    
+                    <!-- Nút nổi thêm từ vựng -->
+                    <button id="floatAddVocab" class="btn" style="display:none; position:fixed; z-index:9999; background:#3498db; color:white; padding:5px 12px; border-radius:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2); font-size:13px; font-weight:bold;">➕ Thêm vào từ vựng</button>
+                </div>
+            </div>
+
+            <!-- TAB TỪ VỰNG -->
+            <div id="lessonVocabArea" class="panel" style="display:none; padding:0; background:transparent; border:none; box-shadow:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                    <div style="font-weight:bold; font-size:16px;">Danh sách từ vựng (<span id="wordCount">0</span>)</div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-flashcard" onclick="startLessonReview()">⚡ HỌC BÀI NÀY</button>
+                        <button class="btn btn-primary" onclick="openWordForm()">+ THÊM TỪ MỚI</button>
+                    </div>
+                </div>
+                <div class="vocab-layout">
+                    <div class="vocab-list-col" id="wordListChips"></div>
+                    <div class="vocab-detail-col" id="wordDetailPanel">
+                        <div id="wordDetailView" style="display:none; flex-direction:column; align-items:center; text-align:center; height:100%;">
+                            <h1 id="detHanzi" style="font-size:60px; margin:15px 0 5px 0; font-family:'KaiTi', 'STKaiti', serif; color:#2c3e50;"></h1>
+                            <div id="detPinyin" style="font-size:18px; color:#7f8c8d; margin-bottom:10px; font-style:italic;"></div>
+                            <button class="btn btn-audio-mini" style="font-size:16px; padding:5px 15px; border-radius:10px; margin-bottom:15px;" onclick="playAudio(document.getElementById('detHanzi').innerText)">🔊 Phát âm</button>
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+                                <span id="detWordType" style="background:#3498db; color:white; padding:2px 8px; border-radius:4px; font-size:14px; font-weight:bold;"></span>
+                                <div style="font-size:22px; color:#e74c3c; font-weight:bold;" id="detNghia"></div>
+                            </div>
+                            <div style="text-align:left; width:100%; background:white; padding:15px; border-radius:8px; border:1px solid #eee; margin-bottom:20px; position:relative;">
+                                <div style="font-weight:bold; margin-bottom:5px; color:#7f8c8d; display:flex; justify-content:space-between; align-items:center;">
+                                    <span>Ví dụ:</span>
+                                    <button class="btn btn-audio-mini" style="font-size:12px; padding:2px 8px;" onclick="playAudio(document.getElementById('detExHan').innerText)">🔊 Đọc ví dụ</button>
+                                </div>
+                                <div id="detExHan" style="font-size:18px; font-family:'KaiTi', 'STKaiti', serif; margin-bottom:2px; color:#2c3e50;"></div>
+                                <div id="detExPinyin" style="font-size:14px; color:#7f8c8d; font-style:italic; margin-bottom:8px;"></div>
+                                <div id="detExViet" style="font-size:15px; color:#555; border-top:1px dashed #eee; padding-top:5px;"></div>
+                            </div>
+                            <img id="detImg" style="max-width:100%; max-height:150px; border-radius:8px; display:none; margin-bottom:20px;">
+                            <div style="margin-top:auto; display:flex; gap:10px; width:100%;">
+                                <button class="btn" style="flex:1; background:#f39c12;" onclick="editCurrentWord()">✏️ SỬA TỪ</button>
+                                <button class="btn" style="flex:1; background:#e74c3c;" onclick="deleteCurrentWord()">🗑️ XÓA TỪ</button>
+                            </div>
+                        </div>
+
+                        <div id="wordFormView" style="display:none; flex-direction:column; height:100%;">
+                            <h3 id="formTitle" style="margin:0 0 15px 0; text-align:center;">Thêm từ mới</h3>
+                              <div class="form-group"><label>Chữ Hán:</label>
+                                <div style="display:flex; gap:10px">
+                                    <input type="text" id="chuHan" style="font-size:18px; font-weight:bold; flex:1">
+                                    <button class="btn btn-audio-mini" style="border-radius:6px; cursor:pointer" onclick="playAudioInput()">🔊</button>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:10px;">
+                                <div class="form-group" style="flex:1"><label>Pinyin:</label><input type="text" id="pinyin" placeholder="Tự động lấy qua ✨AI"></div>
+                                <div class="form-group" style="flex:1"><label>Loại từ:</label><input type="text" id="wordType" placeholder="v, n, adj..."></div>
+                            </div>
+                            <div class="form-group"><label>Nghĩa Việt:</label><input type="text" id="nghia"></div>
+                             <div class="form-group"><label>Câu ví dụ (Hán):</label>
+                                <div style="display:flex; gap:10px">
+                                    <textarea id="exHan" rows="2" style="flex:1" placeholder="Câu tiếng Hán..."></textarea>
+                                    <button class="btn" style="background:#8e44ad; font-size:12px; padding:5px" onclick="aiGenerateExample()">✨ AI</button>
+                                </div>
+                            </div>
+                            <div class="form-group"><label>Pinyin ví dụ:</label><textarea id="exPinyin" rows="1" placeholder="Phiên âm câu ví dụ..."></textarea></div>
+                            <div class="form-group"><label>Nghĩa ví dụ (Việt):</label><textarea id="exViet" rows="2"></textarea></div>
+                            <div class="form-group"><label>Link Ảnh:</label><input type="text" id="imgUrl"></div>
+                            <div style="display:flex; gap:10px; margin-top:20px">
+                                <button id="btnSave" class="btn btn-primary" style="flex:1" onclick="saveWord()">💾 LƯU TỪ</button>
+                                <button class="btn btn-back" style="margin:0" onclick="closeWordForm()">Hủy</button>
+                            </div>
+                        </div>
+                        
+                        <div id="wordEmptyView" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#7f8c8d; text-align:center;">
+                            <span style="font-size:50px; margin-bottom:10px;">👈</span>
+                            <p>Chọn một từ vựng bên trái để xem chi tiết<br>hoặc bấm THÊM TỪ MỚI.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB NGỮ PHÁP -->
+            <div id="lessonGrammarArea" class="panel" style="display:none; padding:0; background:transparent; border:none; box-shadow:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                    <div style="font-weight:bold; font-size:16px;">Danh sách ngữ pháp (<span id="grammarCount">0</span>)</div>
+                    <button class="btn btn-primary" onclick="openGrammarForm()">+ THÊM NGỮ PHÁP</button>
+                </div>
+
+                <div id="grammarListArea">
+                    <!-- Danh sách ngữ pháp sẽ render ở đây -->
+                </div>
+
+                <div id="grammarFormArea" class="panel" style="display:none; margin-top:20px;">
+                    <h3 id="grammarFormTitle" style="margin-top:0">Thêm ngữ pháp mới</h3>
+                    <div class="form-group">
+                        <label>Tiêu đề:</label>
+                        <input type="text" id="grammarTitle" placeholder="Ví dụ: Ngữ pháp 1: Câu chữ Ba">
+                    </div>
+                    <div class="form-group">
+                        <label>Nội dung chi tiết:</label>
+                        <div style="margin-bottom:10px">
+                            <button class="btn" style="background:#8e44ad;" onclick="aiExplainGrammar()">✨ AI GIẢI THÍCH NGỮ PHÁP</button>
+                        </div>
+                        <textarea id="grammarContent" style="width:100%; height:200px; padding:15px; border-radius:10px; border:1px solid #ddd; font-size:16px; line-height:1.6; box-sizing:border-box;" placeholder="Ghi chú giải thích ngữ pháp vào đây..."></textarea>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top:20px">
+                        <button class="btn btn-primary" style="flex:1" onclick="saveGrammarPoint()">💾 LƯU NGỮ PHÁP</button>
+                        <button class="btn btn-back" style="margin:0" onclick="closeGrammarForm()">Hủy</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB DICTATION -->
+            <div id="lessonDictationArea" class="panel" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                    <h3 style="margin:0">Chế độ Nghe Chép Chính Tả (Tingxie)</h3>
+                    <button class="btn btn-primary" onclick="startDictation()">▶ Bắt đầu kiểm tra</button>
+                </div>
+                
+                <div id="dictationWorkspace" style="display:none; text-align:center; padding:30px; background:#f9f9f9; border-radius:10px;">
+                    <button class="btn btn-audio-mini" style="font-size:30px; padding:15px 30px; border-radius:50%; margin-bottom:20px; background:#e67e22" onclick="playDictationAudio()">🔊 Nghe lại</button>
+                    <div style="margin-bottom:20px; font-size:18px; color:#7f8c8d">Tiến độ: <span id="dicProgress">0/0</span></div>
+                    
+                    <input type="text" id="dicInput" placeholder="Gõ chữ Hán vào đây..." style="font-size:24px; padding:15px; width:80%; max-width:400px; text-align:center; border:2px solid #3498db; border-radius:10px; margin-bottom:20px;" onkeypress="if(event.key === 'Enter') checkDictation()">
+                    <br>
+                    <button class="btn btn-primary" style="font-size:18px; padding:10px 30px" onclick="checkDictation()">Kiểm tra</button>
+                    
+                    <div id="dicResult" style="margin-top:20px; font-size:24px; font-weight:bold;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HỒ SƠ -->
+        <div id="viewProfile">
+            <button class="btn btn-back" onclick="showDashboard()">⬅ Trang chủ</button>
+            <div class="profile-container">
+                <h2 style="margin-top:0">Cài đặt Hồ sơ</h2>
+                <div class="form-group"><label>Tên hiển thị:</label><input type="text" id="profName"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Ngày tháng năm sinh:</label><input type="date" id="profDOB"
+                            onchange="calculateAge()"></div>
+                    <div class="form-group"><label>Tuổi (Tự động tính):</label><input type="text" id="profAge" disabled
+                            style="background:#eee"></div>
+                </div>
+                <div class="form-group"><label>Câu tâm đắc / Châm ngôn:</label><textarea id="profQuote"
+                        rows="4"></textarea></div>
+                <div class="form-group"><label>Link Avatar:</label><input type="text" id="profAvatar"></div>
+                <button class="btn btn-primary" onclick="saveProfile()">💾 LƯU CẬP NHẬT</button>
+            </div>
+        </div>
+
+        <!-- KHUNG CHAT & BẠN BÈ NỔI -->
+        <div id="chatFloatingContainer" style="position:fixed; bottom:20px; right:20px; z-index:1000; display:flex; flex-direction:column; align-items:flex-end;">
+            <!-- Danh sách bạn bè rút gọn -->
+            <div id="friendsOnlinePanel" style="display:none; width:250px; background:white; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.2); margin-bottom:10px; overflow:hidden; border:1px solid #eee;">
+                <div style="background:#3498db; color:white; padding:10px 15px; font-weight:bold; display:flex; justify-content:space-between;">
+                    <span>Bạn bè online</span>
+                    <span style="cursor:pointer" onclick="toggleFriendsPanel()">✖</span>
+                </div>
+                <div id="friendsListMini" style="max-height:300px; overflow-y:auto; padding:10px;">
+                    <!-- Bạn bè render ở đây -->
+                </div>
+            </div>
+
+            <!-- Hộp thoại chat 1-1 -->
+            <div id="chatBox" style="display:none; width:320px; height:450px; background:white; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.2); margin-bottom:10px; flex-direction:column; overflow:hidden; border:1px solid #eee;">
+                <div style="background:#2c3e50; color:white; padding:10px 15px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
+                    <span id="chatWithTitle">Đang chat với...</span>
+                    <span style="cursor:pointer" onclick="closeChat()">✖</span>
+                </div>
+                <div id="chatMessages" style="flex-grow:1; overflow-y:auto; padding:15px; background:#f9f9f9; display:flex; flex-direction:column; gap:10px;"></div>
+                <div style="padding:10px; border-top:1px solid #eee; display:flex; gap:5px; background:white;">
+                    <input type="text" id="chatInput" placeholder="Nhập tin nhắn..." style="flex:1; padding:8px; border:1px solid #ddd; border-radius:20px;" onkeypress="if(event.key==='Enter') sendChatMessage()">
+                    <button class="btn btn-primary" style="padding:5px 15px; border-radius:20px;" onclick="sendChatMessage()">Gửi</button>
+                </div>
+                <button class="btn" style="background:#f39c12; margin:5px; font-size:12px; border-radius:5px" onclick="sendReminder()">🔔 Nhắc học bài</button>
+            </div>
+
+            <!-- Nút bật tắt chat -->
+            <button id="btnChatToggle" class="btn" style="width:60px; height:60px; border-radius:50%; background:#3498db; color:white; font-size:24px; box-shadow:0 5px 15px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center;" onclick="toggleFriendsPanel()">💬</button>
+        </div>
+    </div>
+
+    <!-- FLASHCARD -->
+    <div id="viewFlashcard">
+        <div style="position:absolute; top:20px; left:30px; right:30px; display:flex; justify-content:space-between">
+            <button class="btn" style="background:#e74c3c" onclick="exitFlashcard()">⬅ Thoát học</button>
+            <div id="fcProgress" style="font-weight:bold; font-size:18px"></div>
+        </div>
+        <div class="fc-scene" id="fcScene">
+            <div class="fc-container" id="fcCard" onclick="flipCard()">
+                <div class="fc-face" id="fcFront">
+                    <h1 id="fcHanzi" style="font-size:100px; margin:0; font-family:'KaiTi', 'STKaiti', serif; font-weight:normal; text-shadow: 2px 2px 4px rgba(0,0,0,0.1)"></h1>
+                    <p style="color:#bdc3c7; margin-top:20px">Chạm hoặc nhấn Space để lật</p>
+                </div>
+                <div class="fc-face fc-face-back" id="fcBack">
+                    <h2 id="fcHanziBack" style="margin:0; font-size:55px; color:#2c3e50; font-family:'KaiTi', 'STKaiti', serif; font-weight:normal; text-shadow: 1px 1px 2px rgba(0,0,0,0.1)"></h2>
+                    <h3 id="fcNghia" style="color:#e74c3c; font-size:24px; margin:10px 0"></h3>
+                    <div
+                        style="margin-top:20px; padding:20px; background:#f4f7f6; border-radius:10px; border-left:4px solid #3498db; width: 100%; box-sizing: border-box;">
+                        <p id="fcExHan" style="font-size:20px; margin:0; font-weight:500; color:#34495e"></p>
+                        <p id="fcExViet" style="font-size:16px; color:#7f8c8d; margin:8px 0 0 0; font-style:italic"></p>
+                    </div>
+                    <img id="fcImg" src=""
+                        style="max-width:200px; max-height:150px; margin-top:20px; border-radius:8px; display:none">
+                </div>
+            </div>
+        </div>
+        <div id="fcControls" style="display:none; margin-top:30px; gap:15px; justify-content: center;">
+            <button class="btn"
+                style="background:#e74c3c; padding:10px 20px; font-size:16px; flex-direction:column; min-width:90px"
+                onclick="nextCard(1)">
+                <span>KHÓ NHỚ QUÁ (1)</span><span id="int1" style="font-size:12px; font-weight:normal; opacity:0.9">
+                    < 1 phút</span>
+            </button>
+            <button class="btn"
+                style="background:#e67e22; padding:10px 20px; font-size:16px; flex-direction:column; min-width:90px"
+                onclick="nextCard(2)">
+                <span>Hơi khó nhỉ (2)</span><span id="int2" style="font-size:12px; font-weight:normal; opacity:0.9"></span>
+            </button>
+            <button class="btn"
+                style="background:#2ecc71; padding:10px 20px; font-size:16px; flex-direction:column; min-width:90px"
+                onclick="nextCard(3)">
+                <span>Dễ quên đấy (3)</span><span id="int3" style="font-size:12px; font-weight:normal; opacity:0.9"></span>
+            </button>
+            <button class="btn"
+                style="background:#3498db; padding:10px 20px; font-size:16px; flex-direction:column; min-width:90px"
+                onclick="nextCard(4)">
+                <span>Từ này dễ này (4)</span><span id="int4" style="font-size:12px; font-weight:normal; opacity:0.9"></span>
+            </button>
+        </div>
+        <div id="fcEnd" style="display:none; text-align:center">
+            <h1 style="font-size:40px">Hoàn thành xuất sắc! 🎉</h1>
+            <p style="font-size:18px; color:#bdc3c7; margin-bottom:30px">Bạn đã hoàn tất mốc ôn tập này.</p>
+            <button class="btn btn-primary" style="font-size:18px; padding:12px 30px" onclick="exitFlashcard()">Xác
+                nhận</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwQt0RW2Ms2w8driFKjBHQnajBC0cHLoE",
+            authDomain: "tadchinese.firebaseapp.com",
+            projectId: "tadchinese",
+            storageBucket: "tadchinese.firebasestorage.app",
+            messagingSenderId: "404492683030",
+            appId: "1:404492683030:web:9f918694ee4ceb2b84f237"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth(), db = firebase.firestore();
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+        let cloudDoc = null, unsubscribeSnapshot = null, courses = [], userProfile = {};
+        let currentCourseIndex = -1, currentLessonIndex = -1, editingIndex = -1, returnView = 'dashboard';
+        const DEFAULT_QUOTE = "拼尽全力之后，一切顺其自然。人的手本来就小，握不住的东西实在太多了。要学会包容并与自己和解；因为得到的未必是福，失去的也未必是祸。你以为的遗憾，其实可能是躲过了一劫。拐个弯，微笑着与生活和解吧。";
+        const DEFAULT_QUOTE_VI = "Sau khi đã cố gắng hết sức, vạn sự hãy cứ tùy duyên. Bàn tay con người vốn dĩ nhỏ bé, thứ không thể nắm giữ thực sự quá nhiều. Phải học cách bao dung và làm hòa với chính mình; bởi lẽ đạt được chưa chắc đã là phúc, mà mất đi cũng chưa hẳn là họa. Điều ta ngỡ là nuối tiếc khôn nguôi, thực chất lại là may mắn tránh được một kiếp nạn. Rẽ một bước ngoặt, mỉm cười và làm hòa với cuộc đời.";
+
+        // AUTH
+        function registerPrompt() {
+            let e = prompt("Nhập Email mới:"); if (!e) return;
+            let p = prompt("Nhập Mật khẩu (Từ 6 ký tự):"); if (!p) return;
+            let n = prompt("Tên hiển thị của bạn:"); if (!n) return;
+            auth.createUserWithEmailAndPassword(e, p).then(u => {
+                u.user.updateProfile({ displayName: n });
+                u.user.sendEmailVerification();
+                auth.signOut();
+                alert("Đăng ký thành công! Hãy kiểm tra Email để kích hoạt tài khoản.");
+            }).catch(err => alert("Lỗi: " + err.message));
+        }
+
+        function login() {
+            let e = document.getElementById('authEmail').value, p = document.getElementById('authPassword').value;
+            if (!e.includes('.') || !e.includes('@')) return alert("Lỗi: Email sai định dạng.");
+            auth.signInWithEmailAndPassword(e, p).then(u => {
+                if (!u.user.emailVerified) { auth.signOut(); alert("Tài khoản chưa được kích hoạt từ Email!"); }
+            }).catch(err => alert("Lỗi đăng nhập: Tài khoản hoặc mật khẩu không đúng!"));
+        }
+        function logout() { if (unsubscribeSnapshot) unsubscribeSnapshot(); auth.signOut(); }
+
+        auth.onAuthStateChanged(user => {
+            if (user && user.emailVerified) {
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('sidebar').style.display = 'flex';
+                document.getElementById('mainArea').style.display = 'block';
+                hide(); // Luôn reset về trạng thái ẩn để hàm refreshView gọi Dashboard lên đầu tiên
+                cloudDoc = db.collection("users").doc(user.uid);
+                startRadar();
+                setTimeout(updateOnlineStatus, 2000); // Cập nhật online ngay sau khi load
+            } else {
+                document.getElementById('authScreen').style.display = 'flex';
+                document.getElementById('sidebar').style.display = 'none';
+                document.getElementById('mainArea').style.display = 'none';
+            }
+        });
+
+        // DATA
+        function startRadar() {
+            document.getElementById('loadingScreen').style.display = 'flex';
+            unsubscribeSnapshot = cloudDoc.onSnapshot(doc => {
+                let data = doc.data() || {};
+                courses = data.courses || [];
+
+                let currentName = auth.currentUser.displayName || auth.currentUser.email.split('@')[0];
+                let dbProfile = data.profile || {};
+                userProfile = {
+                    name: dbProfile.name || currentName,
+                    createdAt: dbProfile.createdAt || Date.now(),
+                    dob: dbProfile.dob || "",
+                    quote: dbProfile.quote || DEFAULT_QUOTE,
+                    avatarUrl: dbProfile.avatarUrl || "",
+                    friends: dbProfile.friends || [],
+                    email: auth.currentUser.email,
+                    dailyReviewedWords: dbProfile.dailyReviewedWords || 0,
+                    lastReviewDate: dbProfile.lastReviewDate || ""
+                };
+
+                if (!data.profile || !data.profile.createdAt) sync();
+
+                updateDashboardUI();
+                document.getElementById('loadingScreen').style.display = 'none';
+                refreshView();
+            });
+        }
+        function sync() { 
+            let today = new Date().toISOString().split('T')[0];
+            if (userProfile.lastReviewDate !== today) {
+                userProfile.lastReviewDate = today;
+                userProfile.dailyReviewedWords = 0;
+            }
+            cloudDoc.set({ courses, profile: userProfile }, { merge: true }); 
+        }
+
+        // DASHBOARD & STATS
+        function updateDashboardUI() {
+            let dName = userProfile.name;
+            document.getElementById('userDisplayName').innerText = dName;
+            document.getElementById('dashName').innerText = dName;
+            document.getElementById('dashEmail').innerText = auth.currentUser.email;
+            
+            let quoteText = userProfile.quote || DEFAULT_QUOTE;
+            if (quoteText === DEFAULT_QUOTE || quoteText.includes("尽力之后")) {
+                document.getElementById('dashQuote').innerHTML = `
+                    <div style="font-size:18px; font-weight:bold; color:#2c3e50; margin-bottom:10px;">${DEFAULT_QUOTE}</div>
+                    <div style="font-size:14px; color:#7f8c8d; font-style:italic;">"${DEFAULT_QUOTE_VI}"</div>
+                `;
+            } else {
+                document.getElementById('dashQuote').innerText = `"${quoteText}"`;
+            }
+
+            if (userProfile.avatarUrl) document.getElementById('sidebarAvatar').src = userProfile.avatarUrl;
+
+            let days = Math.floor((Date.now() - userProfile.createdAt) / (24 * 60 * 60 * 1000)) + 1;
+            document.getElementById('stayDuration').innerText = days;
+            document.getElementById('myFriendCode').innerText = auth.currentUser.email;
+
+            let t = 0, dNew = 0, dReview = 0, d1 = 0, d3 = 0, d7 = 0, d14 = 0, d30 = 0, d60 = 0, now = Date.now(), day = 24 * 60 * 60 * 1000;
+            courses.forEach(c => (c.vocab || []).forEach(l => (l.words || []).forEach(w => {
+                t++; let nr = w.nextReview || 0;
+                let rep = w.rep || 0;
+                if (nr <= now) {
+                    if (rep === 0) dNew++; else dReview++;
+                }
+                else if (nr <= now + 1 * day) d1++;
+                else if (nr <= now + 3 * day) d3++;
+                else if (nr <= now + 7 * day) d7++;
+                else if (nr <= now + 14 * day) d14++;
+                else if (nr <= now + 30 * day) d30++;
+                else d60++;
+            })));
+            document.getElementById('totalWords').innerText = t; 
+            document.getElementById('dueNew').innerText = dNew; 
+            document.getElementById('dueReview').innerText = dReview;
+            document.getElementById('due1d').innerText = d1;
+            document.getElementById('due3d').innerText = d3; document.getElementById('due7d').innerText = d7;
+            document.getElementById('due14d').innerText = d14; document.getElementById('due30d').innerText = d30; document.getElementById('due60d').innerText = d60;
+            loadLeaderboard();
+        }
+
+        function refreshView() {
+            if (document.getElementById('viewFlashcard').style.display !== 'none') return;
+            if (document.getElementById('viewLessonDetail').style.display !== 'none') renderWordList();
+            else if (document.getElementById('viewCourseDetail').style.display !== 'none') renderLessons();
+            else if (document.getElementById('viewProfile').style.display === 'none') showDashboard();
+        }
+
+        function setActiveMenu(id) {
+            document.querySelectorAll('.menu-title').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function showDashboard() { hide(); document.getElementById('viewDashboard').style.display = 'block'; setActiveMenu('menu-dashboard'); }
+        function showCourses() { hide(); document.getElementById('viewCourseList').style.display = 'block'; setActiveMenu('menu-courses'); renderCourses(); }
+        function showMandarinBean() { hide(); document.getElementById('viewMandarinBean').style.display = 'flex'; setActiveMenu('menu-mandarin'); }
+        function showHSKTest() { hide(); document.getElementById('viewHSKTest').style.display = 'flex'; setActiveMenu('menu-hsk'); }
+        function renderCourses() {
+            let grid = document.getElementById('courseGrid'); grid.innerHTML = '';
+            courses.forEach((c, i) => grid.innerHTML += `<div class="card" onclick="openCourse(${i})"><span style="font-size:30px">📁</span><h4 style="margin:10px 0 0 0">${c.name}</h4><p style="font-size:13px; color:#7f8c8d; margin-top:5px">${c.vocab ? c.vocab.length : 0} Bài học</p></div>`);
+        }
+        function createNewCourse() { let n = prompt("Tên khóa học:"); if (n) { courses.push({ name: n, vocab: [], grammar: [], test: [] }); sync(); } }
+
+        function openCourse(i) { currentCourseIndex = i; hide(); document.getElementById('viewCourseDetail').style.display = 'block'; document.getElementById('courseTitleDisplay').innerText = courses[i].name; renderLessons(); }
+        function renderLessons() {
+            let grid = document.getElementById('lessonGrid'); grid.innerHTML = '';
+            (courses[currentCourseIndex].vocab || []).forEach((l, i) => grid.innerHTML += `
+                <div class="card" onclick="openLesson(${i})" style="position:relative;">
+                    <div style="position:absolute; top:10px; right:10px;">
+                        <button onclick="event.stopPropagation(); editLesson(${i})" style="background:none; border:none; cursor:pointer; font-size:16px;" title="Sửa tên">✏️</button>
+                        <button onclick="event.stopPropagation(); deleteLesson(${i})" style="background:none; border:none; cursor:pointer; font-size:16px; margin-left:5px;" title="Xóa">🗑️</button>
+                    </div>
+                    <span style="font-size:25px">📖</span><h4 style="margin:10px 0 0 0; padding-right:40px;">${l.name}</h4><p style="font-size:13px; color:#7f8c8d; margin-top:5px">${l.words ? l.words.length : 0} từ</p>
+                </div>
+            `);
+        }
+        function createNewLesson() { let n = prompt("Tên bài học:"); if (n) { courses[currentCourseIndex].vocab.push({ name: n, words: [] }); sync(); renderLessons(); } }
+        function editLesson(i) {
+            let oldName = courses[currentCourseIndex].vocab[i].name;
+            let n = prompt("Sửa tên bài học:", oldName);
+            if (n && n !== oldName) { courses[currentCourseIndex].vocab[i].name = n; sync(); renderLessons(); }
+        }
+        function deleteLesson(i) {
+            if (confirm("Bạn có chắc chắn muốn xóa bài học này và TOÀN BỘ từ vựng bên trong không?")) {
+                courses[currentCourseIndex].vocab.splice(i, 1); sync(); renderLessons();
+            }
+        }
+
+        // WORKSPACE
+        function openLesson(i) { 
+            currentLessonIndex = i; 
+            hide(); 
+            document.getElementById('viewLessonDetail').style.display = 'block'; 
+            document.getElementById('pageTitle').innerText = courses[currentCourseIndex].vocab[i].name; 
+            
+            document.getElementById('lessonReadingText').value = courses[currentCourseIndex].vocab[i].readingText || "";
+            
+            // Tương thích ngược Ngữ pháp
+            let lesson = courses[currentCourseIndex].vocab[i];
+            if (lesson.grammarText && (!lesson.grammarPoints || lesson.grammarPoints.length === 0)) {
+                lesson.grammarPoints = [{ title: "Ngữ pháp 1", content: lesson.grammarText }];
+                lesson.grammarText = ""; // Xóa dữ liệu cũ sau khi chuyển đổi
+                sync();
+            }
+            
+            switchLessonTab('reading');
+            clearForm(); 
+            renderWordList(); 
+            renderGrammarList();
+        }
+
+        function switchLessonTab(t) {
+            document.querySelectorAll('#viewLessonDetail .tab-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('lessonReadingArea').style.display = 'none';
+            document.getElementById('lessonVocabArea').style.display = 'none';
+            document.getElementById('lessonGrammarArea').style.display = 'none';
+            document.getElementById('lessonDictationArea').style.display = 'none';
+            
+            if (t === 'reading') { 
+                document.getElementById('tabLessonReading').classList.add('active'); 
+                document.getElementById('lessonReadingArea').style.display = 'block'; 
+                
+                // Khởi tạo readings nếu chưa có (Migration)
+                let l = courses[currentCourseIndex].vocab[currentLessonIndex];
+                if (!l.readings) {
+                    l.readings = [{ title: "Phần 1", text: l.readingText || "" }];
+                }
+                renderReadingParts();
+            }
+            else if (t === 'vocab') { 
+                document.getElementById('tabLessonVocab').classList.add('active'); 
+                document.getElementById('lessonVocabArea').style.display = 'block'; 
+                renderWordList();
+            }
+            else if (t === 'grammar') { 
+                document.getElementById('tabLessonGrammar').classList.add('active'); 
+                document.getElementById('lessonGrammarArea').style.display = 'block'; 
+                renderGrammarList();
+            }
+            else if (t === 'dictation') { document.getElementById('tabLessonDictation').classList.add('active'); document.getElementById('lessonDictationArea').style.display = 'block'; }
+        }
+
+        let currentReadingPartIndex = 0;
+
+        function renderReadingParts() {
+            let l = courses[currentCourseIndex].vocab[currentLessonIndex];
+            let list = document.getElementById('readingPartList');
+            if (!list) return;
+            list.innerHTML = '';
+            
+            if (!l.readings) l.readings = [{ title: "Phần 1", text: "" }];
+            
+            l.readings.forEach((r, i) => {
+                let activeStyle = (i === currentReadingPartIndex) ? 'background:#3498db; color:white;' : 'background:#ecf0f1; color:#2c3e50;';
+                list.innerHTML += `
+                    <div style="display:flex; align-items:center; border-radius:6px; overflow:hidden; ${activeStyle}">
+                        <button class="btn-tool" style="color:inherit; padding:5px 12px; font-weight:bold; border:none; background:transparent;" onclick="selectReadingPart(${i})">${r.title}</button>
+                        <button style="border:none; background:rgba(0,0,0,0.1); color:inherit; cursor:pointer; padding:5px 5px;" onclick="deleteReadingPart(${i})">×</button>
+                    </div>
+                `;
+            });
+            
+            // Load nội dung của phần đang chọn
+            let activeReading = l.readings[currentReadingPartIndex] || l.readings[0];
+            document.getElementById('lessonReadingText').value = activeReading.text || "";
+            
+            // Nếu đang ở chế độ đọc, cập nhật luôn hiển thị
+            if (document.getElementById('lessonReadingDisplay').style.display === 'block') {
+                prepareReadingDisplay();
+                highlightVocabInReading();
+            }
+        }
+
+        function selectReadingPart(i) {
+            // Lưu nội dung của phần cũ trước khi chuyển
+            let l = courses[currentCourseIndex].vocab[currentLessonIndex];
+            l.readings[currentReadingPartIndex].text = document.getElementById('lessonReadingText').value;
+            
+            currentReadingPartIndex = i;
+            renderReadingParts();
+        }
+
+        function addReadingPart() {
+            let l = courses[currentCourseIndex].vocab[currentLessonIndex];
+            let name = prompt("Nhập tên phần đọc mới (ví dụ: Bài 2, Hội thoại 2):", `Phần ${l.readings.length + 1}`);
+            if (name) {
+                l.readings.push({ title: name, text: "" });
+                currentReadingPartIndex = l.readings.length - 1;
+                sync();
+                renderReadingParts();
+            }
+        }
+
+        function deleteReadingPart(i) {
+            let l = courses[currentCourseIndex].vocab[currentLessonIndex];
+            if (l.readings.length <= 1) return alert("Phải có ít nhất 1 phần đọc!");
+            if (confirm(`Xóa phần "${l.readings[i].title}"?`)) {
+                l.readings.splice(i, 1);
+                if (currentReadingPartIndex >= l.readings.length) currentReadingPartIndex = l.readings.length - 1;
+                sync();
+                renderReadingParts();
+            }
+        }
+
+        function saveLessonContent(type) {
+            let l = courses[currentCourseIndex].vocab[currentLessonIndex];
+            if (type === 'reading') {
+                l.readings[currentReadingPartIndex].text = document.getElementById('lessonReadingText').value;
+            } else if (type === 'video') {
+                l.videoUrl = document.getElementById('lessonVideoUrl').value;
+            }
+            sync(); alert("Đã lưu thành công!");
+        }
+
+        function switchReadingMode(mode) {
+            const txt = document.getElementById('lessonReadingText');
+            const disp = document.getElementById('lessonReadingDisplay');
+            const editBtn = document.getElementById('btnEditMode');
+            const readBtn = document.getElementById('btnReadMode');
+            const actions = document.getElementById('readActions');
+            const saveBtn = document.getElementById('btnSaveReading');
+
+            if (mode === 'edit') {
+                txt.style.display = 'block';
+                disp.style.display = 'none';
+                actions.style.display = 'none';
+                saveBtn.style.display = 'block';
+                editBtn.style.background = '#bdc3c7';
+                readBtn.style.background = '#ecf0f1';
+                readBtn.style.color = '#7f8c8d';
+            } else {
+                txt.style.display = 'none';
+                disp.style.display = 'block';
+                actions.style.display = 'flex';
+                saveBtn.style.display = 'none';
+                editBtn.style.background = '#ecf0f1';
+                editBtn.style.color = '#7f8c8d';
+                readBtn.style.background = '#2ecc71';
+                readBtn.style.color = 'white';
+                
+                // Chuẩn bị nội dung hiển thị (tách từng chữ vào span)
+                prepareReadingDisplay();
+                highlightVocabInReading();
+            }
+        }
+
+        function prepareReadingDisplay() {
+            const txt = document.getElementById('lessonReadingText').value;
+            const disp = document.getElementById('lessonReadingDisplay');
+            disp.innerHTML = '';
+            
+            // Tách text thành mảng các ký tự để bọc span
+            for (let i = 0; i < txt.length; i++) {
+                let char = txt[i];
+                let span = document.createElement('span');
+                span.innerText = char;
+                span.id = `rc-${i}`; // reading char at index i
+                span.className = 'reading-char';
+                // Click vào chữ đã bôi màu để xem chi tiết
+                span.onclick = (e) => {
+                    if (span.classList.contains('is-vocab-added')) {
+                        let wordIdx = span.getAttribute('data-word-idx');
+                        if (wordIdx !== null) {
+                            switchLessonTab('vocab');
+                            viewWord(parseInt(wordIdx));
+                        }
+                    }
+                };
+                disp.appendChild(span);
+            }
+        }
+
+        function highlightVocabInReading() {
+            const txt = document.getElementById('lessonReadingText').value;
+            const words = courses[currentCourseIndex].vocab[currentLessonIndex].words || [];
+            const tt = document.getElementById('wordTooltip');
+            
+            // Reset tất cả highlight cũ
+            document.querySelectorAll('.reading-char').forEach(s => {
+                s.classList.remove('is-vocab-added');
+                s.removeAttribute('data-word-idx');
+                s.onmouseenter = null;
+                s.onmouseleave = null;
+                s.onclick = null;
+            });
+
+            // Duyệt từng từ trong danh sách từ vựng
+            words.forEach((w, wordIdx) => {
+                let hanzi = w.hanzi;
+                if (!hanzi) return;
+
+                let startPos = 0;
+                while ((startPos = txt.indexOf(hanzi, startPos)) !== -1) {
+                    for (let i = 0; i < hanzi.length; i++) {
+                        let span = document.getElementById(`rc-${startPos + i}`);
+                        if (span) {
+                            span.classList.add('is-vocab-added');
+                            span.setAttribute('data-word-idx', wordIdx);
+                            
+                            span.onmouseenter = (e) => {
+                                showTooltip(e, w, wordIdx);
+                            };
+                            // Tooltip sẽ tự ẩn nếu chuột rời đi, nhưng ta cho phép rê chuột vào tooltip
+                        }
+                    }
+                    startPos += hanzi.length;
+                }
+            });
+        }
+
+        let activeTooltipWordIdx = -1;
+        function showTooltip(e, word, idx) {
+            activeTooltipWordIdx = idx;
+            const tt = document.getElementById('wordTooltip');
+            document.getElementById('ttHanzi').innerText = word.hanzi;
+            document.getElementById('ttPinyin').innerText = word.pinyin || '';
+            document.getElementById('ttNghia').innerText = word.nghia || 'Chưa có nghĩa';
+            
+            tt.style.display = 'block';
+            tt.style.left = `${e.clientX}px`;
+            tt.style.top = `${e.clientY + 20}px`;
+
+            // Giữ tooltip nếu chuột rê vào chính nó
+            tt.onmouseleave = () => { tt.style.display = 'none'; };
+        }
+
+        // Ẩn tooltip khi click ra ngoài
+        document.addEventListener('mousedown', (e) => {
+            const tt = document.getElementById('wordTooltip');
+            if (!tt.contains(e.target) && !e.target.classList.contains('is-vocab-added')) {
+                tt.style.display = 'none';
+            }
+        });
+
+        function ttViewDetail() {
+            if (activeTooltipWordIdx === -1) return;
+            switchLessonTab('vocab');
+            viewWord(activeTooltipWordIdx);
+            document.getElementById('wordTooltip').style.display = 'none';
+        }
+
+        function ttRemoveWord() {
+            if (activeTooltipWordIdx === -1) return;
+            if (confirm("Xóa từ này khỏi danh sách từ vựng?")) {
+                courses[currentCourseIndex].vocab[currentLessonIndex].words.splice(activeTooltipWordIdx, 1);
+                sync();
+                renderWordList();
+                highlightVocabInReading();
+                document.getElementById('wordTooltip').style.display = 'none';
+            }
+        }
+
+        function playReadingAudio(speed) {
+            let text = document.getElementById('lessonReadingText').value;
+            if (!text) return alert("Chưa có nội dung để đọc!");
+            
+            window.speechSynthesis.cancel();
+            let u = new SpeechSynthesisUtterance(text);
+            u.lang = 'zh-CN';
+            u.rate = speed || 1;
+            
+            const spans = document.querySelectorAll('.reading-char');
+            
+            u.onboundary = (event) => {
+                if (event.name === 'word' || event.name === 'sentence') {
+                    // Xóa highlight cũ
+                    spans.forEach(s => s.classList.remove('active-word'));
+                    
+                    // Highlight chữ hiện tại
+                    const charIndex = event.charIndex;
+                    const charLength = event.charLength || 1;
+                    
+                    for (let i = 0; i < charLength; i++) {
+                        const target = document.getElementById(`rc-${charIndex + i}`);
+                        if (target) {
+                            target.classList.add('active-word');
+                            // Tự động cuộn đến chữ đang đọc
+                            if (i === 0) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                }
+            };
+            
+            u.onend = () => {
+                spans.forEach(s => s.classList.remove('active-word'));
+            };
+            
+            window.speechSynthesis.speak(u);
+        }
+
+        function stopReadingAudio() {
+            window.speechSynthesis.cancel();
+            const spans = document.querySelectorAll('.reading-char');
+            spans.forEach(s => s.classList.remove('active-word'));
+        }
+
+        // Logic chọn văn bản để thêm từ vựng
+        document.addEventListener('DOMContentLoaded', () => {
+            const disp = document.getElementById('lessonReadingDisplay');
+            const floatBtn = document.getElementById('floatAddVocab');
+
+            document.addEventListener('mouseup', (e) => {
+                const selection = window.getSelection();
+                const selectedText = selection.toString().trim();
+
+                // Chỉ hiện nút nếu đang bôi đen và target nằm trong vùng bài đọc
+                if (selectedText && disp.contains(e.target)) {
+                    floatBtn.style.display = 'block';
+                    floatBtn.style.left = `${e.pageX}px`;
+                    floatBtn.style.top = `${e.pageY - 50}px`;
+                    
+                    floatBtn.onclick = (event) => {
+                        event.stopPropagation();
+                        addSelectedToVocab(selectedText);
+                    };
+                } else {
+                    // Nếu click vào chỗ khác thì ẩn (trừ khi click vào chính cái nút)
+                    if (e.target !== floatBtn) {
+                        floatBtn.style.display = 'none';
+                    }
+                }
+            });
+        });
+
+        async function addSelectedToVocab(text) {
+            const floatBtn = document.getElementById('floatAddVocab');
+            floatBtn.innerText = "⌛ AI đang tra từ...";
+            floatBtn.style.background = "#e67e22";
+
+            switchLessonTab('vocab');
+            openWordForm();
+            document.getElementById('chuHan').value = text;
+            document.getElementById('pinyin').value = "Đang lấy...";
+            document.getElementById('nghia').value = "Đang lấy...";
+            
+            const prompt = `Bạn là giáo viên tiếng Trung. Cung cấp thông tin JSON cho từ: "${text}"
+{"p": "pinyin", "t": "loại từ", "n": "nghĩa", "h": "ví dụ Hán", "v": "dịch Việt", "ep": "pinyin ví dụ"}`;
+
+            let res = await callAI(prompt);
+            
+            floatBtn.innerText = "➕ Thêm vào từ vựng";
+            floatBtn.style.background = "#3498db";
+            floatBtn.style.display = 'none';
+
+            if (res && typeof res === 'string') {
+                try {
+                    let clean = res.replace(/```json|```/g, '').trim();
+                    let jsonMatch = clean.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) clean = jsonMatch[0];
+                    let obj = JSON.parse(clean);
+                    
+                    document.getElementById('pinyin').value = obj.p || '';
+                    document.getElementById('wordType').value = obj.t || '';
+                    document.getElementById('nghia').value = obj.n || '';
+                    document.getElementById('exHan').value = obj.h || '';
+                    document.getElementById('exPinyin').value = obj.ep || '';
+                    document.getElementById('exViet').value = obj.v || '';
+                } catch(e) { 
+                    console.error("Lỗi xử lý JSON:", e);
+                    resetFormFields();
+                }
+            } else {
+                resetFormFields();
+                if (!res) alert("AI không phản hồi, bạn hãy điền thủ công nhé!");
+            }
+        }
+
+        function resetFormFields() {
+            if (document.getElementById('pinyin').value === "Đang lấy...") document.getElementById('pinyin').value = "";
+            if (document.getElementById('nghia').value === "Đang lấy...") document.getElementById('nghia').value = "";
+        }
+
+        // GRAMMAR LOGIC
+        let editingGrammarIndex = -1;
+
+        function renderGrammarList() {
+            let list = document.getElementById('grammarListArea');
+            if (!list) return;
+            list.innerHTML = '';
+            let points = courses[currentCourseIndex].vocab[currentLessonIndex].grammarPoints || [];
+            document.getElementById('grammarCount').innerText = points.length;
+            
+            points.forEach((p, i) => {
+                list.innerHTML += `
+                    <div class="grammar-item">
+                        <div class="grammar-header" onclick="toggleGrammar(${i})">
+                            <span>${p.title}</span>
+                            <span id="gramIcon${i}">▼</span>
+                        </div>
+                        <div class="grammar-body" id="gramBody${i}">
+                            <div style="font-size:16px; line-height:1.6; white-space: pre-wrap; margin-bottom: 20px;">${p.content}</div>
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn" style="background:#f39c12; padding:5px 15px;" onclick="editGrammar(${i})">✏️ Sửa</button>
+                                <button class="btn" style="background:#e74c3c; padding:5px 15px;" onclick="deleteGrammar(${i})">🗑️ Xóa</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            if (points.length === 0 && document.getElementById('grammarFormArea').style.display === 'none') {
+                list.innerHTML = `<div style="text-align:center; padding:40px; color:#7f8c8d;">Chưa có điểm ngữ pháp nào. Hãy bấm THÊM NGỮ PHÁP.</div>`;
+            }
+        }
+
+        function toggleGrammar(i) {
+            let body = document.getElementById('gramBody' + i);
+            let icon = document.getElementById('gramIcon' + i);
+            if (body.style.display === 'block') {
+                body.style.display = 'none';
+                icon.innerText = '▼';
+            } else {
+                body.style.display = 'block';
+                icon.innerText = '▲';
+            }
+        }
+
+        function openGrammarForm() {
+            editingGrammarIndex = -1;
+            document.getElementById('grammarTitle').value = '';
+            document.getElementById('grammarContent').value = '';
+            document.getElementById('grammarFormTitle').innerText = "Thêm ngữ pháp mới";
+            document.getElementById('grammarFormArea').style.display = 'block';
+            document.getElementById('grammarListArea').style.display = 'none';
+        }
+
+        function closeGrammarForm() {
+            editingGrammarIndex = -1;
+            document.getElementById('grammarFormArea').style.display = 'none';
+            document.getElementById('grammarListArea').style.display = 'block';
+            renderGrammarList();
+        }
+
+        function editGrammar(i) {
+            editingGrammarIndex = i;
+            let p = courses[currentCourseIndex].vocab[currentLessonIndex].grammarPoints[i];
+            document.getElementById('grammarTitle').value = p.title;
+            document.getElementById('grammarContent').value = p.content;
+            document.getElementById('grammarFormTitle').innerText = "Sửa ngữ pháp";
+            document.getElementById('grammarFormArea').style.display = 'block';
+            document.getElementById('grammarListArea').style.display = 'none';
+        }
+
+        function saveGrammarPoint() {
+            let title = document.getElementById('grammarTitle').value;
+            let content = document.getElementById('grammarContent').value;
+            if (!title) return alert("Tiêu đề không được để trống!");
+            
+            let l = courses[currentCourseIndex].vocab[currentLessonIndex];
+            if (!l.grammarPoints) l.grammarPoints = [];
+            
+            if (editingGrammarIndex > -1) {
+                l.grammarPoints[editingGrammarIndex] = { title, content };
+            } else {
+                l.grammarPoints.push({ title, content });
+            }
+            sync();
+            closeGrammarForm();
+        }
+
+        function deleteGrammar(i) {
+            if (confirm("Bạn có chắc chắn muốn xóa điểm ngữ pháp này?")) {
+                courses[currentCourseIndex].vocab[currentLessonIndex].grammarPoints.splice(i, 1);
+                sync();
+                renderGrammarList();
+            }
+        }
+
+        function saveWord() {
+            let h = document.getElementById('chuHan').value, 
+                p = document.getElementById('pinyin').value,
+                wt = document.getElementById('wordType').value,
+                n = document.getElementById('nghia').value, 
+                eh = document.getElementById('exHan').value, 
+                ep = document.getElementById('exPinyin').value, 
+                ev = document.getElementById('exViet').value, 
+                img = document.getElementById('imgUrl').value;
+            if (!h || !n) return alert("Hán tự và Nghĩa không được để trống!");
+            let l = courses[currentCourseIndex].vocab[currentLessonIndex];
+            if (!l.words) l.words = [];
+            let wordData = { hanzi: h, pinyin: p, wordType: wt, nghia: n, exHan: eh, exPinyin: ep, exViet: ev, img, nextReview: Date.now(), rep: 0, ef: 2.5, interval: 0 };
+            
+            if (editingIndex > -1) {
+                l.words[editingIndex] = { ...l.words[editingIndex], ...wordData };
+                sync(); 
+                viewWord(editingIndex); 
+            } else {
+                l.words.push(wordData);
+                sync(); 
+                openWordForm(); 
+                alert("Đã lưu từ!");
+            }
+            renderWordList();
+            highlightVocabInReading(); // Cập nhật highlight trên bài đọc
+        }
+
+        function renderWordList() {
+            let list = document.getElementById('wordListChips'); 
+            if(!list) return;
+            list.innerHTML = '';
+            
+            // Safety check for indices
+            if (currentCourseIndex === -1 || currentLessonIndex === -1) return;
+            let currentLesson = courses[currentCourseIndex].vocab[currentLessonIndex];
+            if (!currentLesson) return;
+            
+            let words = currentLesson.words || [];
+            words.forEach((w, i) => {
+                let isActive = (i === editingIndex) ? 'active' : '';
+                list.innerHTML += `<div class="word-chip ${isActive}" onclick="viewWord(${i})">${w.hanzi}</div>`;
+            });
+            document.getElementById('wordCount').innerText = words.length;
+            
+            if (words.length === 0) {
+                showWordPanel('empty');
+            } else if (editingIndex === -1 && document.getElementById('wordDetailView').style.display === 'none' && document.getElementById('wordFormView').style.display === 'none') {
+                showWordPanel('empty');
+            }
+        }
+        
+        function showWordPanel(panel) {
+            document.getElementById('wordEmptyView').style.display = 'none';
+            document.getElementById('wordDetailView').style.display = 'none';
+            document.getElementById('wordFormView').style.display = 'none';
+            
+            if (panel === 'empty') document.getElementById('wordEmptyView').style.display = 'flex';
+            else if (panel === 'detail') document.getElementById('wordDetailView').style.display = 'flex';
+            else if (panel === 'form') document.getElementById('wordFormView').style.display = 'flex';
+        }
+
+        function viewWord(i) {
+            editingIndex = i;
+            let w = courses[currentCourseIndex].vocab[currentLessonIndex].words[i];
+            document.getElementById('detHanzi').innerText = w.hanzi;
+            document.getElementById('detPinyin').innerText = w.pinyin || '';
+            document.getElementById('detWordType').innerText = w.wordType || '?';
+            document.getElementById('detWordType').style.display = w.wordType ? 'inline-block' : 'none';
+            document.getElementById('detNghia').innerText = w.nghia;
+            document.getElementById('detExHan').innerText = w.exHan || '(Chưa có ví dụ)';
+            document.getElementById('detExPinyin').innerText = w.exPinyin || '';
+            document.getElementById('detExViet').innerText = w.exViet || '';
+            if(w.img) {
+                document.getElementById('detImg').src = w.img;
+                document.getElementById('detImg').style.display = 'block';
+            } else {
+                document.getElementById('detImg').style.display = 'none';
+            }
+            showWordPanel('detail');
+            renderWordList(); 
+        }
+
+        function editCurrentWord() {
+            if (editingIndex === -1) return;
+            let w = courses[currentCourseIndex].vocab[currentLessonIndex].words[editingIndex];
+            document.getElementById('chuHan').value = w.hanzi; 
+            document.getElementById('pinyin').value = w.pinyin || ''; 
+            document.getElementById('wordType').value = w.wordType || ''; 
+            document.getElementById('nghia').value = w.nghia; 
+            document.getElementById('exHan').value = w.exHan || ''; 
+            document.getElementById('exPinyin').value = w.exPinyin || ''; 
+            document.getElementById('exViet').value = w.exViet || ''; 
+            document.getElementById('imgUrl').value = w.img || '';
+            document.getElementById('btnSave').innerText = "🔄 CẬP NHẬT TỪ";
+            document.getElementById('formTitle').innerText = "Sửa từ vựng";
+            showWordPanel('form');
+        }
+
+        function deleteCurrentWord() {
+            if (editingIndex === -1) return;
+            if (confirm("Bạn có chắc chắn muốn xóa từ này khỏi danh sách?")) {
+                courses[currentCourseIndex].vocab[currentLessonIndex].words.splice(editingIndex, 1);
+                sync();
+                editingIndex = -1;
+                showWordPanel('empty');
+                renderWordList();
+                highlightVocabInReading(); // Cập nhật highlight trên bài đọc
+            }
+        }
+
+        function openWordForm() {
+            editingIndex = -1;
+            document.getElementById('chuHan').value = ''; 
+            document.getElementById('nghia').value = ''; 
+            document.getElementById('exHan').value = ''; 
+            document.getElementById('exViet').value = ''; 
+            document.getElementById('imgUrl').value = ''; 
+            document.getElementById('btnSave').innerText = "💾 LƯU TỪ"; 
+            document.getElementById('formTitle').innerText = "Thêm từ mới";
+            showWordPanel('form');
+            renderWordList(); 
+        }
+
+        function closeWordForm() {
+            editingIndex = -1;
+            showWordPanel('empty');
+            renderWordList();
+        }
+
+        // PROFILE LOGIC
+        function calculateAge() {
+            let dob = document.getElementById('profDOB').value;
+            if (dob) {
+                let diff = Date.now() - new Date(dob).getTime();
+                let age = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+                document.getElementById('profAge').value = age > 0 ? age + " tuổi" : "";
+            }
+        }
+        function showProfile() {
+            hide(); document.getElementById('viewProfile').style.display = 'block'; setActiveMenu('menu-profile');
+            document.getElementById('profName').value = userProfile.name || "";
+            document.getElementById('profDOB').value = userProfile.dob || "";
+            document.getElementById('profQuote').value = userProfile.quote || "";
+            document.getElementById('profAvatar').value = userProfile.avatarUrl || "";
+            calculateAge();
+        }
+        function saveProfile() {
+            userProfile.name = document.getElementById('profName').value;
+            userProfile.dob = document.getElementById('profDOB').value;
+            userProfile.quote = document.getElementById('profQuote').value || DEFAULT_QUOTE;
+            userProfile.avatarUrl = document.getElementById('profAvatar').value;
+            sync(); alert("Đã lưu hồ sơ thành công!");
+        }
+
+        // FLASHCARD SRS ENGINE
+        let queue = [], currentCard = null, isFlipped = false;
+
+        // Học 1 bài cụ thể
+        function startLessonReview() {
+            returnView = 'lesson';
+            queue = (courses[currentCourseIndex].vocab[currentLessonIndex].words || []).filter(w => (w.nextReview || 0) <= Date.now()).sort(() => Math.random() - 0.5);
+            if (queue.length === 0) return alert("Chưa có từ nào đến hạn ôn trong bài này!");
+            openFlashcardUI();
+        }
+
+        // Học theo mốc thời gian click từ Dashboard
+        function startGlobalReview(daysFilter) {
+            returnView = 'dashboard';
+            let day = 24 * 60 * 60 * 1000, now = Date.now(), targetMin = 0, targetMax = 0;
+            let isNewOnly = false, isReviewOnly = false;
+            let d = -1;
+            
+            if (daysFilter === 'new') { targetMax = now; isNewOnly = true; }
+            else if (daysFilter === 'review') { targetMax = now; isReviewOnly = true; }
+            else {
+                d = parseInt(daysFilter);
+                if (d === 1) { targetMin = now; targetMax = now + 1 * day; }
+                else if (d === 3) { targetMin = now + 1 * day; targetMax = now + 3 * day; }
+                else if (d === 7) { targetMin = now + 3 * day; targetMax = now + 7 * day; }
+                else if (d === 14) { targetMin = now + 7 * day; targetMax = now + 14 * day; }
+                else if (d === 30) { targetMin = now + 14 * day; targetMax = now + 30 * day; }
+                else if (d === 60) { targetMin = now + 30 * day; targetMax = now + 999 * day; } // Hơn 60
+            }
+
+            queue = [];
+            courses.forEach(c => (c.vocab || []).forEach(l => (l.words || []).forEach(w => {
+                let nr = w.nextReview || 0;
+                let rep = w.rep || 0;
+                if (isNewOnly && nr <= targetMax && rep === 0) queue.push(w);
+                else if (isReviewOnly && nr <= targetMax && rep > 0) queue.push(w);
+                else if (!isNewOnly && !isReviewOnly && nr > targetMin && nr <= targetMax) queue.push(w);
+            })));
+
+            if (queue.length === 0) return alert("Không có thẻ nào trong mục này!");
+            queue = queue.sort(() => Math.random() - 0.5);
+            openFlashcardUI();
+        }
+
+        function openFlashcardUI() {
+            hide(); document.getElementById('viewFlashcard').style.display = 'flex'; loadNextCard();
+        }
+
+        function formatInterval(days) {
+            days = Math.round(days);
+            if (days < 1) return "< 1 ngày";
+            if (days < 30) return days + " ngày";
+            let m = Math.floor(days / 30);
+            return m + " tháng";
+        }
+
+        function loadNextCard() {
+            if (queue.length === 0) { document.getElementById('fcScene').style.display = 'none'; document.getElementById('fcControls').style.display = 'none'; document.getElementById('fcEnd').style.display = 'block'; return; }
+            currentCard = queue[0]; isFlipped = false;
+            document.getElementById('fcCard').classList.remove('is-flipped');
+            document.getElementById('fcScene').style.display = 'block';
+            document.getElementById('fcControls').style.display = 'none';
+            document.getElementById('fcHanzi').innerText = currentCard.hanzi;
+            document.getElementById('fcProgress').innerText = `Còn lại: ${queue.length} thẻ`;
+        }
+        function flipCard() {
+            if (isFlipped) return; isFlipped = true;
+            document.getElementById('fcCard').classList.add('is-flipped');
+            document.getElementById('fcControls').style.display = 'flex';
+            document.getElementById('fcHanziBack').innerText = currentCard.hanzi; document.getElementById('fcNghia').innerText = currentCard.nghia;
+            document.getElementById('fcExHan').innerText = currentCard.exHan || ""; document.getElementById('fcExViet').innerText = currentCard.exViet || "";
+            let img = document.getElementById('fcImg'); if (currentCard.img) { img.src = currentCard.img; img.style.display = 'block'; } else img.style.display = 'none';
+
+            // Calculate next intervals
+            let rep = currentCard.rep || 0, int = currentCard.interval || 0, ef = currentCard.ef || 2.5;
+            document.getElementById('int1').innerText = "< 1 phút";
+            document.getElementById('int2').innerText = formatInterval(int === 0 ? 1 : int * 1.2);
+            document.getElementById('int3').innerText = formatInterval(rep === 0 ? 1 : (rep === 1 ? 6 : int * ef));
+            document.getElementById('int4').innerText = formatInterval(rep === 0 ? 4 : (rep === 1 ? 8 : int * ef * 1.3));
+
+            playAudio(currentCard.hanzi);
+        }
+        function nextCard(type) {
+            let w = queue.shift(); let now = Date.now();
+            let rep = w.rep || 0, int = w.interval || 0, ef = w.ef || 2.5;
+
+            // Tracking daily words
+            let today = new Date().toISOString().split('T')[0];
+            if (userProfile.lastReviewDate !== today) {
+                userProfile.lastReviewDate = today;
+                userProfile.dailyReviewedWords = 0;
+            }
+            userProfile.dailyReviewedWords = (userProfile.dailyReviewedWords || 0) + 1;
+
+            if (type === 1) {
+                w.rep = 0; w.interval = 0; w.ef = Math.max(1.3, ef - 0.2); w.nextReview = now; queue.push(w);
+            } else if (type === 2) {
+                w.interval = int === 0 ? 1 : int * 1.2; w.ef = Math.max(1.3, ef - 0.15); w.nextReview = now + Math.round(w.interval) * 24 * 60 * 60 * 1000;
+            } else if (type === 3) {
+                w.rep++; if (rep === 0) w.interval = 1; else if (rep === 1) w.interval = 6; else w.interval = int * ef; w.nextReview = now + Math.round(w.interval) * 24 * 60 * 60 * 1000;
+            } else if (type === 4) {
+                w.rep++; if (rep === 0) w.interval = 4; else if (rep === 1) w.interval = 8; else w.interval = int * ef * 1.3; w.ef = ef + 0.15; w.nextReview = now + Math.round(w.interval) * 24 * 60 * 60 * 1000;
+            }
+            sync(); loadNextCard();
+        }
+        function exitFlashcard() {
+            document.getElementById('viewFlashcard').style.display = 'none';
+            document.getElementById('fcEnd').style.display = 'none';
+            if (returnView === 'lesson') {
+                hide(); document.getElementById('viewLessonDetail').style.display = 'block'; renderWordList();
+            } else {
+                showDashboard();
+            }
+        }
+
+        function playAudio(t, speed) { 
+            if (!t) return; 
+            window.speechSynthesis.cancel();
+            
+            // Chỉ lấy phần tiếng Trung, loại bỏ phần trong ngoặc (phiên âm) nếu có
+            let cleanText = t.split('(')[0].split('（')[0].trim();
+            
+            let u = new SpeechSynthesisUtterance(cleanText); 
+            u.lang = 'zh-CN'; 
+            if (speed) u.rate = speed;
+            window.speechSynthesis.speak(u); 
+        }
+        function playAudioInput() { playAudio(document.getElementById('chuHan').value); }
+        function hide() { ['viewDashboard', 'viewCourseList', 'viewMandarinBean', 'viewHSKTest', 'viewCourseDetail', 'viewLessonDetail', 'viewProfile', 'viewFlashcard', 'viewPublicVocab'].forEach(id => document.getElementById(id).style.display = 'none'); }
+
+        // --- PUBLIC VOCAB (TỪ CHUYÊN NGÀNH) ---
+        function showPublicVocab() {
+            hide(); document.getElementById('viewPublicVocab').style.display = 'block'; setActiveMenu('menu-public-vocab');
+            loadPublicVocab();
+        }
+
+        async function loadPublicVocab() {
+            let cat = document.getElementById('publicCategoryFilter').value;
+            let grid = document.getElementById('publicVocabGrid');
+            grid.innerHTML = '<div class="loader" style="margin:20px auto"></div>';
+            try {
+                let snap = await db.collection("public_vocab").where("category", "==", cat).get();
+                grid.innerHTML = '';
+                if (snap.empty) {
+                    grid.innerHTML = '<div style="color:#7f8c8d; grid-column: 1 / -1; text-align:center;">Chưa có từ nào trong chuyên ngành này. Hãy là người đầu tiên đóng góp!</div>';
+                    return;
+                }
+                snap.forEach(doc => {
+                    let w = doc.data();
+                    grid.innerHTML += `
+                        <div class="card" style="text-align:left; position:relative;">
+                            <div style="font-size:35px; font-weight:bold; font-family:'KaiTi'; color:#2c3e50; margin-bottom:10px;">${w.hanzi} <button class="btn btn-audio-mini" style="float:right" onclick="playAudio('${w.hanzi}')">🔊</button></div>
+                            <div style="color:#e74c3c; font-weight:bold; font-size:16px; margin-bottom:10px;">${w.nghia}</div>
+                            <div style="font-size:13px; color:#7f8c8d; margin-bottom:15px; border-top:1px dashed #ddd; padding-top:10px;">Ví dụ: ${w.exHan || 'Chưa có'}</div>
+                            <div style="font-size:11px; color:#bdc3c7; margin-bottom:15px;">Đóng góp bởi: ${w.authorName || 'Ẩn danh'}</div>
+                            <button class="btn btn-primary" style="width:100%; font-size:13px; background:#27ae60" onclick="importPublicWord('${w.hanzi}', '${w.nghia}', '${w.exHan || ''}', '')">+ Lưu vào kho của tôi</button>
+                        </div>
+                    `;
+                });
+            } catch(e) {
+                grid.innerHTML = '<div style="color:#e74c3c">Lỗi tải dữ liệu. Hãy chắc chắn Firebase Rule cho public_vocab là read/write.</div>';
+            }
+        }
+
+        function addPublicVocab() {
+            let cat = document.getElementById('publicCategoryFilter').value;
+            let h = prompt(`Thêm từ chuyên ngành [${cat}]\nNhập chữ Hán:`); if (!h) return;
+            let n = prompt("Nhập nghĩa Tiếng Việt:"); if (!n) return;
+            let exH = prompt("Câu ví dụ (Tùy chọn):") || "";
+            
+            db.collection("public_vocab").add({
+                category: cat,
+                hanzi: h,
+                nghia: n,
+                exHan: exH,
+                authorName: userProfile.name,
+                createdAt: Date.now()
+            }).then(() => {
+                alert("Cảm ơn bạn đã đóng góp thành công!");
+                loadPublicVocab();
+            }).catch(e => alert("Lỗi tải lên: " + e.message));
+        }
+
+        function importPublicWord(h, n, eh, ev) {
+            if (courses.length === 0) return alert("Bạn chưa tạo Khóa học nào!");
+            let cIndex = prompt("Bạn muốn lưu vào Khóa học nào? (Nhập số thứ tự từ 1 đến " + courses.length + ")\n" + courses.map((c, i) => `${i+1}. ${c.name}`).join('\n'));
+            if (!cIndex || isNaN(cIndex) || cIndex < 1 || cIndex > courses.length) return;
+            cIndex = parseInt(cIndex) - 1;
+            
+            let c = courses[cIndex];
+            if (!c.vocab || c.vocab.length === 0) return alert("Khóa học này chưa có Bài học nào!");
+            let lIndex = prompt("Lưu vào Bài học nào?\n" + c.vocab.map((l, i) => `${i+1}. ${l.name}`).join('\n'));
+            if (!lIndex || isNaN(lIndex) || lIndex < 1 || lIndex > c.vocab.length) return;
+            lIndex = parseInt(lIndex) - 1;
+            
+            let l = c.vocab[lIndex];
+            if (!l.words) l.words = [];
+            l.words.push({ hanzi: h, nghia: n, exHan: eh, exViet: ev, nextReview: Date.now(), rep: 0, ef: 2.5, interval: 0 });
+            sync();
+            alert(`Đã lưu "${h}" vào bài "${l.name}" thành công!`);
+        }
+
+        // --- DICTATION MODE (TINGXIE) ---
+        let dicQueue = [], currentDicWord = null;
+
+        function startDictation() {
+            let words = courses[currentCourseIndex].vocab[currentLessonIndex].words || [];
+            if (words.length === 0) return alert("Bài học này chưa có từ vựng nào!");
+            dicQueue = [...words].sort(() => Math.random() - 0.5);
+            document.getElementById('dictationWorkspace').style.display = 'block';
+            nextDictationWord();
+        }
+
+        function nextDictationWord() {
+            if (dicQueue.length === 0) {
+                document.getElementById('dicResult').innerHTML = `<span style="color:#27ae60">🎉 Đã hoàn thành tất cả các từ!</span>`;
+                document.getElementById('dicInput').style.display = 'none';
+                return;
+            }
+            currentDicWord = dicQueue.shift();
+            let total = (courses[currentCourseIndex].vocab[currentLessonIndex].words || []).length;
+            document.getElementById('dicProgress').innerText = `${total - dicQueue.length} / ${total}`;
+            document.getElementById('dicInput').value = '';
+            document.getElementById('dicInput').style.display = 'inline-block';
+            document.getElementById('dicResult').innerHTML = '';
+            setTimeout(playDictationAudio, 500); // Đợi 1 chút trước khi đọc
+        }
+
+        function playDictationAudio() {
+            playAudio(currentDicWord.hanzi, 0.85); // Đọc chậm một chút
+            document.getElementById('dicInput').focus();
+        }
+
+        function checkDictation() {
+            let input = document.getElementById('dicInput').value.trim();
+            if (!input) return;
+            if (input === currentDicWord.hanzi) {
+                document.getElementById('dicResult').innerHTML = `<span style="color:#27ae60">✅ Chính xác! (${currentDicWord.hanzi} - ${currentDicWord.nghia})</span>`;
+                setTimeout(nextDictationWord, 1500);
+            } else {
+                document.getElementById('dicResult').innerHTML = `<span style="color:#e74c3c">❌ Sai rồi! Ký tự đúng là: ${currentDicWord.hanzi} (${currentDicWord.nghia})</span>`;
+                // Sai thì nhét lại vào hàng đợi để luyện tiếp
+                dicQueue.push(currentDicWord);
+                setTimeout(nextDictationWord, 3000);
+            }
+        }
+
+        // --- LEADERBOARD & FRIENDS ---
+        async function addFriend() {
+            let friendEmail = prompt("Nhập Email của người bạn muốn thêm:");
+            if (!friendEmail) return;
+            friendEmail = friendEmail.trim().toLowerCase();
+            if (friendEmail === auth.currentUser.email.toLowerCase()) return alert("Không thể kết bạn với chính mình!");
+            if (!userProfile.friends) userProfile.friends = [];
+            
+            // Tìm UID của người dùng theo email trong Firestore
+            try {
+                let snap = await db.collection("users").where("profile.email", "==", friendEmail).get();
+                if (snap.empty) {
+                    // Thử tìm theo email field trực tiếp
+                    snap = await db.collection("users").where("email", "==", friendEmail).get();
+                }
+                if (snap.empty) return alert(`Không tìm thấy tài khoản với email: ${friendEmail}`);
+                let friendUID = snap.docs[0].id;
+                if (userProfile.friends.includes(friendUID)) return alert("Người này đã có trong danh sách!");
+                userProfile.friends.push(friendUID);
+                sync();
+                alert(`Đã kết bạn với ${snap.docs[0].data().profile?.name || friendEmail} thành công!`);
+                loadLeaderboard();
+            } catch(e) {
+                alert("Lỗi kết bạn: " + e.message);
+            }
+        }
+
+        async function loadLeaderboard() {
+            let listDiv = document.getElementById('leaderboardList');
+            if (!userProfile.friends || userProfile.friends.length === 0) {
+                listDiv.innerHTML = `<div style="text-align:center; color:#7f8c8d; padding:20px;">Bạn chưa kết nối với ai.<br>Hãy bấm + KẾT BẠN bằng Email của bạn bè!</div>`;
+                return;
+            }
+
+            try {
+                let friendsData = [];
+                let today = new Date().toISOString().split('T')[0];
+                let myScore = (userProfile.lastReviewDate === today) ? (userProfile.dailyReviewedWords || 0) : 0;
+                friendsData.push({ name: (userProfile.name || 'Bạn') + " (Bạn)", score: myScore });
+
+                // Lấy thông tin từng bạn bè theo UID (đã lưu đúng định dạng sau khi fix addFriend)
+                for (let uid of userProfile.friends.slice(0, 10)) {
+                    try {
+                        let docSnap = await db.collection("users").doc(uid).get();
+                        if (!docSnap.exists) continue;
+                        let fProfile = docSnap.data().profile || {};
+                        let fScore = (fProfile.lastReviewDate === today) ? (fProfile.dailyReviewedWords || 0) : 0;
+                        friendsData.push({ name: fProfile.name || fProfile.email || 'Ẩn danh', score: fScore });
+                    } catch(e) { console.error(e); }
+                }
+
+                friendsData.sort((a, b) => b.score - a.score);
+                listDiv.innerHTML = '';
+                friendsData.forEach((f, i) => {
+                    let medal = i === 0 ? "🥇" : (i === 1 ? "🥈" : (i === 2 ? "🥉" : `${i+1}.`));
+                    listDiv.innerHTML += `
+                        <div style="display:flex; justify-content:space-between; padding:12px 10px; border-bottom:1px solid #eee; font-size:16px;">
+                            <div style="font-weight:bold; color:#2c3e50;">${medal} ${f.name}</div>
+                            <div style="color:#27ae60; font-weight:bold;">${f.score} từ</div>
+                        </div>
+                    `;
+                });
+            } catch(e) {
+                console.error(e);
+                listDiv.innerHTML = `<div style="color:#e74c3c">Không thể tải dữ liệu bảng xếp hạng.</div>`;
+            }
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (document.getElementById('viewFlashcard').style.display === 'flex') {
+                let scene = document.getElementById('fcScene');
+                if ((e.code === 'Space' || e.code === 'Enter') && !isFlipped && scene.style.display !== 'none') {
+                    e.preventDefault(); flipCard();
+                } else if (isFlipped) {
+                    if (e.key === '1') nextCard(1);
+                    else if (e.key === '2') nextCard(2);
+                    else if (e.key === '3') nextCard(3);
+                    else if (e.key === '4') nextCard(4);
+                }
+            }
+        });
+
+        // --- AI SYSTEM (Gemini + Groq fallback) ---
+        const GEMINI_KEY = "AIzaSyD5SfKP9Q34i2kxIJiifpKiQYe34wtUASs";
+        // Groq miễn phí hoàn toàn. Lấy key tại: console.groq.com
+        const GROQ_KEY = ""; // Đã xóa để bảo mật khi đưa lên GitHub
+        let activeChatFriendId = null;
+
+        let currentBestModel = "gemini-1.5-flash"; // Mặc định
+
+        async function findBestModel() {
+            try {
+                const key = GEMINI_KEY.trim();
+                const r = await fetch(`https://generativelanguage.googleapis.com/v1/models?key=${key}`);
+                const d = await r.json();
+                if (d.models) {
+                    // Tìm flash trước, sau đó đến pro
+                    const models = d.models.map(m => m.name.replace('models/', ''));
+                    if (models.includes('gemini-1.5-flash')) currentBestModel = 'gemini-1.5-flash';
+                    else if (models.includes('gemini-1.5-flash-8b')) currentBestModel = 'gemini-1.5-flash-8b';
+                    else if (models.includes('gemini-pro')) currentBestModel = 'gemini-pro';
+                    else currentBestModel = models[0];
+                    console.log("🚀 Đã tìm thấy model tốt nhất cho Key của bạn:", currentBestModel);
+                }
+            } catch(e) { console.error("Không thể dò model:", e); }
+        }
+
+        async function callGeminiAPI(prompt) {
+            const key = GEMINI_KEY.trim();
+            // Nếu chưa tìm model tốt nhất thì tìm ngay
+            if (!currentBestModel || currentBestModel === "gemini-1.5-flash") await findBestModel();
+            
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1/models/${currentBestModel}:generateContent?key=${key}`;
+                const r = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                
+                const d = await r.json();
+                if (r.ok && d.candidates?.[0]) {
+                    return d.candidates[0].content.parts[0].text;
+                } else if (d.error) {
+                    // Nếu lỗi thì thử lại một lần với model mặc định pro
+                    if (currentBestModel !== 'gemini-pro') {
+                        currentBestModel = 'gemini-pro';
+                        return await callGeminiAPI(prompt);
+                    }
+                    alert("LỖI AI:\n" + d.error.message);
+                }
+            } catch(e) { alert("LỖI KẾT NỐI:\n" + e.message); }
+            return null;
+        }
+
+        async function callAI(prompt) {
+            return await callGeminiAPI(prompt);
+        }
+
+        async function aiGenerateExample() {
+            let h = document.getElementById('chuHan').value.trim();
+            let n = document.getElementById('nghia').value.trim();
+            if (!h) return alert("Nhập chữ Hán trước!");
+            let btn = event.target; btn.innerText = "⌛ AI đang nghĩ...";
+            
+            const prompt = `Bạn là giáo viên tiếng Trung chuyên nghiệp. Hãy cung cấp thông tin chi tiết và 1 câu ví dụ CHẤT LƯỢNG CAO cho từ vựng sau:
+- Chữ Hán: "${h}"
+- Nghĩa gợi ý: "${n}"
+
+Yêu cầu:
+1. "p": Pinyin của từ "${h}" (có dấu)
+2. "t": Loại từ (Danh từ, Động từ, Tính từ, Trạng từ...)
+3. "h": Câu ví dụ tự nhiên chứa từ "${h}"
+4. "v": Dịch nghĩa câu ví dụ sang tiếng Việt tự nhiên
+5. "ep": Pinyin của toàn bộ câu ví dụ (có dấu)
+
+Trả về ĐÚNG định dạng JSON này (không thêm gì khác):
+{"p": "pīnyīn từ", "t": "loại từ", "h": "câu ví dụ Hán", "v": "dịch Việt", "ep": "pinyin câu ví dụ"}`;
+
+            let res = await callAI(prompt);
+            btn.innerText = "✨ AI";
+            if (res) {
+                try {
+                    let clean = res.replace(/```json|```/g, '').trim();
+                    let jsonMatch = clean.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) clean = jsonMatch[0];
+                    let obj = JSON.parse(clean);
+                    
+                    document.getElementById('pinyin').value = obj.p || '';
+                    document.getElementById('wordType').value = obj.t || '';
+                    document.getElementById('exHan').value = obj.h || '';
+                    document.getElementById('exPinyin').value = obj.ep || '';
+                    document.getElementById('exViet').value = obj.v || '';
+                } catch(e) { 
+                    console.log("Raw AI response:", res);
+                }
+            }
+        }
+
+        async function aiExplainGrammar() {
+            let title = document.getElementById('grammarTitle').value;
+            if (!title) return alert("Nhập tiêu đề ngữ pháp trước!");
+            let btn = event.target; btn.innerText = "⌛ AI đang soạn bài...";
+            let res = await callAI(`Hãy giải thích chi tiết ngữ pháp Tiếng Trung: "${title}". Bao gồm: Ý nghĩa, Công thức, Cách dùng và 3 ví dụ kèm dịch. Định dạng rõ ràng bằng Markdown/Text.`);
+            btn.innerText = "✨ AI GIẢI THÍCH NGỮ PHÁP";
+            if (res) document.getElementById('grammarContent').value = res;
+        }
+
+        // CHAT LOGIC
+        function toggleFriendsPanel() {
+            let p = document.getElementById('friendsOnlinePanel');
+            p.style.display = p.style.display === 'none' ? 'block' : 'none';
+            if (p.style.display === 'block') loadFriendsOnline();
+        }
+
+        async function loadFriendsOnline() {
+            let list = document.getElementById('friendsListMini');
+            list.innerHTML = 'Đang tải...';
+            if (!userProfile.friends || userProfile.friends.length === 0) {
+                list.innerHTML = `<div style="padding:15px; text-align:center; color:#7f8c8d; font-size:13px;">Chưa có bạn bè.<br>Hãy kết bạn ở <strong>Trang chủ → Bảng Vàng!</strong></div>`;
+                return;
+            }
+
+            list.innerHTML = '';
+            // Lấy lần lượt từng bạn bè (vì Firestore có giới hạn 'in' với 10 phần tử)
+            let friendUIDs = userProfile.friends;
+            let loadedCount = 0;
+
+            for (let uid of friendUIDs.slice(0, 10)) {
+                try {
+                    let docSnap = await db.collection("users").doc(uid).get();
+                    if (!docSnap.exists) continue;
+                    let data = docSnap.data();
+                    let fProfile = data.profile || {};
+                    let lastActive = data.lastActive || 0;
+                    let isOnline = (Date.now() - lastActive < 5 * 60 * 1000); // Online nếu active trong 5 phút
+                    let displayName = fProfile.name || fProfile.email || 'Ẩn danh';
+                    let initial = displayName[0].toUpperCase();
+                    list.innerHTML += `
+                        <div style="display:flex; align-items:center; gap:10px; padding:10px; cursor:pointer; border-bottom:1px solid #eee; transition:0.2s" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='white'" onclick="openChat('${docSnap.id}', '${displayName}')">
+                            <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#3498db,#2c3e50); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:14px; flex-shrink:0; position:relative;">
+                                ${initial}
+                                <div style="position:absolute; bottom:-1px; right:-1px; width:10px; height:10px; border-radius:50%; background:${isOnline ? '#2ecc71' : '#95a5a6'}; border:2px solid white;"></div>
+                            </div>
+                            <div style="flex:1">
+                                <div style="font-weight:bold; font-size:14px; color:#2c3e50;">${displayName}</div>
+                                <div style="font-size:11px; color:${isOnline ? '#2ecc71' : '#95a5a6'};">${isOnline ? '🟢 Đang online' : '⚫ Ngoại tuyến'}</div>
+                            </div>
+                        </div>
+                    `;
+                    loadedCount++;
+                } catch(e) { console.error(e); }
+            }
+            if (loadedCount === 0) list.innerHTML = '<div style="padding:15px; color:#7f8c8d; font-size:13px;">Không tải được danh sách bạn bè.</div>';
+        }
+
+        function openChat(friendId, friendName) {
+            activeChatFriendId = friendId;
+            document.getElementById('friendsOnlinePanel').style.display = 'none';
+            document.getElementById('chatBox').style.display = 'flex';
+            document.getElementById('chatWithTitle').innerText = '💬 ' + friendName;
+            document.getElementById('chatMessages').innerHTML = '<div style="text-align:center;color:#7f8c8d;font-size:13px;padding:20px;">Đang tải tin nhắn...</div>';
+            listenToMessages();
+        }
+
+        function closeChat() { 
+            document.getElementById('chatBox').style.display = 'none'; 
+            if (messageUnsubscribe) { messageUnsubscribe(); messageUnsubscribe = null; }
+            activeChatFriendId = null; 
+        }
+
+        let messageUnsubscribe = null;
+        function listenToMessages() {
+            if (messageUnsubscribe) messageUnsubscribe();
+            let chatId = getChatId(auth.currentUser.uid, activeChatFriendId);
+            
+            // Lắng nghe realtime KHÔNG dùng orderBy (tránh lỗi index)
+            messageUnsubscribe = db.collection("messages")
+                .where("chatId", "==", chatId)
+                .onSnapshot((snap) => {
+                    let box = document.getElementById('chatMessages');
+                    // Sắp xếp client-side theo timestamp
+                    let msgs = [];
+                    snap.forEach(doc => msgs.push(doc.data()));
+                    msgs.sort((a, b) => {
+                        let ta = a.timestamp ? a.timestamp.toMillis ? a.timestamp.toMillis() : (a.timestamp.seconds * 1000) : 0;
+                        let tb = b.timestamp ? b.timestamp.toMillis ? b.timestamp.toMillis() : (b.timestamp.seconds * 1000) : 0;
+                        return ta - tb;
+                    });
+                    
+                    if (msgs.length === 0) {
+                        box.innerHTML = '<div style="text-align:center;color:#7f8c8d;font-size:13px;padding:20px;">Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!</div>';
+                        return;
+                    }
+                    
+                    box.innerHTML = '';
+                    msgs.forEach(m => {
+                        let isMe = m.senderId === auth.currentUser.uid;
+                        box.innerHTML += `
+                            <div style="align-self:${isMe ? 'flex-end' : 'flex-start'}; max-width:80%; font-size:14px;">
+                                <div style="background:${isMe ? 'linear-gradient(135deg,#3498db,#2980b9)' : '#ecf0f1'}; color:${isMe ? 'white' : '#2c3e50'}; padding:8px 14px; border-radius:${isMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px'}; word-break:break-word;">${m.content}</div>
+                            </div>
+                        `;
+                    });
+                    box.scrollTop = box.scrollHeight;
+                }, (error) => {
+                    console.error('Chat listener error:', error);
+                    document.getElementById('chatMessages').innerHTML = `<div style="color:red;padding:15px;font-size:13px;">Lỗi tải chat: ${error.message}<br><small>Kiểm tra Firestore Rules.</small></div>`;
+                });
+        }
+
+        async function sendChatMessage(content = null) {
+            if (!activeChatFriendId) return alert('Vui lòng chọn bạn bè để chat!');
+            let input = document.getElementById('chatInput');
+            let text = content || input.value.trim();
+            if (!text) return;
+            try {
+                await db.collection("messages").add({
+                    chatId: getChatId(auth.currentUser.uid, activeChatFriendId),
+                    senderId: auth.currentUser.uid,
+                    receiverId: activeChatFriendId,
+                    content: text,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                if (!content) input.value = '';
+            } catch(e) {
+                alert('Gửi tin nhắn thất bại: ' + e.message);
+            }
+        }
+
+        function sendReminder() {
+            if (!activeChatFriendId) return alert('Hãy mở chat với bạn bè trước!');
+            sendChatMessage("🔔 Nhắc nhở: Đừng quên vào TadChinese ôn tập từ vựng hôm nay nhé! Cố lên! 💪");
+        }
+
+        function getChatId(id1, id2) {
+            return [id1, id2].sort().join("_");
+        }
+
+        // Cập nhật trạng thái online mỗi 2 phút + ngay khi load
+        function updateOnlineStatus() {
+            if (auth.currentUser) {
+                db.collection("users").doc(auth.currentUser.uid).set({ lastActive: Date.now() }, { merge: true });
+            }
+        }
+        setInterval(updateOnlineStatus, 120000);
+    </script>
+</body>
+
+</html>
