@@ -209,6 +209,111 @@
 
         /* Tím */
 
+        /* --- Timeline SRS (informational, no click) --- */
+        .srs-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .srs-timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: white;
+            border-radius: 12px;
+            padding: 14px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 5px solid #ddd;
+            transition: 0.2s;
+        }
+        .srs-timeline-item:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+        .srs-timeline-dot {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+            color: white;
+            font-weight: bold;
+        }
+        .srs-timeline-info { flex: 1; }
+        .srs-timeline-label { font-weight: 700; font-size: 14px; color: #2c3e50; }
+        .srs-timeline-date { font-size: 12px; color: #95a5a6; margin-top: 2px; }
+        .srs-timeline-count {
+            font-size: 22px;
+            font-weight: bold;
+            min-width: 50px;
+            text-align: right;
+        }
+        .srs-timeline-countdown {
+            font-size: 11px;
+            color: #bdc3c7;
+            text-align: right;
+            margin-top: 2px;
+        }
+
+        /* --- Today Task Section --- */
+        .today-tasks-section {
+            background: white;
+            border-radius: 14px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+            margin-bottom: 25px;
+        }
+        .today-tasks-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .today-tasks-icon {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+        }
+        .today-tasks-title { font-size: 20px; font-weight: 700; color: #2c3e50; }
+        .today-tasks-subtitle { font-size: 13px; color: #95a5a6; }
+        .today-empty {
+            text-align: center;
+            padding: 30px 20px;
+            color: #7f8c8d;
+        }
+        .today-empty .today-empty-icon { font-size: 52px; margin-bottom: 12px; }
+        .today-empty p { font-size: 16px; font-weight: 600; color: #2c3e50; margin: 0 0 6px 0; }
+        .today-empty small { font-size: 13px; color: #aaa; }
+        .today-task-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .today-task-card {
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .today-task-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+        }
+        .today-task-card .tc-icon { font-size: 30px; }
+        .today-task-card .tc-num { font-size: 32px; font-weight: 800; line-height: 1; }
+        .today-task-card .tc-unit { font-size: 13px; font-weight: 500; opacity: 0.85; }
+        .today-task-card .tc-label { font-size: 14px; font-weight: 600; margin-top: 4px; }
+
         /* --- Buttons --- */
         .btn {
             border: none;
@@ -682,21 +787,24 @@
                     <div style="font-size:45px; font-weight:bold; line-height:1;"><span id="totalWords">0</span></div>
                 </div>
 
-                <h3 class="srs-title">Nhiệm vụ hôm nay (Bấm vào thẻ để bắt đầu)</h3>
-                <div class="srs-grid" style="margin-bottom: 25px;">
-                    <div class="srs-card bg-today" onclick="startGlobalReview('today')"><span class="val"><span id="dueToday">0</span> từ</span><span class="lbl">ÔN BÀI HÔM NAY</span></div>
-                    <div class="srs-card bg-today" style="background: linear-gradient(135deg, #e67e22, #d35400);" onclick="startGlobalReview('later_today')"><span class="val"><span id="dueLaterToday">0</span> từ</span><span class="lbl">TỪ CẦN ÔN LẠI HÔM NAY</span></div>
+                <!-- PHẦN 2: NHIỆM VỤ HÔM NAY (chỉ hiện khi có từ) -->
+                <div class="today-tasks-section">
+                    <div class="today-tasks-header">
+                        <div class="today-tasks-icon">📋</div>
+                        <div>
+                            <div class="today-tasks-title">Nhiệm vụ hôm nay</div>
+                            <div class="today-tasks-subtitle">Từ đã đến hạn cần học & ôn lại</div>
+                        </div>
+                    </div>
+                    <div id="todayTasksContent">
+                        <!-- Render động bằng JS -->
+                    </div>
                 </div>
 
-                <h3 class="srs-title">Kế hoạch ôn tập tương lai</h3>
-                <div class="srs-grid">
-                    <div class="srs-card bg-3d" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);" onclick="startGlobalReview('1')"><span class="val"><span id="due1d">0</span> từ</span><span class="lbl">Ngày mai (T+1)</span></div>
-                    <div class="srs-card bg-3d" onclick="startGlobalReview('4')"><span class="val"><span id="due4d">0</span> từ</span><span class="lbl">Trong 4 ngày tới (Lần 1)</span></div>
-                    <div class="srs-card bg-7d" style="background: linear-gradient(135deg, #d35400, #c0392b);" onclick="startGlobalReview('7')"><span class="val"><span id="due7d">0</span> từ</span><span class="lbl">Trong 7 ngày tới (Lần 2)</span></div>
-                    <div class="srs-card bg-14d" style="background: linear-gradient(135deg, #f1c40f, #f39c12);" onclick="startGlobalReview('14')"><span class="val"><span id="due14d">0</span> từ</span><span class="lbl">Tuần sau (T+8 → T+14)</span></div>
-                    <div class="srs-card bg-30d" style="background: linear-gradient(135deg, #3498db, #2980b9);" onclick="startGlobalReview('30')"><span class="val"><span id="due30d">0</span> từ</span><span class="lbl">Nửa tháng tới (T+15 → T+30)</span></div>
-                    <div class="srs-card bg-60d" style="background: linear-gradient(135deg, #1abc9c, #16a085);" onclick="startGlobalReview('60')"><span class="val"><span id="due60d">0</span> từ</span><span class="lbl">Tháng sau (T+31 → T+60)</span></div>
-                    <div class="srs-card" style="background: linear-gradient(135deg, #2c3e50, #34495e);" onclick="startGlobalReview('999')"><span class="val"><span id="due999d">0</span> từ</span><span class="lbl">Đã tốt nghiệp (> 60 ngày)</span></div>
+                <!-- PHẦN 1: LỊCH ÔN TẬP TƯƠNG LAI (chỉ thông báo, không bấm) -->
+                <h3 class="srs-title" style="margin-bottom:15px;">📅 Lịch ôn tập sắp tới</h3>
+                <div class="srs-timeline" id="srsTimeline">
+                    <!-- Render động bằng JS -->
                 </div>
             </div>
         </div>
@@ -1179,54 +1287,108 @@
             document.getElementById('stayDuration').innerText = days;
             document.getElementById('myFriendCode').innerText = auth.currentUser.email;
 
-            let t = 0, dToday = 0, dLaterToday = 0, d1 = 0, d4 = 0, d7 = 0, d14 = 0, d30 = 0, d60 = 0, d999 = 0;
+            let t = 0, dToday = 0, dLaterToday = 0;
+            let d1 = 0, d4 = 0, d7 = 0, d14 = 0, d30 = 0, d60 = 0, d999 = 0;
+
             courses.forEach(c => (c.vocab || []).forEach(l => (l.words || []).forEach(w => {
-                t++; let nr = w.nextReview || 0;
+                t++;
+                let nr = w.nextReview || 0;
+                let wStatus = w.status || ((!w.rep || w.rep === 0) ? 'new' : 'review');
                 let diffDays = getDiffDays(nr);
-                
+
                 if (diffDays <= 0) {
                     if (nr <= Date.now()) dToday++;
                     else dLaterToday++;
+                } else if (wStatus === 'review') {
+                    if      (diffDays === 1) d1++;
+                    else if (diffDays <= 4) d4++;
+                    else if (diffDays <= 7) d7++;
+                    else if (diffDays <= 14) d14++;
+                    else if (diffDays <= 30) d30++;
+                    else if (diffDays <= 60) d60++;
+                    else d999++;
                 }
-                // Kế hoạch tương lai
-                else if (diffDays === 1)  d1++;               // Ngày mai
-                else if (diffDays <= 4)  d4++;
-                else if (diffDays <= 7)  d7++;                // T+2 → T+7
-                else if (diffDays <= 14) d14++;                // T+8 → T+14
-                else if (diffDays <= 30) d30++;               // T+15 → T+30
-                else if (diffDays <= 60) d60++;               // T+31 → T+60
-                else d999++;                                   // > T+60 (Tốt nghiệp)
             })));
-            document.getElementById('totalWords').innerText = t; 
-            document.getElementById('dueToday').innerText = dToday; 
-            document.getElementById('dueLaterToday').innerText = dLaterToday; 
-            document.getElementById('due1d').innerText = d1;
-            document.getElementById('due4d').innerText = d4; 
-            document.getElementById('due7d').innerText = d7;
-            document.getElementById('due14d').innerText = d14; 
-            document.getElementById('due30d').innerText = d30; 
-            document.getElementById('due60d').innerText = d60;
-            document.getElementById('due999d').innerText = d999;
-            
-            // Cập nhật các label với đếm ngược cho từng ô
-            const days_labels = [
-                { id: 'lbl1d', days: 1, label: 'Ngày mai' },
-                { id: 'lbl3d', days: 7, label: 'Trong 7 ngày' },
-                { id: 'lbl7d', days: 14, label: 'Tuần sau' },
-                { id: 'lbl14d', days: 30, label: 'Nửa tháng tới' },
-                { id: 'lbl30d', days: 60, label: 'Tháng sau' },
-            ];
-            days_labels.forEach(item => {
-                const el = document.getElementById(item.id);
-                if (el) {
-                    let now = Date.now();
-                    let day = 86400000;
-                    const targetDate = new Date(now + item.days * day);
-                    const dd = targetDate.getDate().toString().padStart(2,'0');
-                    const mm = (targetDate.getMonth()+1).toString().padStart(2,'0');
-                    el.innerText = `${item.label} (${dd}/${mm})`;
+
+            document.getElementById('totalWords').innerText = t;
+
+            // --- Render phần NHIỆM VỤ HÔM NAY ---
+            const todayContent = document.getElementById('todayTasksContent');
+            if (dToday === 0 && dLaterToday === 0) {
+                todayContent.innerHTML = `
+                    <div class="today-empty">
+                        <div class="today-empty-icon">🎉</div>
+                        <p>Hôm nay bạn chưa có từ nào để ôn đâu!</p>
+                        <small>Tuyệt vời! Hệ thống sẽ nhắc bạn vào đúng ngày cần ôn tập.</small>
+                    </div>`;
+            } else {
+                let cardsHtml = '<div class="today-task-cards">';
+                if (dToday > 0) {
+                    cardsHtml += `
+                    <div class="today-task-card" style="background: linear-gradient(135deg, #e74c3c, #c0392b);" onclick="startGlobalReview('today')">
+                        <div class="tc-icon">⚡</div>
+                        <div>
+                            <div class="tc-num">${dToday}</div>
+                            <div class="tc-unit">từ</div>
+                            <div class="tc-label">Ôn bài hôm nay</div>
+                        </div>
+                    </div>`;
                 }
-            });
+                if (dLaterToday > 0) {
+                    cardsHtml += `
+                    <div class="today-task-card" style="background: linear-gradient(135deg, #e67e22, #d35400);" onclick="startGlobalReview('later_today')">
+                        <div class="tc-icon">🕒</div>
+                        <div>
+                            <div class="tc-num">${dLaterToday}</div>
+                            <div class="tc-unit">từ</div>
+                            <div class="tc-label">Từ cần ôn lại hôm nay</div>
+                        </div>
+                    </div>`;
+                }
+                cardsHtml += '</div>';
+                todayContent.innerHTML = cardsHtml;
+            }
+
+            // --- Render LỊCH ÔN TẬP TƯƠNG LAI (timeline, chỉ thông báo) ---
+            const timelineDefs = [
+                { days: 1,   maxDays: 1,  count: d1,   label: 'Ngày mai',          icon: '📆', color: '#9b59b6', border: '#8e44ad' },
+                { days: 4,   maxDays: 4,  count: d4,   label: 'Trong 4 ngày tới (Học lần 1)', icon: '🌱', color: '#e67e22', border: '#d35400' },
+                { days: 7,   maxDays: 7,  count: d7,   label: 'Trong 7 ngày tới (Học lần 2)', icon: '📅', color: '#d35400', border: '#c0392b' },
+                { days: 14,  maxDays: 14, count: d14,  label: 'Tuần tới (T+8~14)', icon: '📊', color: '#f1c40f', border: '#f39c12' },
+                { days: 30,  maxDays: 30, count: d30,  label: 'Nửa tháng (T+15~30)',icon:'🗓️', color: '#3498db', border: '#2980b9' },
+                { days: 60,  maxDays: 60, count: d60,  label: 'Tháng sau (T+31~60)',icon:'📌', color: '#1abc9c', border: '#16a085' },
+                { days: 999, maxDays:999, count: d999, label: 'Đã tốt nghiệp',     icon: '🏆', color: '#2c3e50', border: '#34495e' },
+            ];
+            const timelineEl = document.getElementById('srsTimeline');
+            if (timelineEl) {
+                let now = Date.now();
+                let day = 86400000;
+                timelineEl.innerHTML = timelineDefs.map(item => {
+                    let dateLabel = '';
+                    if (item.days < 999) {
+                        let d = new Date(now + item.days * day);
+                        let dd = d.getDate().toString().padStart(2,'0');
+                        let mm = (d.getMonth()+1).toString().padStart(2,'0');
+                        let diffDays = item.days;
+                        dateLabel = `Đến ${dd}/${mm} · còn ${diffDays} ngày`;
+                    } else {
+                        dateLabel = 'Trí nhớ dài hạn > 60 ngày';
+                    }
+                    return `
+                    <div class="srs-timeline-item" style="border-left-color: ${item.border};">
+                        <div class="srs-timeline-dot" style="background: linear-gradient(135deg, ${item.color}, ${item.border});">${item.icon}</div>
+                        <div class="srs-timeline-info">
+                            <div class="srs-timeline-label">${item.label}</div>
+                            <div class="srs-timeline-date">${dateLabel}</div>
+                        </div>
+                        <div>
+                            <div class="srs-timeline-count" style="color: ${item.border};">${item.count}</div>
+                            <div class="srs-timeline-countdown">từ</div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
             loadLeaderboard();
         }
 
