@@ -767,6 +767,95 @@
         body.dark-mode .hm-cell.level-0 { background-color: #333 !important; }
         body.dark-mode .fc-face { background: linear-gradient(135deg, #2c2c2c 0%, #1e1e1e 100%); color: #e0e0e0; }
         body.dark-mode #fcHanziBack { color: #e0e0e0 !important; }
+
+        /* ================= MOBILE & TABLET RESPONSIVE ================= */
+        .mobile-menu-btn { display: none; }
+        .sidebar-overlay { display: none; }
+        
+        @media (max-width: 900px) {
+            .mobile-menu-btn {
+                display: block;
+                background: #2980b9;
+                color: white;
+                border: none;
+                padding: 12px 15px;
+                border-radius: 8px;
+                font-weight: bold;
+                font-size: 14px;
+                margin-bottom: 20px;
+                cursor: pointer;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                width: 100%;
+                text-align: left;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 10000;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .sidebar-overlay.active {
+                display: block;
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.6);
+                z-index: 9999;
+            }
+            .main-content {
+                margin-left: 0 !important;
+                width: 100%;
+                padding: 15px;
+            }
+            /* Giảm cỡ chữ bài đọc */
+            #lessonReadingDisplay {
+                font-size: 24px !important;
+                line-height: 1.6 !important;
+            }
+            #lessonReadingText {
+                font-size: 20px !important;
+            }
+            /* Từ vựng thu nhỏ */
+            .vocab-chip {
+                font-size: 18px !important;
+                padding: 8px 12px !important;
+                min-width: 40px !important;
+                margin: 4px !important;
+            }
+            /* Cột từ vựng xếp dọc */
+            .vocab-layout {
+                flex-direction: column;
+            }
+            .vocab-list-col, .vocab-detail-col {
+                width: 100%;
+                border-right: none !important;
+                padding-right: 0 !important;
+                padding-left: 0 !important;
+            }
+            .vocab-list-col {
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 20px;
+                margin-bottom: 20px;
+            }
+            body.dark-mode .vocab-list-col { border-bottom-color: #444; }
+            /* Khung thêm từ xếp dọc các input */
+            .form-group > div {
+                flex-direction: column;
+                gap: 5px;
+            }
+            /* Giao diện chung */
+            .dashboard-grid, .course-list {
+                grid-template-columns: 1fr !important;
+            }
+            .stats-section {
+                flex-direction: column;
+            }
+            #floatAddVocab {
+                padding: 8px 12px !important;
+                font-size: 14px !important;
+            }
+        }
     </style>
 </head>
 
@@ -816,7 +905,9 @@
         </div>
     </div>
 
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileMenu()"></div>
     <div class="main-content" id="mainArea">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">☰ MỞ MENU CHÍNH</button>
         <div id="loadingScreen">
             <div class="loader"></div>
         </div>
@@ -3774,6 +3865,20 @@ Trả về ĐÚNG định dạng JSON này (không thêm gì khác):
             closeCustomReviewModal();
             openFlashcardUI();
         }
+
+        function toggleMobileMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        // Tự động đóng menu mobile khi chọn 1 mục
+        document.querySelectorAll('.menu-title').forEach(item => {
+            item.addEventListener('click', () => {
+                if(window.innerWidth <= 900) {
+                    toggleMobileMenu();
+                }
+            });
+        });
 
         // --- BULK ADD WORDS VIA AI ---
         function openBulkAddForm() {
