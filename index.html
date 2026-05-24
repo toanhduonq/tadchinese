@@ -2846,7 +2846,7 @@
         // Các key mặc định của hệ thống được mã hóa Base64 để tránh GitHub tự động quét và thu hồi (Cảnh báo).
         // Bạn có thể dùng trang base64encode.org để mã hóa các API Key của bạn rồi dán vào đây.
         const SYSTEM_ENCODED_KEYS = [
-            "QUl6YVN5QTFTcVBla1NjMTA1dTZOTEc4TWczSkd5QVVyWDZjNVh3" // Đã mã hóa an toàn
+            "QUl6YVN5QWg0a3pTNXI2ZVQxbmU1eEdJNzhONUFXeE1iRnJUaXJR" // Đã mã hóa an toàn
         ];
 
         function getGeminiKey() {
@@ -3751,7 +3751,122 @@ Trả về ĐÚNG định dạng JSON này (không thêm gì khác):
             closeCustomReviewModal();
             openFlashcardUI();
         }
+
+        // --- BULK ADD WORDS VIA AI ---
+        function openBulkAddForm() {
+            document.getElementById('bulkAddModal').style.display = 'flex';
+        }
+        function closeBulkAddForm() {
+            document.getElementById('bulkAddModal').style.display = 'none';
+        }
+        async function runBulkAddAI() {
+            let text = document.getElementById('bulkAddInput').value.trim();
+            if (!text) return alert("Vui lòng nhập đoạn văn hoặc danh sách từ!");
+            
+            let key = getGeminiKey();
+            if (!key) return;
+            
+            document.getElementById('bulkAddStatus').style.display = 'block';
+            document.getElementById('bulkAddStatus').innerText = 'Đang gọi AI phân tích (Có thể mất vài giây)...';
+            document.getElementById('btnRunBulkAdd').disabled = true;
+            
+            let prompt = `Bạn là một chuyên gia ngôn ngữ tiếng Trung. Nhiệm vụ của bạn là trích xuất TOÀN BỘ CÁC TỪ VỰNG MỚI (ưu tiên danh từ, động từ, tính từ, phó từ, thành ngữ) từ đoạn văn bản/danh sách sau.
+Văn bản: "${text}"
+
+Hãy trả về kết quả DƯỚI DẠNG MẢNG JSON, không bao gồm mã markdown nào khác ngoài JSON, với cấu trúc CHÍNH XÁC như sau:
+[
+  {
+    "hanzi": "Từ vựng tiếng Trung",
+    "pinyin": "Pinyin có dấu",
+    "nghia": "Nghĩa tiếng Việt ngắn gọn",
+    "exHan": "1 câu ví dụ tiếng Trung ngắn chứa từ này",
+    "exViet": "Nghĩa câu ví dụ tiếng Việt"
+  }
+]
+Tuyệt đối chỉ trả về mảng JSON hợp lệ, không giải thích gì thêm.`;
+
+            try {
+                let cachedModel = await getGeminiModel(key);
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${cachedModel}:generateContent?key=${key}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { temperature: 0.2 }
+                    })
+                });
+
+                if (response.status === 429) {
+                    throw new Error("Lỗi 429: API của bạn đã vượt quá giới hạn gọi. Hãy thử cấu hình thêm API key hoặc chờ một chút.");
+                }
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error.message);
+
+                let aiText = data.candidates[0].content.parts[0].text;
+                let jsonStr = aiText.replace(/```json/g, '').replace(/```/g, '').trim();
+                let wordsArray = JSON.parse(jsonStr);
+
+                if (!Array.isArray(wordsArray) || wordsArray.length === 0) {
+                    throw new Error("AI không tìm thấy từ vựng nào hoặc định dạng trả về không đúng.");
+                }
+
+                let lesson = courses[currentCourseIndex].vocab[currentLessonIndex];
+                if (!lesson.words) lesson.words = [];
+                
+                let addedCount = 0;
+                wordsArray.forEach(w => {
+                    if (w.hanzi && !lesson.words.some(existing => existing.hanzi === w.hanzi)) {
+                        lesson.words.unshift({
+                            hanzi: w.hanzi,
+                            pinyin: w.pinyin || "",
+                            nghia: w.nghia || "",
+                            exHan: w.exHan || "",
+                            exPinyin: "",
+                            exViet: w.exViet || "",
+                            img: "",
+                            tags: [],
+                            rep: 0,
+                            ease: 2.5,
+                            interval: 0,
+                            nextReview: 0,
+                            status: 'new'
+                        });
+                        addedCount++;
+                    }
+                });
+
+                sync();
+                renderWordList();
+                showWordPanel('empty');
+                
+                alert(`Thành công! Đã quét và thêm ${addedCount} từ vựng mới vào bài học.`);
+                closeBulkAddForm();
+                document.getElementById('bulkAddInput').value = '';
+
+            } catch(e) {
+                console.error(e);
+                alert("Lỗi khi dùng AI phân tích: " + e.message);
+            } finally {
+                document.getElementById('bulkAddStatus').style.display = 'none';
+                document.getElementById('btnRunBulkAdd').disabled = false;
+            }
+        }
     </script>
+    
+    <!-- Modal Bulk Add -->
+    <div id="bulkAddModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+        <div style="background:white; padding:30px; border-radius:15px; width:90%; max-width:600px; max-height:90vh; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+            <h3 style="margin-top:0; color:#2c3e50;">⚡ Thêm Từ Vựng Hàng Loạt (AI)</h3>
+            <p style="color:#7f8c8d; font-size:14px; line-height:1.5;">Dán 1 đoạn văn tiếng Trung hoặc danh sách các từ vào đây. AI sẽ tự động quét, trích xuất tất cả từ vựng mới, tự tra Pinyin và dịch nghĩa tiếng Việt chỉ với <b>1 lần gọi API duy nhất</b>!</p>
+            <textarea id="bulkAddInput" style="width:100%; height:180px; padding:15px; border-radius:10px; border:1px solid #ddd; font-size:16px; margin-bottom:15px; box-sizing:border-box; resize:vertical; outline:none; font-family:inherit;" placeholder="Ví dụ: 我今天去学校学习汉语..."></textarea>
+            <div id="bulkAddStatus" style="display:none; padding:15px; background:#e1f5fe; color:#0288d1; border-radius:8px; margin-bottom:15px; font-weight:bold; text-align:center;">Đang quét và phân tích dữ liệu...</div>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button class="btn btn-back" style="margin:0;" onclick="closeBulkAddForm()">Hủy bỏ</button>
+                <button class="btn btn-primary" id="btnRunBulkAdd" style="margin:0; background:#9b59b6; border:none;" onclick="runBulkAddAI()">🚀 Quét & Thêm ngay</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
