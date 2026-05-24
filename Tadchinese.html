@@ -2173,27 +2173,43 @@
             const disp = document.getElementById('lessonReadingDisplay');
             const floatBtn = document.getElementById('floatAddVocab');
 
-            document.addEventListener('mouseup', (e) => {
-                const selection = window.getSelection();
-                const selectedText = selection.toString().trim();
+            const handleTextSelection = (e) => {
+                setTimeout(() => {
+                    const selection = window.getSelection();
+                    const selectedText = selection.toString().trim();
 
-                // Chỉ hiện nút nếu đang bôi đen và target nằm trong vùng bài đọc
-                if (selectedText && disp.contains(e.target)) {
-                    floatBtn.style.display = 'block';
-                    floatBtn.style.left = `${e.pageX}px`;
-                    floatBtn.style.top = `${e.pageY - 50}px`;
+                    if (selectedText && selection.rangeCount > 0) {
+                        let range = selection.getRangeAt(0);
+                        // Kiểm tra xem đoạn bôi đen có nằm trong bài đọc không
+                        if (disp.contains(range.commonAncestorContainer) || disp === range.commonAncestorContainer) {
+                            let rect = range.getBoundingClientRect();
+                            floatBtn.style.display = 'block';
+                            // Căn giữa nút nổi phía trên đoạn văn bản (vì nút position: fixed)
+                            floatBtn.style.left = `${rect.left + (rect.width / 2) - 60}px`;
+                            floatBtn.style.top = `${rect.top - 45}px`;
+                            
+                            // Đảm bảo nút không bị tràn khỏi mép màn hình
+                            if (parseFloat(floatBtn.style.top) < 0) floatBtn.style.top = '10px';
+                            if (parseFloat(floatBtn.style.left) < 0) floatBtn.style.left = '10px';
+                            
+                            floatBtn.onclick = (event) => {
+                                event.stopPropagation();
+                                addSelectedToVocab(selectedText);
+                                window.getSelection().removeAllRanges(); // Xóa bôi đen sau khi bấm
+                            };
+                            return; // Dừng tại đây nếu hợp lệ
+                        }
+                    }
                     
-                    floatBtn.onclick = (event) => {
-                        event.stopPropagation();
-                        addSelectedToVocab(selectedText);
-                    };
-                } else {
-                    // Nếu click vào chỗ khác thì ẩn (trừ khi click vào chính cái nút)
-                    if (e.target !== floatBtn) {
+                    // Nếu không bôi đen hoặc click chỗ khác thì ẩn
+                    if (e && e.target !== floatBtn) {
                         floatBtn.style.display = 'none';
                     }
-                }
-            });
+                }, 100); // Delay nhẹ để hệ điều hành hoàn tất việc bôi đen (đặc biệt trên mobile)
+            };
+
+            document.addEventListener('mouseup', handleTextSelection);
+            document.addEventListener('touchend', handleTextSelection);
         });
 
         async function addSelectedToVocab(text) {
