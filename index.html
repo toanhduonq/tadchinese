@@ -451,8 +451,8 @@
             flex-direction: column;
         }
         .word-chip {
-            padding: 15px 25px;
-            font-size: 26px;
+            padding: 10px 18px;
+            font-size: 22px;
             font-weight: bold;
             font-family: 'KaiTi', 'STKaiti', serif;
             background: white;
@@ -1102,8 +1102,8 @@
                 padding: 14px 24px !important;
                 font-size: 16px !important;
                 position: fixed !important;
-                top: auto !important;
-                bottom: 30px !important;
+                
+                
                 left: 50% !important;
                 transform: translateX(-50%) !important;
                 width: max-content !important;
@@ -1444,7 +1444,7 @@
                         <div id="readActions" style="display:none; gap:10px;">
                             <button type="button" class="btn btn-audio-mini" style="background:#f39c12;" onclick="playReadingAudio(0.75)">Chậm</button>
                             <button type="button" class="btn btn-audio-mini" style="background:#2ecc71;" onclick="playReadingAudio(1)">Bình thường</button>
-                            <button type="button" class="btn btn-audio-mini" style="background:#7f8c8d;" onclick="stopReadingAudio()">⏹</button>
+                            <button type="button" id="btnToggleReading" class="btn btn-audio-mini" style="background:#7f8c8d;" onclick="toggleReadingAudio()">▶</button>
                         </div>
                         <button type="button" id="btnSaveReading" class="btn btn-primary" style="padding:5px 15px;" onclick="saveLessonContent('reading')">💾 LƯU</button>
                     </div>
@@ -1461,7 +1461,7 @@
                         <div id="lessonReadingDisplay" style="display:none; width:100%; height:100%; padding:15px; border-radius:10px; border:1px solid #ddd; background:white; font-size:32px; font-family:'KaiTi', 'STKaiti', serif; line-height:1.8; overflow-y:auto; box-sizing:border-box; white-space:pre-wrap; cursor:text;"></div>
                         
                         <!-- Nút nổi thêm từ vựng -->
-                        <button type="button" id="floatAddVocab" class="btn" style="display:none; position:absolute; z-index:9999; background:#3498db; color:white; padding:5px 12px; border-radius:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2); font-size:13px; font-weight:bold; cursor:pointer;" onclick="addSelectedToVocab(window.getSelection().toString())">➕ Thêm vào hàng chờ</button>
+                        <button type="button" id="floatAddVocab" class="btn" style="display:none; position:fixed; z-index:9999; background:#3498db; color:white; padding:5px 12px; border-radius:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2); font-size:13px; font-weight:bold; cursor:pointer;" onclick="addSelectedToVocab(window.getSelection().toString())">➕ Thêm vào hàng chờ</button>
                     </div>
                     
                     <div id="vocabQueuePanel" style="flex:1; display:flex; flex-direction:column; background:white; border-radius:10px; border:1px solid #ddd; box-shadow:0 2px 10px rgba(0,0,0,0.05); overflow:hidden;">
@@ -1863,12 +1863,7 @@ const firebaseConfig = {
                 updateDashboardUI();
                 document.getElementById('loadingScreen').style.display = 'none';
 
-                let lastView = localStorage.getItem('tad_current_view');
-                if (lastView && window[lastView]) {
-                    window[lastView]();
-                } else {
-                    showDashboard();
-                }
+                refreshView();
 
                 if (!window.autoSaveInterval) {
                     window.autoSaveInterval = setInterval(() => { sync(); }, 120000);
@@ -2504,7 +2499,7 @@ const firebaseConfig = {
                 while ((startPos = txt.indexOf(hanzi, startPos)) !== -1) {
                     let alreadyHighlighted = false;
                     for (let i = 0; i < hanzi.length; i++) {
-                        let span = document.getElementById('c-' + (startPos + i));
+                        let span = document.getElementById('rc-' + (startPos + i));
                         if (span && (span.classList.contains('is-vocab-added') || span.classList.contains('is-vocab-queued'))) {
                             alreadyHighlighted = true; break;
                         }
@@ -2512,7 +2507,7 @@ const firebaseConfig = {
                     
                     if (!alreadyHighlighted) {
                         for (let i = 0; i < hanzi.length; i++) {
-                            let span = document.getElementById('c-' + (startPos + i));
+                            let span = document.getElementById('rc-' + (startPos + i));
                             if (span) {
                                 span.classList.add(hlClass);
                                 span.setAttribute('data-cidx', item.cIdx);
@@ -2578,48 +2573,69 @@ const firebaseConfig = {
             }
         }
 
+                        let isReadingPaused = false;
+        let readingUtterance = null;
+
         function playReadingAudio(speed) {
             let text = document.getElementById('lessonReadingText').value;
             if (!text) return alert("Chưa có nội dung để đọc!");
-            
+
             window.speechSynthesis.cancel();
-            let u = new SpeechSynthesisUtterance(text);
-            u.lang = 'zh-CN';
-            u.rate = speed || 1;
+            isReadingPaused = false;
+            
+            let toggleBtn = document.getElementById('btnToggleReading');
+            if (toggleBtn) toggleBtn.innerText = '⏸';
+
+            readingUtterance = new SpeechSynthesisUtterance(text);
+            readingUtterance.lang = 'zh-CN';
+            readingUtterance.rate = speed || 1;
             
             const spans = document.querySelectorAll('.reading-char');
             
-            u.onboundary = (event) => {
-                if (event.name === 'word' || event.name === 'sentence') {
-                    // Xóa highlight cũ
-                    spans.forEach(s => s.classList.remove('active-word'));
-                    
-                    // Highlight chữ hiện tại
-                    const charIndex = event.charIndex;
-                    const charLength = event.charLength || 1;
-                    
-                    for (let i = 0; i < charLength; i++) {
-                        const target = document.getElementById(`rc-${charIndex + i}`);
-                        if (target) {
-                            target.classList.add('active-word');
-                            // Tự động cuộn đến chữ đang đọc
-                            if (i === 0) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
+            readingUtterance.onboundary = (event) => {
+                spans.forEach(s => s.classList.remove('active-word'));
+                const charIndex = event.charIndex;
+                const charLength = event.charLength || 1;
+                
+                for (let i = 0; i < charLength; i++) {
+                    const target = document.getElementById('rc-' + (charIndex + i));
+                    if (target) {
+                        target.classList.add('active-word');
+                        if (i === 0) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                 }
             };
             
-            u.onend = () => {
+            readingUtterance.onend = () => {
                 spans.forEach(s => s.classList.remove('active-word'));
+                isReadingPaused = false;
+                if (toggleBtn) toggleBtn.innerText = '▶';
             };
             
-            window.speechSynthesis.speak(u);
+            window.speechSynthesis.speak(readingUtterance);
+        }
+
+        function toggleReadingAudio() {
+            let toggleBtn = document.getElementById('btnToggleReading');
+            if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+                window.speechSynthesis.pause();
+                isReadingPaused = true;
+                if (toggleBtn) toggleBtn.innerText = '▶';
+            } else if (window.speechSynthesis.paused && isReadingPaused) {
+                window.speechSynthesis.resume();
+                isReadingPaused = false;
+                if (toggleBtn) toggleBtn.innerText = '⏸';
+            } else {
+                playReadingAudio(1);
+            }
         }
 
         function stopReadingAudio() {
             window.speechSynthesis.cancel();
-            const spans = document.querySelectorAll('.reading-char');
-            spans.forEach(s => s.classList.remove('active-word'));
+            isReadingPaused = false;
+            document.querySelectorAll('.reading-char').forEach(s => s.classList.remove('active-word'));
+            let toggleBtn = document.getElementById('btnToggleReading');
+            if (toggleBtn) toggleBtn.innerText = '▶';
         }
 
         // Logic chọn văn bản để thêm từ vựng
@@ -2737,6 +2753,8 @@ const firebaseConfig = {
                 showToast("Từ " + text + " đã có trong danh sách!");
             }
         }
+
+        function showToast(msg) { alert(msg); }
 
         function resetFormFields() {
             if (document.getElementById('pinyin').value === "Đang lấy...") document.getElementById('pinyin').value = "";
@@ -2878,7 +2896,7 @@ const firebaseConfig = {
         }
 
         let currentVocabPage = 1;
-        const VOCAB_PER_PAGE = 10;
+        const VOCAB_PER_PAGE = 50;
 
         function renderWordList() {
             let list = document.getElementById('wordListChips'); 
@@ -2945,6 +2963,46 @@ const firebaseConfig = {
                     <button type="button" class="btn btn-audio-mini" ${currentVocabPage === totalPages ? 'disabled style="opacity:0.5"' : ''} onclick="currentVocabPage++; renderWordList()">Sau ➡</button>
                 </div>`;
                 list.innerHTML += paginationHTML;
+            }
+        }
+
+        function showWordPanel(panel) {
+            document.getElementById('wordEmptyView').style.display = 'none';
+            document.getElementById('wordDetailView').style.display = 'none';
+            document.getElementById('wordFormView').style.display = 'none';
+            
+            if (panel === 'empty') document.getElementById('wordEmptyView').style.display = 'flex';
+            else if (panel === 'detail') document.getElementById('wordDetailView').style.display = 'flex';
+            else if (panel === 'form') document.getElementById('wordFormView').style.display = 'flex';
+        }
+
+        function viewWord(i) {
+            editingIndex = i;
+            let w = courses[currentCourseIndex].vocab[currentLessonIndex].words[i];
+            document.getElementById('detHanzi').innerText = w.hanzi;
+            document.getElementById('detPinyin').innerText = w.pinyin || '';
+            document.getElementById('detWordType').innerText = w.wordType || '?';
+            document.getElementById('detWordType').style.display = w.wordType ? 'inline-block' : 'none';
+            
+            let tagsHtml = (w.tags || []).map(t => `<span style="background:#e1f5fe; color:#2980b9; padding:2px 8px; border-radius:4px; font-size:12px; border:1px solid #b3e5fc;">#${t}</span>`).join('');
+            document.getElementById('detWordTagsContainer').innerHTML = tagsHtml;
+            
+            document.getElementById('detNghia').innerText = w.nghia;
+            document.getElementById('detExHan').innerText = w.exHan || '(Chưa có ví dụ)';
+            document.getElementById('detExPinyin').innerText = w.exPinyin || '';
+            document.getElementById('detExViet').innerText = w.exViet || '';
+            if(w.img) {
+                document.getElementById('detImg').src = w.img;
+                document.getElementById('detImg').style.display = 'block';
+            } else {
+                document.getElementById('detImg').style.display = 'none';
+            }
+            showWordPanel('detail');
+            renderWordList(); 
+            if (window.innerWidth <= 1200) {
+                setTimeout(() => {
+                    document.getElementById('wordDetailPanel').scrollIntoView({behavior: 'smooth', block: 'start'});
+                }, 100);
             }
         }
 
@@ -3405,7 +3463,7 @@ const firebaseConfig = {
             let k = userProfile.apiKey || "";
             if (k && k.trim() !== "") return k.trim();
             // Fallback to default deepseek key
-            return "sk-1773438833b741bc91f4353a0a56c74d";
+            alert("Vui lòng cấu hình API Key trong phần Hồ Sơ để sử dụng AI!"); return "";
         }
 
         async function generateStory() {
@@ -4182,9 +4240,9 @@ Trả về ĐÚNG định dạng JSON này (không thêm gì khác):
             let currentLesson = courses[currentCourseIndex].vocab[currentLessonIndex];
             if (!currentLesson.words) return;
 
-            let incompleteWords = currentLesson.words.filter(w => !w.pinyin || !w.nghia);
+                        let incompleteWords = currentLesson.words.filter(w => !w.pinyin || !w.nghia || !w.exHan || !w.exViet);
             if (incompleteWords.length === 0) {
-                alert("Không có từ mới nào cần AI hoàn thiện.");
+                alert("Không có từ mới nào thiếu thông tin để AI hoàn thiện.");
                 return;
             }
 
@@ -4196,18 +4254,20 @@ Trả về ĐÚNG định dạng JSON này (không thêm gì khác):
             if (qBtn) qBtn.innerHTML = "✨ ĐANG XỬ LÝ...";
 
             let wordListText = wordsToProcess.map(w => w.hanzi).join(", ");
-            let promptText = `Bạn là trợ lý AI dạy tiếng Trung HSK. Hãy cung cấp Pinyin, Hán Việt, và Nghĩa tiếng Việt cho danh sách các từ sau: ${wordListText}. Trả về một mảng JSON nguyên gốc, mỗi phần tử là một object có các trường: "hanzi", "pinyin", "exViet" (là Hán Việt), "nghia". Ví dụ: [{"hanzi": "我", "pinyin": "wǒ", "exViet": "ngã", "nghia": "tôi"}, ...]`;
+            let promptText = `Bạn là trợ lý AI dạy tiếng Trung HSK. Hãy hoàn thiện thông tin cho danh sách các từ sau: ${wordListText}. 
+Trình bày kết quả dưới dạng một mảng JSON nguyên gốc, mỗi phần tử là một object có các trường: 
+- "hanzi" (Chữ Hán)
+- "pinyin" (Pinyin của từ)
+- "wordType" (Loại từ, vd: Danh từ, Động từ...)
+- "nghia" (Nghĩa tiếng Việt của từ)
+- "exHan" (1 câu ví dụ tiếng Trung ngắn gọn, tự nhiên)
+- "exPinyin" (Pinyin của câu ví dụ)
+- "exViet" (Dịch nghĩa tiếng Việt của câu ví dụ)
+Ví dụ: [{"hanzi": "我", "pinyin": "wǒ", "wordType": "Đại từ", "nghia": "tôi", "exHan": "我是越南人。", "exPinyin": "wǒ shì yuènán rén.", "exViet": "Tôi là người Việt Nam."}, ...]`;
 
             try {
-                let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{parts: [{text: promptText}]}] })
-                });
-                let data = await response.json();
-                if (data.error) throw new Error(data.error.message);
-                
-                let rawText = data.candidates[0].content.parts[0].text;
+                let rawText = await callAI(promptText);
+                if (!rawText) return;
                 let jsonStr = rawText.match(/\[.*\]/s);
                 
                 if (jsonStr) {
@@ -4216,10 +4276,13 @@ Trả về ĐÚNG định dạng JSON này (không thêm gì khác):
                     
                     aiDataList.forEach(aiData => {
                         let targetWord = currentLesson.words.find(w => w.hanzi === aiData.hanzi);
-                        if (targetWord && (!targetWord.pinyin || !targetWord.nghia)) {
+                        if (targetWord) {
                             targetWord.pinyin = aiData.pinyin || targetWord.pinyin;
-                            targetWord.exViet = aiData.exViet || targetWord.exViet;
+                            targetWord.wordType = aiData.wordType || targetWord.wordType || '';
                             targetWord.nghia = aiData.nghia || targetWord.nghia;
+                            targetWord.exHan = aiData.exHan || targetWord.exHan || '';
+                            targetWord.exPinyin = aiData.exPinyin || targetWord.exPinyin || '';
+                            targetWord.exViet = aiData.exViet || targetWord.exViet || '';
                             updatedCount++;
                         }
                     });
