@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -1623,14 +1623,28 @@
                 <div class="form-group"><label>Deepseek API Key (Cho tính năng AI):</label><input type="password" id="profApiKey" placeholder="AIzaSy..."></div>
                 <button type="button" class="btn btn-primary" onclick="saveProfile()">💾 LƯU CẬP NHẬT</button>
             
-            <div style="margin-top:30px; padding:20px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc;" id="dataManagementPanel">
-                <h3 style="margin-top:0;">📦 Sao lưu / Phục hồi Dữ liệu</h3>
-                <p style="font-size:14px; color:#7f8c8d;">Xuất toàn bộ Khóa học và Từ vựng của bạn ra file JSON để lưu trữ, hoặc Nhập từ file JSON để khôi phục.</p>
+                        <div style="margin-top:30px; padding:20px; background:#e8f4f8; border-radius:10px; border:2px solid #3498db;" id="recoveryCenterPanel">
+                <h3 style="margin-top:0; color:#2980b9;">🚑 Trạm Cứu Hộ Dữ Liệu (Recovery Center)</h3>
+                <p style="font-size:14px; color:#2c3e50;">Hệ thống lưu trữ 2 bản sao: trên máy (IndexedDB) và trên mạng (Cloud). Nếu bạn thấy mất từ vựng, hãy quét để kiểm tra bản lưu nào mới nhất và khôi phục!</p>
+                <div style="background:#fff; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #ddd;">
+                    <div id="recoveryStatus" style="font-size:15px; margin-bottom:10px;"><i>Chưa quét dữ liệu...</i></div>
+                </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <button type="button" class="btn btn-primary" style="margin:0;" onclick="exportData()">⬇️ Xuất dữ liệu (Export)</button>
-                    <button type="button" class="btn btn-create" style="margin:0;" onclick="document.getElementById('importFile').click()">⬆️ Nhập dữ liệu (Import)</button>
+                    <button type="button" class="btn btn-primary" style="margin:0; background:#f39c12;" onclick="scanRecoveryData()">🔍 Quét dữ liệu</button>
+                    <button type="button" id="btnRestoreLocal" class="btn btn-create" style="margin:0; display:none;" onclick="restoreFromLocal()">🔄 Khôi phục từ Máy tính</button>
+                    <button type="button" id="btnRestoreCloud" class="btn btn-create" style="margin:0; background:#9b59b6; display:none;" onclick="restoreFromCloud()">☁️ Khôi phục từ Cloud</button>
+                </div>
+            </div>
+
+            <div style="margin-top:20px; padding:20px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc;" id="dataManagementPanel">
+                <h3 style="margin-top:0;">💾 Tải & Nhập File Cứng (Backup JSON)</h3>
+                <p style="font-size:14px; color:#7f8c8d;">Xuất toàn bộ Khóa học và Từ vựng ra file JSON cứng để lưu trữ an toàn trong USB/Ổ cứng, hoặc Nhập từ file JSON để khôi phục.</p>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-primary" style="margin:0;" onclick="exportData()">⬇️ Tải File (Export)</button>
+                    <button type="button" class="btn btn-create" style="margin:0;" onclick="document.getElementById('importFile').click()">⬆️ Nhập File (Import)</button>
                     <input type="file" id="importFile" style="display:none;" accept=".json" onchange="importData(event)">
                 </div>
+            </div>
             </div>
             </div>
         </div>
@@ -1793,30 +1807,92 @@ const firebaseConfig = {
         });
 
         // DATA
-        function startRadar() {
+                // --- IndexedDB Wrapper for robust local storage ---
+        const IDB_NAME = 'TadChineseDB';
+        const IDB_VERSION = 1;
+        const STORE_NAME = 'backups';
+
+        function initIDB() {
+            return new Promise((resolve, reject) => {
+                let request = indexedDB.open(IDB_NAME, IDB_VERSION);
+                request.onupgradeneeded = (e) => {
+                    let db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME);
+                    }
+                };
+                request.onsuccess = (e) => resolve(e.target.result);
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function setIDB(key, value) {
+            try {
+                let db = await initIDB();
+                return new Promise((resolve, reject) => {
+                    let tx = db.transaction(STORE_NAME, 'readwrite');
+                    let store = tx.objectStore(STORE_NAME);
+                    let req = store.put(value, key);
+                    req.onsuccess = () => resolve();
+                    req.onerror = () => reject(req.error);
+                });
+            } catch (e) {
+                console.error("IndexedDB set failed, falling back to localStorage", e);
+                localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+            }
+        }
+
+        async function getIDB(key) {
+            try {
+                let db = await initIDB();
+                return new Promise((resolve, reject) => {
+                    let tx = db.transaction(STORE_NAME, 'readonly');
+                    let store = tx.objectStore(STORE_NAME);
+                    let req = store.get(key);
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => reject(req.error);
+                });
+            } catch (e) {
+                console.warn("IndexedDB get failed, falling back to localStorage", e);
+                let val = localStorage.getItem(key);
+                try { return val ? JSON.parse(val) : null; } catch(err) { return val; }
+            }
+        }
+        // ----------------------------------------------------
+
+        async function startRadar() {
             document.getElementById('loadingScreen').style.display = 'flex';
+            
+            let backupKey = 'tad_backup_' + auth.currentUser.uid;
+            let backupData = await getIDB(backupKey);
+            if (!backupData) {
+                let lsBackup = localStorage.getItem(backupKey);
+                if (lsBackup) {
+                    try { backupData = JSON.parse(lsBackup); } catch(e){}
+                }
+            }
+
+            if (backupData && backupData.profile) {
+                userProfile = backupData.profile;
+                courses = backupData.courses || [];
+            }
+
             unsubscribeSnapshot = cloudDoc.onSnapshot(doc => {
                 let data = doc.data() || {};
                 
-                                let backup = localStorage.getItem('tad_backup_' + auth.currentUser.uid);
-                if (backup) {
-                    try {
-                        let backupData = JSON.parse(backup);
-                        let localTime = backupData.profile?.lastUpdatedAt || 0;
-                        let cloudTime = data.profile?.lastUpdatedAt || 0;
-                        
-                        if ((!data.courses || data.courses.length === 0) || (localTime > cloudTime + 10000)) {
-                            console.warn("Phát hiện dữ liệu Local mới hơn Cloud hoặc Cloud trống! Đang khôi phục từ Local...");
-                            data = backupData;
-                            cloudDoc.set(data, { merge: true }); 
-                        }
-                    } catch(e) {
-                        console.error("Lỗi đọc backup:", e);
+                let cloudTime = data.profile?.lastUpdatedAt || 0;
+                let localTime = userProfile.lastUpdatedAt || 0;
+                
+                if ((!data.courses || data.courses.length === 0) || (localTime > cloudTime + 10000)) {
+                    console.warn("Phát hiện dữ liệu Local mới hơn Cloud! Đang dùng Local...");
+                    data = { courses, profile: userProfile };
+                    if (localTime > cloudTime + 10000) {
+                        cloudDoc.set(data, { merge: true }).catch(e => console.error(e));
                     }
                 }
 
                 if (data.courses && data.courses.length > 0) {
-                    localStorage.setItem('tad_backup_' + auth.currentUser.uid, JSON.stringify(data));
+                    setIDB(backupKey, data);
                 }
 
                 let isReviewing = document.getElementById('viewFlashcard') && document.getElementById('viewFlashcard').style.display === 'flex';
@@ -1945,13 +2021,92 @@ const firebaseConfig = {
                 alert("Lỗi lưu dữ liệu lên Cloud: " + err.message);
             });
 
-            localStorage.setItem('tad_backup_' + auth.currentUser.uid, JSON.stringify({ courses, profile: userProfile }));
+                        let dataToSave = { courses, profile: userProfile, v: 2 };
+            let size = JSON.stringify(dataToSave).length;
+            if (size > 900000) {
+                alert("⚠ CẢNH BÁO: Dữ liệu của bạn đã đạt " + Math.round(size/1024) + "KB (giới hạn Cloud là 1000KB). Mặc dù dữ liệu vẫn được lưu an toàn trên máy (IndexedDB), nhưng sẽ sớm không thể đồng bộ lên Cloud! Vui lòng tải File dự phòng thường xuyên hoặc xóa bớt nội dung cũ!");
+            }
+            setIDB('tad_backup_' + auth.currentUser.uid, dataToSave);
         }
 
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
             userProfile.isDarkMode = document.body.classList.contains('dark-mode');
             sync();
+        }
+
+                let globalLocalBackup = null;
+        let globalCloudBackup = null;
+
+        async function scanRecoveryData() {
+            let statusDiv = document.getElementById('recoveryStatus');
+            statusDiv.innerHTML = "<i>Đang quét dữ liệu...</i>";
+            
+            try {
+                // Đọc Local
+                let backupKey = 'tad_backup_' + auth.currentUser.uid;
+                globalLocalBackup = await getIDB(backupKey);
+                if (!globalLocalBackup) {
+                    let lsBackup = localStorage.getItem(backupKey);
+                    if (lsBackup) { try { globalLocalBackup = JSON.parse(lsBackup); } catch(e){} }
+                }
+
+                // Đọc Cloud
+                let doc = await cloudDoc.get();
+                globalCloudBackup = doc.exists ? doc.data() : null;
+
+                let localStr = globalLocalBackup ? formatDate(globalLocalBackup.profile?.lastUpdatedAt || 0) : "Không có";
+                let localWordCount = countTotalWords(globalLocalBackup?.courses);
+                
+                let cloudStr = globalCloudBackup ? formatDate(globalCloudBackup.profile?.lastUpdatedAt || 0) : "Không có";
+                let cloudWordCount = countTotalWords(globalCloudBackup?.courses);
+
+                                statusDiv.innerHTML = 
+                    '<b>💻 Dữ liệu trên Máy tính (Local):</b> Lưu lúc <b>' + localStr + '</b> (Có ' + localWordCount + ' từ vựng)<br>' +
+                    '<b>☁️ Dữ liệu trên Đám mây (Cloud):</b> Lưu lúc <b>' + cloudStr + '</b> (Có ' + cloudWordCount + ' từ vựng)';
+                
+                if (globalLocalBackup) document.getElementById('btnRestoreLocal').style.display = 'inline-block';
+                if (globalCloudBackup) document.getElementById('btnRestoreCloud').style.display = 'inline-block';
+
+            } catch (e) {
+                statusDiv.innerHTML = '<span style="color:red">Lỗi quét dữ liệu: ' + e.message + '</span>';
+            }
+        }
+
+        function countTotalWords(c_array) {
+            if (!c_array) return 0;
+            let count = 0;
+            c_array.forEach(c => (c.vocab || []).forEach(l => { count += (l.words || []).length; }));
+            return count;
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return "Không rõ";
+            return new Date(timestamp).toLocaleString('vi-VN');
+        }
+
+        async function restoreFromLocal() {
+            if (!globalLocalBackup) return alert("Không tìm thấy dữ liệu trên máy tính!");
+            if (confirm("Hành động này sẽ XÓA dữ liệu hiện tại và lấy dữ liệu trên máy tính đè lên. Bạn có chắc chắn?")) {
+                courses = globalLocalBackup.courses || [];
+                userProfile = globalLocalBackup.profile || userProfile;
+                userProfile.lastUpdatedAt = Date.now();
+                await cloudDoc.set({ courses, profile: userProfile, v: 2 }, { merge: true });
+                alert("Khôi phục từ máy tính thành công! Trình duyệt sẽ tải lại.");
+                window.location.reload();
+            }
+        }
+
+        async function restoreFromCloud() {
+            if (!globalCloudBackup) return alert("Không tìm thấy dữ liệu trên Cloud!");
+            if (confirm("Hành động này sẽ lấy dữ liệu trên Cloud đè lên dữ liệu trên máy. Bạn có chắc chắn?")) {
+                courses = globalCloudBackup.courses || [];
+                userProfile = globalCloudBackup.profile || userProfile;
+                userProfile.lastUpdatedAt = Date.now();
+                await setIDB('tad_backup_' + auth.currentUser.uid, { courses, profile: userProfile });
+                alert("Khôi phục từ Cloud thành công! Trình duyệt sẽ tải lại.");
+                window.location.reload();
+            }
         }
 
         function exportData() {
