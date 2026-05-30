@@ -1798,17 +1798,20 @@ const firebaseConfig = {
             unsubscribeSnapshot = cloudDoc.onSnapshot(doc => {
                 let data = doc.data() || {};
                 
-                if (!data.courses || data.courses.length === 0) {
-                    let backup = localStorage.getItem('tad_backup_' + auth.currentUser.uid);
-                    if (backup) {
-                        try {
-                            let backupData = JSON.parse(backup);
-                            if (backupData.courses && backupData.courses.length > 0) {
-                                console.warn("Phát hiện dữ liệu trên máy chủ trống rỗng bất thường! Đang khôi phục từ bộ nhớ đệm...");
-                                data = backupData;
-                                cloudDoc.set(data, { merge: true }); 
-                            }
-                        } catch(e) {}
+                                let backup = localStorage.getItem('tad_backup_' + auth.currentUser.uid);
+                if (backup) {
+                    try {
+                        let backupData = JSON.parse(backup);
+                        let localTime = backupData.profile?.lastUpdatedAt || 0;
+                        let cloudTime = data.profile?.lastUpdatedAt || 0;
+                        
+                        if ((!data.courses || data.courses.length === 0) || (localTime > cloudTime + 10000)) {
+                            console.warn("Phát hiện dữ liệu Local mới hơn Cloud hoặc Cloud trống! Đang khôi phục từ Local...");
+                            data = backupData;
+                            cloudDoc.set(data, { merge: true }); 
+                        }
+                    } catch(e) {
+                        console.error("Lỗi đọc backup:", e);
                     }
                 }
 
@@ -1924,15 +1927,25 @@ const firebaseConfig = {
                 userProfile.lastReviewDate = today;
                 userProfile.dailyReviewedWords = 0;
             }
-            cloudDoc.set({ courses, profile: userProfile, v: 2 }, { merge: true }); 
-            localStorage.setItem('tad_backup_' + auth.currentUser.uid, JSON.stringify({ courses, profile: userProfile }));
+                        userProfile.lastUpdatedAt = Date.now();
             
-            if (syncStatus) {
-                setTimeout(() => {
-                    syncStatus.innerHTML = '☁️ Đã lưu';
+            cloudDoc.set({ courses, profile: userProfile, v: 2 }, { merge: true })
+            .then(() => {
+                if (syncStatus) {
+                    syncStatus.innerHTML = '✅ Đã lưu';
                     syncStatus.style.color = '#27ae60';
-                }, 500);
-            }
+                }
+            })
+            .catch(err => {
+                console.error("Lỗi lưu:", err);
+                if (syncStatus) {
+                    syncStatus.innerHTML = '❌ Lỗi lưu';
+                    syncStatus.style.color = '#e74c3c';
+                }
+                alert("Lỗi lưu dữ liệu lên Cloud: " + err.message);
+            });
+
+            localStorage.setItem('tad_backup_' + auth.currentUser.uid, JSON.stringify({ courses, profile: userProfile }));
         }
 
         function toggleDarkMode() {
