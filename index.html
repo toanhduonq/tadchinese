@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -1466,13 +1466,13 @@
                     
                     <div id="vocabQueuePanel" style="flex:1; display:flex; flex-direction:column; background:white; border-radius:10px; border:1px solid #ddd; box-shadow:0 2px 10px rgba(0,0,0,0.05); overflow:hidden;">
                         <div style="padding:15px; background:linear-gradient(135deg, #fdfbfb, #ebedee); border-bottom:1px solid #ddd;">
-                            <h3 style="margin:0; font-size:16px; color:#2c3e50;">Hàng chờ AI (<span id="queueCount">0</span>)</h3>
+                            <h3 style="margin:0; font-size:16px; color:#2c3e50;">Hàng chờ (<span id="queueCount">0</span>)</h3>
                             <p style="margin:5px 0 0 0; font-size:12px; color:#7f8c8d;">Bôi đen từ trên bài đọc để thêm.</p>
                         </div>
                         <div id="readingVocabQueue" style="flex:1; padding:15px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
                         </div>
                         <div style="padding:15px; border-top:1px solid #ddd; background:#f9f9f9;">
-                            <button type="button" id="btnProcessQueue" class="btn btn-primary" style="width:100%; margin:0; background:linear-gradient(135deg, #9b59b6, #8e44ad); border:none; display:none;" onclick="switchLessonTab('vocab'); setTimeout(()=>runAIBatchComplete(), 100);">✨ THÊM HÀNG LOẠT (AI)</button>
+                            <button type="button" id="btnProcessQueue" class="btn btn-primary" style="width:100%; margin:0; background:linear-gradient(135deg, #9b59b6, #8e44ad); border:none; display:none;" onclick="commitQueueToVocab();">📥 THÊM VÀO TỪ VỰNG</button>
                         </div>
                     </div>
                 </div>
@@ -1583,6 +1583,24 @@
         <button type="button" class="btn btn-primary" onclick="addGrammar()">+ THÊM NGỮ PHÁP</button>
     </div>
     <div id="grammarListArea" style="display:flex; flex-direction:column; gap:10px;"></div>
+    <div id="grammarFormArea" class="panel" style="display:none; margin-top:20px;">
+        <h3 id="grammarFormTitle" style="margin-top:0">Thêm ngữ pháp mới</h3>
+        <div class="form-group">
+            <label>Tiêu đề:</label>
+            <input type="text" id="grammarTitle" placeholder="Ví dụ: Ngữ pháp 1: Câu chữ Ba">
+        </div>
+        <div class="form-group">
+            <label>Nội dung chi tiết:</label>
+            <div style="margin-bottom:10px">
+                <button class="btn" style="background:#8e44ad;" onclick="aiExplainGrammar()">✨ AI GIẢI THÍCH NGỮ PHÁP</button>
+            </div>
+            <textarea id="grammarContent" style="width:100%; height:200px; padding:15px; border-radius:10px; border:1px solid #ddd; font-size:16px; line-height:1.6; box-sizing:border-box;" placeholder="Ghi chú giải thích ngữ pháp vào đây..."></textarea>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:20px">
+            <button class="btn btn-primary" style="flex:1" onclick="saveGrammarPoint()">💾 LƯU NGỮ PHÁP</button>
+            <button class="btn btn-back" style="margin:0" onclick="closeGrammarForm()">Hủy</button>
+        </div>
+    </div>
 </div>
 
 <!-- TAB DICTATION -->
@@ -1751,6 +1769,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore-compat.js"></script>
     <script>
+// === UPDATED: 2026-05-31 15:26:06 ===
 const firebaseConfig = {
             apiKey: "AIzaSyAwQt0RW2Ms2w8driFKjBHQnajBC0cHLoE",
             authDomain: "tadchinese.firebaseapp.com",
@@ -1882,13 +1901,14 @@ const firebaseConfig = {
                 
                 let cloudTime = data.profile?.lastUpdatedAt || 0;
                 let localTime = userProfile.lastUpdatedAt || 0;
+                let cloudHasData = data.courses && data.courses.length > 0;
+                let localHasData = courses && courses.length > 0;
                 
-                if ((!data.courses || data.courses.length === 0) || (localTime > cloudTime + 10000)) {
-                    console.warn("Phát hiện dữ liệu Local mới hơn Cloud! Đang dùng Local...");
+                // Chỉ dùng Local khi: Local CÓ dữ liệu thật VÀ (Cloud rỗng HOẶC Local mới hơn Cloud 10s+)
+                if (localHasData && (!cloudHasData || localTime > cloudTime + 10000)) {
+                    console.warn("Dùng dữ liệu Local (Local có " + courses.length + " khóa, Cloud có " + (data.courses?.length || 0) + " khóa)");
                     data = { courses, profile: userProfile };
-                    if (localTime > cloudTime + 10000) {
-                        cloudDoc.set(data, { merge: true }).catch(e => console.error(e));
-                    }
+                    cloudDoc.set(data, { merge: true }).catch(e => console.error(e));
                 }
 
                 if (data.courses && data.courses.length > 0) {
@@ -1983,19 +2003,12 @@ const firebaseConfig = {
                 syncStatus.style.color = '#f39c12';
             }
 
-            if (!courses || courses.length === 0) {
-                let backup = localStorage.getItem('tad_backup_' + auth.currentUser.uid);
-                if (backup) {
-                    let backupData = JSON.parse(backup);
-                    if (backupData.courses && backupData.courses.length > 0) {
-                        console.error("ANTI-OVERWRITE: Hệ thống vừa chặn lệnh xóa sạch dữ liệu!");
-                        if (syncStatus) {
-                            syncStatus.innerHTML = '❌ Lỗi lưu';
-                            syncStatus.style.color = '#e74c3c';
-                        }
-                        return;
-                    }
-                }
+            // Luôn lưu profile (tên, API key, bạn bè...) bất kể courses có rỗng hay không
+            let dataToWrite = { profile: userProfile, v: 2 };
+
+            // Chỉ ghi courses nếu có dữ liệu thật (ANTI-OVERWRITE)
+            if (courses && courses.length > 0) {
+                dataToWrite.courses = courses;
             }
 
             let today = new Date().toISOString().split('T')[0];
@@ -2003,7 +2016,7 @@ const firebaseConfig = {
                 userProfile.lastReviewDate = today;
                 userProfile.dailyReviewedWords = 0;
             }
-                        userProfile.lastUpdatedAt = Date.now();
+            userProfile.lastUpdatedAt = Date.now();
             
             cloudDoc.set({ courses, profile: userProfile, v: 2 }, { merge: true })
             .then(() => {
@@ -2021,7 +2034,7 @@ const firebaseConfig = {
                 alert("Lỗi lưu dữ liệu lên Cloud: " + err.message);
             });
 
-                        let dataToSave = { courses, profile: userProfile, v: 2 };
+            let dataToSave = { courses, profile: userProfile, v: 2 };
             let size = JSON.stringify(dataToSave).length;
             if (size > 900000) {
                 alert("⚠ CẢNH BÁO: Dữ liệu của bạn đã đạt " + Math.round(size/1024) + "KB (giới hạn Cloud là 1000KB). Mặc dù dữ liệu vẫn được lưu an toàn trên máy (IndexedDB), nhưng sẽ sớm không thể đồng bộ lên Cloud! Vui lòng tải File dự phòng thường xuyên hoặc xóa bớt nội dung cũ!");
@@ -2857,73 +2870,101 @@ const firebaseConfig = {
             document.addEventListener('touchstart', hideBtnOnTap, {passive: true});
         });
 
-                async         function updateReadingVocabQueue() {
+        function updateReadingVocabQueue() {
             let qList = document.getElementById('readingVocabQueue');
             if (!qList) return;
             qList.innerHTML = '';
             
-            if (currentCourseIndex < 0 || currentLessonIndex < 0) return;
-            let currentLesson = courses[currentCourseIndex]?.vocab[currentLessonIndex];
-            if (!currentLesson || !currentLesson.words) return;
-            
-            let incomplete = currentLesson.words.filter(w => !w.pinyin || !w.nghia);
-            
             let countEl = document.getElementById('queueCount');
-            if (countEl) countEl.innerText = incomplete.length;
+            if (countEl) countEl.innerText = pendingQueue.length;
             
-            incomplete.forEach(w => {
+            pendingQueue.forEach((text, idx) => {
                 let div = document.createElement('div');
-                div.style.padding = '8px 12px';
-                div.style.background = 'white';
-                div.style.borderRadius = '6px';
-                div.style.border = '1px solid #e0e0e0';
-                div.style.fontSize = '18px';
-                div.style.fontWeight = 'bold';
-                div.style.fontFamily = "'KaiTi', 'STKaiti', serif";
-                div.style.color = '#e67e22';
-                div.innerText = w.hanzi;
+                div.style.cssText = 'padding:8px 12px; background:white; border-radius:6px; border:1px solid #e0e0e0; font-size:18px; font-weight:bold; font-family:KaiTi,STKaiti,serif; color:#e67e22; display:flex; justify-content:space-between; align-items:center;';
+                let span = document.createElement('span');
+                span.innerText = text;
+                let delBtn = document.createElement('span');
+                delBtn.innerText = '✕';
+                delBtn.style.cssText = 'cursor:pointer; color:#e74c3c; font-size:14px; padding:2px 6px;';
+                delBtn.onclick = () => { pendingQueue.splice(idx, 1); updateReadingVocabQueue(); };
+                div.appendChild(span);
+                div.appendChild(delBtn);
                 qList.appendChild(div);
             });
             
             let btn = document.getElementById('btnProcessQueue');
             if (btn) {
-                if (incomplete.length > 0) {
-                    btn.style.display = 'block';
-                } else {
-                    btn.style.display = 'none';
-                }
+                btn.style.display = pendingQueue.length > 0 ? 'block' : 'none';
             }
         }
+
+        let pendingQueue = [];
 
         function addSelectedToVocab(text) {
             const floatBtn = document.getElementById('floatAddVocab');
             if (floatBtn) floatBtn.style.display = 'none';
-
-            let currentLesson = courses[currentCourseIndex].vocab[currentLessonIndex];
-            if (!currentLesson.words) currentLesson.words = [];
             
             text = text.replace(/[^\u4e00-\u9fa5]/g, '').trim();
             if (!text) return;
 
-            let exists = currentLesson.words.find(w => w.hanzi === text);
-            if (!exists) {
-                currentLesson.words.push({ hanzi: text, pinyin: '', nghia: '', exHan: '', exPinyin: '', exViet: '', img: '', tags: [], rep: 0, ease: 2.5, interval: 0, nextReview: 0, status: 'new' });
-                sync();
-                
-                if (document.getElementById('lessonReadingDisplay').style.display === 'block') {
-                    highlightVocabInReading();
-                }
-                renderWordList();
+            let currentLesson = courses[currentCourseIndex]?.vocab[currentLessonIndex];
+            if (!currentLesson) return;
+            if (!currentLesson.words) currentLesson.words = [];
+
+            // Kiểm tra trùng trong vocab VÀ trong queue
+            let inVocab = currentLesson.words.find(w => w.hanzi === text);
+            let inQueue = pendingQueue.find(w => w === text);
+            if (!inVocab && !inQueue) {
+                pendingQueue.push(text);
                 updateReadingVocabQueue();
-                
-                showToast("Đã thêm chữ Hán " + text);
-            } else {
-                showToast("Từ " + text + " đã có trong danh sách!");
+                showToast("✅ " + text);
             }
         }
 
-        function showToast(msg) { alert(msg); }
+        function commitQueueToVocab() {
+            if (pendingQueue.length === 0) return;
+            let currentLesson = courses[currentCourseIndex].vocab[currentLessonIndex];
+            if (!currentLesson.words) currentLesson.words = [];
+            
+            pendingQueue.forEach(text => {
+                let exists = currentLesson.words.find(w => w.hanzi === text);
+                if (!exists) {
+                    currentLesson.words.push({ hanzi: text, pinyin: '', nghia: '', exHan: '', exPinyin: '', exViet: '', img: '', tags: [], rep: 0, ease: 2.5, interval: 0, nextReview: 0, status: 'new' });
+                }
+            });
+            
+            pendingQueue = [];
+            sync();
+            renderWordList();
+            updateReadingVocabQueue();
+            if (document.getElementById('lessonReadingDisplay').style.display === 'block') {
+                highlightVocabInReading();
+            }
+            switchLessonTab('vocab');
+            showToast("✅ Đã thêm từ vào danh sách!");
+        }
 
+        function showToast(msg) {
+            let t = document.createElement('div');
+            t.innerText = msg;
+            t.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#2c3e50; color:white; padding:10px 24px; border-radius:30px; font-size:14px; font-weight:bold; z-index:99999; box-shadow:0 4px 15px rgba(0,0,0,0.3); opacity:0; transition:opacity 0.3s;';
+            document.body.appendChild(t);
+            requestAnimationFrame(() => { t.style.opacity = '1'; });
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 1500);
+        }
+
+        
+        function clearForm() {
+            if (document.getElementById('chuHan')) document.getElementById('chuHan').value = '';
+            if (document.getElementById('pinyin')) document.getElementById('pinyin').value = '';
+            if (document.getElementById('nghia')) document.getElementById('nghia').value = '';
+            if (document.getElementById('exHan')) document.getElementById('exHan').value = '';
+            if (document.getElementById('exPinyin')) document.getElementById('exPinyin').value = '';
+            if (document.getElementById('exViet')) document.getElementById('exViet').value = '';
+            if (document.getElementById('imgUrl')) document.getElementById('imgUrl').value = '';
+            if (document.getElementById('wordTags')) document.getElementById('wordTags').value = '';
+            if (document.getElementById('wordType')) document.getElementById('wordType').value = '';
+        }
         function resetFormFields() {
             if (document.getElementById('pinyin').value === "Đang lấy...") document.getElementById('pinyin').value = "";
             if (document.getElementById('nghia').value === "Đang lấy...") document.getElementById('nghia').value = "";
@@ -2931,6 +2972,7 @@ const firebaseConfig = {
 
         // GRAMMAR LOGIC
         let editingGrammarIndex = -1;
+
 
         function renderGrammarList() {
             let list = document.getElementById('grammarListArea');
@@ -2974,6 +3016,7 @@ const firebaseConfig = {
             }
         }
 
+        function addGrammar() { openGrammarForm(); }
         function openGrammarForm() {
             editingGrammarIndex = -1;
             document.getElementById('grammarTitle').value = '';
@@ -4471,7 +4514,7 @@ Ví dụ: [{"hanzi": "我", "pinyin": "wǒ", "wordType": "Đại từ", "nghia":
                 alert("Lỗi AI: " + err.message);
             } finally {
                 if (btn) btn.innerHTML = "✨ AI HOÀN THIỆN TỪ";
-                if (qBtn) qBtn.innerHTML = "✨ THÊM HÀNG LOẠT (AI)";
+                if (qBtn) qBtn.innerHTML = "📥 THÊM VÀO TỪ VỰNG";
             }
         }
 </script>
