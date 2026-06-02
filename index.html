@@ -1112,7 +1112,45 @@
                 border-radius: 30px !important;
             }
         }
-    </style>
+        /* --- HSKK STYLES --- */
+        .hskk-container { display: flex; flex-direction: column; align-items: center; padding: 20px; gap: 20px; max-width: 800px; margin: 0 auto; width: 100%; }
+        .hskk-level-selector { display: flex; gap: 15px; background: white; padding: 10px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .hskk-level-btn { padding: 10px 25px; border: none; border-radius: 15px; background: transparent; font-weight: bold; color: #7f8c8d; cursor: pointer; transition: all 0.3s; }
+        .hskk-level-btn.active { background: linear-gradient(135deg, #3498db, #9b59b6); color: white; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); }
+        .hskk-roulette-box { width: 100%; height: 120px; background: linear-gradient(135deg, #fdfbfb, #ebedee); border: 2px solid #ddd; border-radius: 20px; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; color: #2c3e50; overflow: hidden; position: relative; box-shadow: inset 0 4px 10px rgba(0,0,0,0.05); }
+        .hskk-roulette-text { 
+            position: absolute; 
+            transition: transform 0.1s linear; 
+            width: 90%;
+            text-align: center;
+            font-family: 'Noto Serif SC', 'KaiTi', 'Times New Roman', serif;
+            font-size: 26px;
+            color: #2c3e50;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .hskk-roulette-text.spinning {
+            animation: slotSpin 0.1s infinite linear;
+            filter: blur(1px);
+            color: #3498db;
+        }
+        @keyframes slotSpin {
+            0% { transform: translateY(-40px); opacity: 0.5; }
+            50% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(40px); opacity: 0.5; }
+        }
+        .hskk-btn-roll { padding: 15px 40px; font-size: 18px; font-weight: bold; background: #e74c3c; color: white; border: none; border-radius: 30px; cursor: pointer; box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4); transition: all 0.3s; }
+        .hskk-btn-roll:hover { transform: translateY(-2px); background: #c0392b; }
+        .hskk-exam-area { width: 100%; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); display: none; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+        .hskk-timer { font-size: 48px; font-weight: 800; color: #e67e22; font-variant-numeric: tabular-nums; }
+        .hskk-question-text { font-size: 28px; color: #2c3e50; margin: 20px 0; line-height: 1.5; }
+        .hskk-mic-btn { width: 80px; height: 80px; border-radius: 50%; background: #e74c3c; color: white; border: none; font-size: 30px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4); transition: all 0.3s; }
+        .hskk-mic-btn.recording { animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(231, 76, 60, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
+        .hskk-transcript { width: 100%; min-height: 100px; padding: 15px; border: 1px solid #ddd; border-radius: 10px; background: #f9f9f9; font-size: 18px; color: #34495e; text-align: left; }
+        .hskk-result-box { width: 100%; background: #f0f8ff; border: 2px solid #3498db; border-radius: 15px; padding: 20px; text-align: left; display: none; }
+        .hskk-score { font-size: 36px; font-weight: bold; color: #2ecc71; text-align: center; margin-bottom: 15px; }
+
+</style>
 </head>
 
     <!-- Tooltip hiển thị nghĩa -->
@@ -1158,11 +1196,51 @@
             <li class="nav-item" id="menu-public-vocab" onclick="showPublicVocab()">🌍 Kho Từ Vựng</li>
             <li class="nav-item" id="menu-mandarin" onclick="showMandarinBean()">📰 Đọc Truyện</li>
             <li class="nav-item" id="menu-hsk" onclick="showHSKTest()">📝 Thi HSK</li>
+            <li class="nav-item" id="menu-hskk" onclick="showHSKKTest()">🗣️ Thi HSKK</li>
         </ul>
     </nav>
 
     <div class="main-content" id="mainArea">
-        <button type="button" class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">☰ MỞ MENU CHÍNH</button>
+        <button type="button" class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">☰ MỞ MENU CHÍNH</button>        <!-- HSKK VIEW -->
+        <div id="viewHSKK" class="hskk-container" style="display:none;">
+            <h2>🎙️ Phòng Luyện Thi HSKK</h2>
+            
+            <div class="hskk-level-selector">
+                <button class="hskk-level-btn active" onclick="setHSKKLevel('Sơ cấp')">Sơ cấp</button>
+                <button class="hskk-level-btn" onclick="setHSKKLevel('Trung cấp')">Trung cấp</button>
+                <button class="hskk-level-btn" onclick="setHSKKLevel('Cao cấp')">Cao cấp</button>
+            </div>
+
+            <div class="hskk-roulette-box" id="hskkRoulette">
+                <div class="hskk-roulette-text" id="hskkRouletteText">Nhấn nút để bốc đề thi</div>
+            </div>
+
+            <button class="hskk-btn-roll" id="btnRollHSKK" onclick="startHSKKRoll()">🎲 QUAY CÂU HỎI</button>
+
+            <div class="hskk-exam-area" id="hskkExamArea">
+                <div style="font-size:18px; font-weight:bold; color:#7f8c8d;" id="hskkPhaseLabel">THỜI GIAN CHUẨN BỊ</div>
+                <div class="hskk-timer" id="hskkTimer">00:00</div>
+                <div class="hskk-question-text" id="hskkQuestionText">Câu hỏi sẽ hiện ở đây</div>
+                
+                <button class="btn" style="background:#3498db; color:white; border-radius:20px; display:none;" id="btnPlayHSKKAudio" onclick="playHSKKAudio()"><i class="fas fa-volume-up"></i> Nghe Câu Hỏi</button>
+
+                <button class="hskk-mic-btn" id="hskkMicBtn" onclick="toggleHSKKRecording()" style="display:none;" title="Bấm để ghi âm/dừng">🎤</button>
+                <div style="font-size:14px; color:#95a5a6;" id="hskkMicHint"></div>
+
+                <div class="hskk-transcript" id="hskkTranscript" placeholder="Nội dung bạn nói sẽ hiển thị ở đây..."></div>
+                
+                <button class="btn" style="background:#2ecc71; color:white; border-radius:20px; width:100%; padding:15px; font-size:18px; display:none;" id="btnSubmitHSKK" onclick="submitHSKK()">✅ NỘP BÀI & CHẤM ĐIỂM</button>
+
+                <div class="hskk-result-box" id="hskkResultBox">
+                    <div class="hskk-score" id="hskkScore">Điểm: 0/100</div>
+                    <h4 style="margin:10px 0 5px 0;">Nhận xét của Giám khảo AI:</h4>
+                    <div id="hskkFeedback" style="font-size:15px; line-height:1.5;"></div>
+                    <h4 style="margin:15px 0 5px 0; color:#3498db;">Câu trả lời mẫu gợi ý:</h4>
+                    <div id="hskkSuggestedAnswer" style="font-size:15px; line-height:1.5; color:#2c3e50; background:white; padding:10px; border-radius:8px;"></div>
+                </div>
+            </div>
+        </div>
+
         <div id="loadingScreen">
             <div class="loader"></div>
         </div>
@@ -2431,7 +2509,12 @@ const firebaseConfig = {
         }
 
         function refreshView() {
-            let activeViews = ['viewFlashcard', 'viewAIStory', 'viewAIChat', 'viewPublicVocab', 'viewHSKTest', 'viewMandarinBean', 'viewProfile', 'viewCourseList'];
+            let lastView = localStorage.getItem('tad_current_view');
+            if (lastView && typeof window[lastView] === 'function') {
+                window[lastView]();
+                return;
+            }
+            let activeViews = ['viewFlashcard', 'viewAIStory', 'viewAIChat', 'viewPublicVocab', 'viewHSKTest', 'viewHSKK', 'viewMandarinBean', 'viewProfile', 'viewCourseList'];
             for (let id of activeViews) {
                 let el = document.getElementById(id);
                 if (el && el.style.display !== 'none' && el.style.display !== '') return;
@@ -2455,6 +2538,7 @@ const firebaseConfig = {
         function showCourses() { hide(); localStorage.setItem('tad_current_view', 'showCourses'); document.getElementById('viewCourseList').style.display = 'block'; setActiveMenu('menu-courses'); renderCourses(); }
         function showMandarinBean() { hide(); localStorage.setItem('tad_current_view', 'showMandarinBean'); document.getElementById('viewMandarinBean').style.display = 'flex'; setActiveMenu('menu-mandarin'); }
         function showHSKTest() { hide(); localStorage.setItem('tad_current_view', 'showHSKTest'); document.getElementById('viewHSKTest').style.display = 'flex'; setActiveMenu('menu-hsk'); }
+        function showHSKKTest() { hide(); localStorage.setItem('tad_current_view', 'showHSKKTest'); document.getElementById('viewHSKK').style.display = 'flex'; setActiveMenu('menu-hskk'); resetHSKK(); }
         function renderCourses() {
             let grid = document.getElementById('courseGrid'); grid.innerHTML = '';
             courses.forEach((c, i) => grid.innerHTML += `<div class="card" onclick="openCourse(${i})"><span style="font-size:30px">📁</span><h4 style="margin:10px 0 0 0">${c.name}</h4><p style="font-size:13px; color:#7f8c8d; margin-top:5px">${c.vocab ? c.vocab.length : 0} Bài học</p></div>`);
@@ -3611,7 +3695,7 @@ const firebaseConfig = {
             window.speechSynthesis.speak(u); 
         }
         function playAudioInput() { playAudio(document.getElementById('chuHan').value); }
-        function hide() { ['viewDashboard', 'viewCourseList', 'viewMandarinBean', 'viewHSKTest', 'viewCourseDetail', 'viewLessonDetail', 'viewProfile', 'viewFlashcard', 'viewPublicVocab', 'viewAIStory', 'viewAIChat'].forEach(id => { let el = document.getElementById(id); if (el) el.style.display = 'none'; }); }
+        function hide() { ['viewDashboard', 'viewCourseList', 'viewMandarinBean', 'viewHSKTest', 'viewHSKK', 'viewCourseDetail', 'viewLessonDetail', 'viewProfile', 'viewFlashcard', 'viewPublicVocab', 'viewAIStory', 'viewAIChat'].forEach(id => { let el = document.getElementById(id); if (el) el.style.display = 'none'; }); }
 
         // --- TÍNH NĂNG AI ---
         function openAIStory() {
@@ -4568,6 +4652,258 @@ Ví dụ: [{"hanzi": "我", "pinyin": "wǒ", "wordType": "Đại từ", "nghia":
                 if (qBtn) qBtn.innerHTML = "📥 THÊM VÀO TỪ VỰNG";
             }
         }
+        // ==========================================
+        // HSKK LOGIC
+        // ==========================================
+        let currentHSKKLevel = 'Sơ cấp';
+        let hskkTimerInterval = null;
+        let hskkSpeechRec = null;
+        let isHSKKRecording = false;
+        let hskkFinalTranscript = "";
+        let hskkCurrentQuestion = "";
+        let hskkAnswerTimerStarted = false;
+
+        const HSKK_TOPICS = {
+            'Sơ cấp': [
+                "听后回答：你最喜欢吃什么？为什么？",
+                "听后回答：你周末常常做什么？",
+                "回答问题：请介绍你最好的朋友。",
+                "回答问题：你最喜欢哪个季节？为什么？"
+            ],
+            'Trung cấp': [
+                "回答问题：请描述一顿温馨的家庭晚餐。",
+                "回答问题：你认为金钱能买到快乐吗？",
+                "回答问题：请分享你最难忘的一次旅行。",
+                "回答问题：你对大学生做兼职有什么看法？"
+            ],
+            'Cao cấp': [
+                "朗读：无论在什么情况下，我们都应该保持乐观的心态去面对挑战。",
+                "回答问题：很多人认为事业比家庭更重要，你的看法是什么？",
+                "回答问题：社交媒体对现代年轻人的影响是什么？"
+            ]
+        };
+
+        function setHSKKLevel(level) {
+            currentHSKKLevel = level;
+            document.querySelectorAll('.hskk-level-btn').forEach(b => {
+                b.classList.remove('active');
+                if(b.innerText === level) b.classList.add('active');
+            });
+            resetHSKK(true);
+        }
+
+        function resetHSKK(clearQuestion = false) {
+            clearInterval(hskkTimerInterval);
+            hskkAnswerTimerStarted = false;
+            if (hskkSpeechRec) { try { hskkSpeechRec.stop(); } catch(e){} }
+            isHSKKRecording = false;
+            document.getElementById('hskkExamArea').style.display = 'none';
+            
+            let textEl = document.getElementById('hskkRouletteText');
+            if (clearQuestion) {
+                hskkCurrentQuestion = "";
+                textEl.innerText = "Nhấn nút để bốc đề thi";
+                textEl.style.color = '#2c3e50';
+                textEl.style.transform = 'scale(1)';
+            }
+            
+            document.getElementById('btnRollHSKK').style.display = 'block';
+            document.getElementById('btnRollHSKK').innerText = hskkCurrentQuestion ? "🎲 ĐỔI ĐỀ KHÁC" : "🎲 QUAY CÂU HỎI";
+            document.getElementById('hskkTranscript').innerText = "";
+            document.getElementById('hskkResultBox').style.display = 'none';
+            document.getElementById('btnSubmitHSKK').style.display = 'none';
+            document.getElementById('hskkMicBtn').classList.remove('recording');
+        }
+
+        function startHSKKRoll() {
+            resetHSKK(false);
+            let rollBtn = document.getElementById('btnRollHSKK');
+            rollBtn.style.display = 'none';
+            
+            let textEl = document.getElementById('hskkRouletteText');
+            textEl.classList.add('spinning');
+            
+            let topics = HSKK_TOPICS[currentHSKKLevel];
+            let count = 0;
+            
+            let rollInterval = setInterval(() => {
+                let randomTopic = topics[Math.floor(Math.random() * topics.length)];
+                textEl.innerText = randomTopic;
+                count++;
+                if (count > 25) {
+                    clearInterval(rollInterval);
+                    textEl.classList.remove('spinning');
+                    hskkCurrentQuestion = topics[Math.floor(Math.random() * topics.length)];
+                    textEl.innerText = hskkCurrentQuestion;
+                    textEl.style.transform = 'scale(1.1)';
+                    textEl.style.color = '#e74c3c';
+                    setTimeout(() => {
+                        textEl.style.transform = 'scale(1)';
+                        textEl.style.color = '#2c3e50';
+                        startHSKKExam(hskkCurrentQuestion);
+                    }, 1200);
+                }
+            }, 80);
+        }
+
+        function startHSKKExam(question) {
+            document.getElementById('hskkExamArea').style.display = 'flex';
+            document.getElementById('hskkQuestionText').innerText = question;
+            document.getElementById('btnPlayHSKKAudio').style.display = 'inline-block';
+            
+            startHSKKTimer(30, "THỜI GIAN CHUẨN BỊ (30s)", () => {
+                document.getElementById('btnPlayHSKKAudio').style.display = 'none';
+                startHSKKRecordingPhase();
+            });
+        }
+
+        function playHSKKAudio() {
+            let p = hskkCurrentQuestion.split('：');
+            let textToSpeak = p.length > 1 ? p[1] : hskkCurrentQuestion;
+            let u = new SpeechSynthesisUtterance(textToSpeak);
+            u.lang = 'zh-CN';
+            
+            let voices = window.speechSynthesis.getVoices();
+            let zhVoices = voices.filter(v => v.lang.includes('zh') || v.lang.includes('CN'));
+            let maleVoice = zhVoices.find(v => v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('kangkang') || v.name.toLowerCase().includes('yun'));
+            
+            if (maleVoice) u.voice = maleVoice;
+            else if (zhVoices.length > 0) u.voice = zhVoices.find(v => v.localService) || zhVoices[0];
+            
+            window.speechSynthesis.speak(u);
+        }
+
+        function startHSKKTimer(seconds, label, onComplete) {
+            document.getElementById('hskkPhaseLabel').innerText = label;
+            let el = document.getElementById('hskkTimer');
+            clearInterval(hskkTimerInterval);
+            
+            let remain = seconds;
+            el.innerText = Math.floor(remain / 60).toString().padStart(2, '0') + ":" + (remain % 60).toString().padStart(2, '0');
+            
+            hskkTimerInterval = setInterval(() => {
+                remain--;
+                if (remain < 0) remain = 0;
+                let m = Math.floor(remain / 60).toString().padStart(2, '0');
+                let s = (remain % 60).toString().padStart(2, '0');
+                el.innerText = m + ":" + s;
+                if (remain <= 0) {
+                    clearInterval(hskkTimerInterval);
+                    if(onComplete) onComplete();
+                }
+            }, 1000);
+        }
+
+        function startHSKKRecordingPhase() {
+            clearInterval(hskkTimerInterval);
+            document.getElementById('hskkPhaseLabel').innerText = "HẾT GIỜ CHUẨN BỊ. NHẤN MICRO ĐỂ BẮT ĐẦU TRẢ LỜI";
+            document.getElementById('hskkTimer').innerText = "01:00";
+            
+            document.getElementById('hskkMicBtn').style.display = 'flex';
+            document.getElementById('hskkMicHint').innerText = "Nhấn vào Micro để bắt đầu (Thời gian sẽ bắt đầu chạy)";
+            document.getElementById('btnSubmitHSKK').style.display = 'block';
+            hskkFinalTranscript = "";
+            document.getElementById('hskkTranscript').innerText = "";
+            
+            initHSKKSpeechRec();
+            hskkAnswerTimerStarted = false;
+        }
+
+        function initHSKKSpeechRec() {
+            let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Trình duyệt không hỗ trợ thu âm (Speech Recognition). Vui lòng dùng Google Chrome.");
+                return;
+            }
+            hskkSpeechRec = new SpeechRecognition();
+            hskkSpeechRec.lang = 'zh-CN';
+            hskkSpeechRec.continuous = true;
+            hskkSpeechRec.interimResults = true;
+            
+            hskkSpeechRec.onresult = (event) => {
+                let interimTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        hskkFinalTranscript += event.results[i][0].transcript + " ";
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+                document.getElementById('hskkTranscript').innerText = hskkFinalTranscript + interimTranscript;
+            };
+            
+            hskkSpeechRec.onerror = (e) => { console.error("Speech Rec Error:", e); };
+        }
+
+        function toggleHSKKRecording() {
+            let btn = document.getElementById('hskkMicBtn');
+            if (isHSKKRecording) {
+                hskkSpeechRec.stop();
+                btn.classList.remove('recording');
+                isHSKKRecording = false;
+                document.getElementById('hskkMicHint').innerText = "Đã dừng thu âm. Bạn có thể thu lại hoặc nộp bài.";
+            } else {
+                if (!hskkAnswerTimerStarted) {
+                    hskkAnswerTimerStarted = true;
+                    startHSKKTimer(60, "THỜI GIAN TRẢ LỜI (60s)", () => {
+                        if (isHSKKRecording) toggleHSKKRecording();
+                        document.getElementById('hskkMicBtn').style.display = 'none';
+                    });
+                }
+                
+                hskkFinalTranscript = ""; 
+                document.getElementById('hskkTranscript').innerText = "";
+                try { hskkSpeechRec.start(); } catch(e){}
+                btn.classList.add('recording');
+                isHSKKRecording = true;
+                document.getElementById('hskkMicHint').innerText = "Đang thu âm... (Hãy nói rõ ràng)";
+            }
+        }
+
+        async function submitHSKK() {
+            clearInterval(hskkTimerInterval);
+            if (isHSKKRecording) toggleHSKKRecording();
+            
+            let transcript = document.getElementById('hskkTranscript').innerText.trim();
+            if (!transcript) return alert("Bạn chưa nói gì cả! Hãy bấm Micro và thu âm câu trả lời.");
+
+            let btn = document.getElementById('btnSubmitHSKK');
+            btn.innerHTML = "⏳ GIÁM KHẢO AI ĐANG CHẤM ĐIỂM...";
+            btn.disabled = true;
+
+            let prompt = "Bạn là Giám khảo chấm thi HSKK Khẩu ngữ trình độ " + currentHSKKLevel + ".\n" +
+"Đề bài: \"" + hskkCurrentQuestion + "\"\n" +
+"Câu trả lời của thí sinh: \"" + transcript + "\"\n\n" +
+"Chấm điểm khắt khe theo HSKK thật:\n" +
+"1. Đánh giá về Độ trôi chảy, Ngữ pháp, Từ vựng, Nội dung.\n" +
+"2. Trả về kết quả dưới dạng JSON thuần (KHÔNG markdown). JSON có cấu trúc:\n" +
+"{\n" +
+"  \"score\": \"X/100\",\n" +
+"  \"feedback\": \"Nhận xét chi tiết tiếng Việt\",\n" +
+"  \"suggestedAnswer\": \"Câu mẫu tiếng Trung, pinyin, dịch\"\n" +
+"}";
+            
+            try {
+                let rawText = await callAI(prompt);
+                let jsonStr = rawText.match(/\{[\s\S]*\}/);
+                if (jsonStr) {
+                    let result = JSON.parse(jsonStr[0]);
+                    document.getElementById('hskkResultBox').style.display = 'block';
+                    document.getElementById('hskkScore').innerText = "Điểm: " + result.score;
+                    document.getElementById('hskkFeedback').innerText = result.feedback;
+                    document.getElementById('hskkSuggestedAnswer').innerText = result.suggestedAnswer;
+                } else {
+                    alert("AI chấm điểm bị lỗi định dạng.");
+                }
+            } catch (err) {
+                alert("Lỗi gọi AI: " + err.message);
+            } finally {
+                btn.innerHTML = "✅ NỘP BÀI & CHẤM ĐIỂM";
+                btn.disabled = false;
+                btn.style.display = 'none';
+            }
+        }
+
 </script>
 </body>
 
