@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -1150,7 +1150,60 @@
         .hskk-result-box { width: 100%; background: #f0f8ff; border: 2px solid #3498db; border-radius: 15px; padding: 20px; text-align: left; display: none; }
         .hskk-score { font-size: 36px; font-weight: bold; color: #2ecc71; text-align: center; margin-bottom: 15px; }
 
-</style>
+
+        /* TỐI ƯU GIAO DIỆN TABLET VÀ MOBILE (Samsung Tab S9+, Mobile) */
+        .reading-layout {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            height: calc(100vh - 350px);
+        }
+
+        @media (max-width: 1024px) {
+            /* Reading area stack vertically on tablet/mobile */
+            .reading-layout {
+                flex-direction: column;
+                height: auto;
+                min-height: 70vh;
+            }
+            .reading-layout > div:first-child {
+                min-height: 350px;
+            }
+            
+            /* Vocab Layout stack vertically */
+            .vocab-layout {
+                flex-direction: column;
+                height: auto;
+                min-height: 80vh;
+            }
+            
+            /* Grid container cho trang chủ (các khóa học) */
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+            }
+            
+            /* Giảm padding main content */
+            .main-content {
+                padding: 10px !important;
+            }
+            .panel {
+                padding: 15px !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 20px;
+            }
+            .reading-layout > div:first-child {
+                min-height: 250px;
+            }
+            .fc-scene {
+                width: 100% !important;
+                height: 350px !important;
+            }
+        }
+    </style>
 </head>
 
     <!-- Tooltip hiển thị nghĩa -->
@@ -1533,7 +1586,7 @@
                     <div id="readingPartList" style="display:flex; gap:8px;"></div>
                     <button type="button" class="btn btn-audio-mini" style="background:#3498db; color:white; min-width:30px;" onclick="addReadingPart()">+</button>
                 </div>
-                <div style="display:flex; gap:20px; width:100%; height:calc(100vh - 350px);">
+                <div class="reading-layout">
                     <div style="flex:3; position:relative; height:100%;">
                         <textarea id="lessonReadingText" style="width:100%; height:100%; padding:15px; border-radius:10px; border:1px solid #ddd; font-size:24px; font-family:'KaiTi', 'STKaiti', serif; line-height:1.6; box-sizing:border-box;" placeholder="Nhập chữ Hán của bài đọc vào đây..."></textarea>
                         <div id="lessonReadingDisplay" style="display:none; width:100%; height:100%; padding:15px; border-radius:10px; border:1px solid #ddd; background:white; font-size:32px; font-family:'KaiTi', 'STKaiti', serif; line-height:1.8; overflow-y:auto; box-sizing:border-box; white-space:pre-wrap; cursor:text;"></div>
@@ -2898,17 +2951,13 @@ const firebaseConfig = {
             readingUtterance.lang = 'zh-CN';
             readingUtterance.rate = speed || 1;
             
-            // Ưu tiên local voice để sửa lỗi onboundary trên Android Tablet
-            let voices = window.speechSynthesis.getVoices();
-            let zhVoices = voices.filter(v => v.lang.includes('zh') || v.lang.includes('CN'));
-            if (zhVoices.length > 0) {
-                let localVoice = zhVoices.find(v => v.localService);
-                if (localVoice) readingUtterance.voice = localVoice;
-            }
-            
             const spans = document.querySelectorAll('.reading-char');
+            let fallbackTimer = null;
+            let onBoundaryFired = false;
             
             readingUtterance.onboundary = (event) => {
+                onBoundaryFired = true;
+                if (fallbackTimer) clearInterval(fallbackTimer);
                 spans.forEach(s => s.classList.remove('active-word'));
                 const charIndex = event.charIndex;
                 const charLength = event.charLength || 1;
@@ -2923,12 +2972,51 @@ const firebaseConfig = {
             };
             
             readingUtterance.onend = () => {
+                if (fallbackTimer) clearInterval(fallbackTimer);
                 spans.forEach(s => s.classList.remove('active-word'));
                 isReadingPaused = false;
                 if (toggleBtn) toggleBtn.innerText = '▶';
             };
             
-            window.speechSynthesis.speak(readingUtterance);
+            let playUtterance = () => {
+                let voices = window.speechSynthesis.getVoices();
+                let zhVoices = voices.filter(v => v.lang.includes('zh') || v.lang.includes('CN'));
+                if (zhVoices.length > 0) {
+                    // Ưu tiên local voice để sửa lỗi onboundary trên Android Tablet
+                    let localVoice = zhVoices.find(v => v.localService);
+                    if (localVoice) readingUtterance.voice = localVoice;
+                }
+                
+                window.speechSynthesis.speak(readingUtterance);
+                
+                // Fallback Timer cho Android Mobile khi dùng Network Voice không có onboundary
+                setTimeout(() => {
+                    if (!onBoundaryFired) {
+                        let i = 0;
+                        let estMsPerChar = 220 / (speed || 1);
+                        fallbackTimer = setInterval(() => {
+                            if (isReadingPaused) return;
+                            spans.forEach(s => s.classList.remove('active-word'));
+                            const target = document.getElementById('rc-' + i);
+                            if (target) {
+                                target.classList.add('active-word');
+                                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            } else {
+                                clearInterval(fallbackTimer);
+                            }
+                            i++;
+                        }, estMsPerChar);
+                    }
+                }, 500);
+            };
+
+            if (window.speechSynthesis.getVoices().length === 0) {
+                window.speechSynthesis.onvoiceschanged = () => {
+                    if(!onBoundaryFired && !fallbackTimer) playUtterance(); 
+                };
+            } else {
+                playUtterance();
+            }
         }
 
         function toggleReadingAudio() {
@@ -4832,7 +4920,18 @@ Ví dụ: [{"hanzi": "我", "pinyin": "wǒ", "wordType": "Đại từ", "nghia":
                 document.getElementById('hskkTranscript').innerText = hskkFinalTranscript + interimTranscript;
             };
             
-            hskkSpeechRec.onerror = (e) => { console.error("Speech Rec Error:", e); };
+            hskkSpeechRec.onerror = (e) => { 
+                console.error("Speech Rec Error:", e.error); 
+                if (e.error === 'not-allowed' || e.error === 'network') {
+                    document.getElementById('hskkMicHint').innerText = "Lỗi Micro: " + e.error;
+                }
+            };
+
+            hskkSpeechRec.onend = () => {
+                if (isHSKKRecording) {
+                    try { hskkSpeechRec.start(); } catch(e) {}
+                }
+            };
         }
 
         function toggleHSKKRecording() {
