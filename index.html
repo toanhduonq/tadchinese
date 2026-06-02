@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -1877,6 +1877,38 @@ const firebaseConfig = {
                 try { return val ? JSON.parse(val) : null; } catch(err) { return val; }
             }
         }
+        function mergeInPlace(target, source) {
+            if (Array.isArray(target) && Array.isArray(source)) {
+                while (target.length > source.length) {
+                    target.pop();
+                }
+                for (let i = 0; i < source.length; i++) {
+                    if (i < target.length) {
+                        if (typeof target[i] === 'object' && typeof source[i] === 'object' && target[i] !== null && source[i] !== null) {
+                            mergeInPlace(target[i], source[i]);
+                        } else {
+                            target[i] = source[i];
+                        }
+                    } else {
+                        target.push(JSON.parse(JSON.stringify(source[i])));
+                    }
+                }
+            } else if (typeof target === 'object' && typeof source === 'object' && target !== null && source !== null) {
+                for (let key in target) {
+                    if (!(key in source)) {
+                        delete target[key];
+                    }
+                }
+                for (let key in source) {
+                    if (typeof target[key] === 'object' && typeof source[key] === 'object' && target[key] !== null && source[key] !== null) {
+                        mergeInPlace(target[key], source[key]);
+                    } else {
+                        target[key] = source[key];
+                    }
+                }
+            }
+        }
+
         // ----------------------------------------------------
 
         async function startRadar() {
@@ -1918,6 +1950,12 @@ const firebaseConfig = {
                 let isReviewing = document.getElementById('viewFlashcard') && document.getElementById('viewFlashcard').style.display === 'flex';
                 if (!isReviewing) {
                     courses = data.courses || [];
+                } else {
+                    if (!courses || courses.length === 0) {
+                        courses = data.courses || [];
+                    } else {
+                        mergeInPlace(courses, data.courses || []);
+                    }
                 }
 
                 let currentName = auth.currentUser.displayName || auth.currentUser.email.split('@')[0];
@@ -1955,7 +1993,7 @@ const firebaseConfig = {
                     needSync = true;
                 }
 
-                if (needSync) sync();
+                if (needSync) sync('profile');
 
                 checkAndPromptBackup(todayStr);
 
@@ -1996,19 +2034,11 @@ const firebaseConfig = {
             return new Date();
         }
 
-        function sync() { 
+        function sync(syncType) { 
             let syncStatus = document.getElementById('syncStatus');
             if (syncStatus) {
                 syncStatus.innerHTML = '⏳ Đang lưu...';
                 syncStatus.style.color = '#f39c12';
-            }
-
-            // Luôn lưu profile (tên, API key, bạn bè...) bất kể courses có rỗng hay không
-            let dataToWrite = { profile: userProfile, v: 2 };
-
-            // Chỉ ghi courses nếu có dữ liệu thật (ANTI-OVERWRITE)
-            if (courses && courses.length > 0) {
-                dataToWrite.courses = courses;
             }
 
             let today = new Date().toISOString().split('T')[0];
@@ -2017,8 +2047,18 @@ const firebaseConfig = {
                 userProfile.dailyReviewedWords = 0;
             }
             userProfile.lastUpdatedAt = Date.now();
-            
-            cloudDoc.set({ courses, profile: userProfile, v: 2 }, { merge: true })
+
+            // Luôn lưu profile (tên, API key, bạn bè...) bất kể courses có rỗng hay không
+            let dataToWrite = { profile: userProfile, v: 2 };
+
+            // Chỉ ghi courses nếu có dữ liệu thật (ANTI-OVERWRITE)
+            if (!syncType || syncType === 'courses') {
+                if (courses && courses.length > 0) {
+                    dataToWrite.courses = courses;
+                }
+            }
+
+            cloudDoc.set(dataToWrite, { merge: true })
             .then(() => {
                 if (syncStatus) {
                     syncStatus.innerHTML = '✅ Đã lưu';
@@ -2034,7 +2074,10 @@ const firebaseConfig = {
                 alert("Lỗi lưu dữ liệu lên Cloud: " + err.message);
             });
 
-            let dataToSave = { courses, profile: userProfile, v: 2 };
+            let dataToSave = { profile: userProfile, v: 2 };
+            if (courses && courses.length > 0) {
+                dataToSave.courses = courses;
+            }
             let size = JSON.stringify(dataToSave).length;
             if (size > 900000) {
                 alert("⚠ CẢNH BÁO: Dữ liệu của bạn đã đạt " + Math.round(size/1024) + "KB (giới hạn Cloud là 1000KB). Mặc dù dữ liệu vẫn được lưu an toàn trên máy (IndexedDB), nhưng sẽ sớm không thể đồng bộ lên Cloud! Vui lòng tải File dự phòng thường xuyên hoặc xóa bớt nội dung cũ!");
@@ -2771,6 +2814,14 @@ const firebaseConfig = {
             readingUtterance.lang = 'zh-CN';
             readingUtterance.rate = speed || 1;
             
+            // Ưu tiên local voice để sửa lỗi onboundary trên Android Tablet
+            let voices = window.speechSynthesis.getVoices();
+            let zhVoices = voices.filter(v => v.lang.includes('zh') || v.lang.includes('CN'));
+            if (zhVoices.length > 0) {
+                let localVoice = zhVoices.find(v => v.localService);
+                if (localVoice) readingUtterance.voice = localVoice;
+            }
+            
             const spans = document.querySelectorAll('.reading-char');
             
             readingUtterance.onboundary = (event) => {
@@ -2973,7 +3024,6 @@ const firebaseConfig = {
         // GRAMMAR LOGIC
         let editingGrammarIndex = -1;
 
-
         function renderGrammarList() {
             let list = document.getElementById('grammarListArea');
             if (!list) return;
@@ -3017,36 +3067,37 @@ const firebaseConfig = {
         }
 
         function addGrammar() { openGrammarForm(); }
+
         function openGrammarForm() {
             editingGrammarIndex = -1;
-            document.getElementById('grammarTitle').value = '';
-            document.getElementById('grammarContent').value = '';
-            document.getElementById('grammarFormTitle').innerText = "Thêm ngữ pháp mới";
-            document.getElementById('grammarFormArea').style.display = 'block';
-            document.getElementById('grammarListArea').style.display = 'none';
+            document.getElementById("grammarTitle").value = "";
+            document.getElementById("grammarContent").value = "";
+            document.getElementById("grammarFormTitle").innerText = "Th\u00EA\u006D ng\u1EEF ph\u00E1p m\u1EDB\u0069";
+            document.getElementById("grammarFormArea").style.display = "block";
+            document.getElementById("grammarListArea").style.display = "none";
         }
 
         function closeGrammarForm() {
             editingGrammarIndex = -1;
-            document.getElementById('grammarFormArea').style.display = 'none';
-            document.getElementById('grammarListArea').style.display = 'block';
+            document.getElementById("grammarFormArea").style.display = "none";
+            document.getElementById("grammarListArea").style.display = "block";
             renderGrammarList();
         }
 
         function editGrammar(i) {
             editingGrammarIndex = i;
             let p = courses[currentCourseIndex].vocab[currentLessonIndex].grammarPoints[i];
-            document.getElementById('grammarTitle').value = p.title;
-            document.getElementById('grammarContent').value = p.content;
-            document.getElementById('grammarFormTitle').innerText = "Sửa ngữ pháp";
-            document.getElementById('grammarFormArea').style.display = 'block';
-            document.getElementById('grammarListArea').style.display = 'none';
+            document.getElementById("grammarTitle").value = p.title;
+            document.getElementById("grammarContent").value = p.content;
+            document.getElementById("grammarFormTitle").innerText = "S\u1EEF\u0061 ng\u1EEF ph\u00E1p";
+            document.getElementById("grammarFormArea").style.display = "block";
+            document.getElementById("grammarListArea").style.display = "none";
         }
 
         function saveGrammarPoint() {
-            let title = document.getElementById('grammarTitle').value;
-            let content = document.getElementById('grammarContent').value;
-            if (!title) return alert("Tiêu đề không được để trống!");
+            let title = document.getElementById("grammarTitle").value;
+            let content = document.getElementById("grammarContent").value;
+            if (!title) return alert("Ti\u00EA\u0075 \u0111\u1EC1 kh\u00F4ng \u0111\u01B0\u1EE3c \u0111\u1EC3 tr\u1ED1ng!");
             
             let l = courses[currentCourseIndex].vocab[currentLessonIndex];
             if (!l.grammarPoints) l.grammarPoints = [];
@@ -3094,12 +3145,12 @@ const firebaseConfig = {
                 sync(); 
                 if (window.returnToReading) {
                     window.returnToReading = false;
-                    alert("Đã lưu từ!");
+                    showToast("Đã lưu từ!");
                     closeWordForm();
                     switchLessonTab('reading');
                 } else {
                     openWordForm(); 
-                    alert("Đã lưu từ!");
+                    showToast("Đã lưu từ!");
                 }
             }
             renderWordList();
@@ -3974,7 +4025,7 @@ const firebaseConfig = {
             chatBox.innerHTML += '<div id="' + typingId + '" style="align-self:flex-start; background:#e1f5fe; color:#2c3e50; padding:10px 15px; border-radius:15px 15px 15px 4px; max-width:80%; font-style:italic;">Giáo viên AI đang gõ...</div>';
             chatBox.scrollTop = chatBox.scrollHeight;
             
-            let systemInstruction = "Bạn là giáo viên tiếng Trung. Nhiệm vụ của bạn là trò chuyện với học sinh bằng tiếng Trung. Nếu học sinh nói sai ngữ pháp, hãy sửa lỗi bằng tiếng Việt trước rồi mới tiếp tục trả lời bằng tiếng Trung. Giữ câu trả lời ngắn gọn, thân thiện.";
+            let systemInstruction = "Bạn là người bản xứ Trung Quốc đang nói chuyện với tôi. Bạn PHẢI trả lời 100% bằng tiếng Trung giản thể, KHÔNG dịch sang tiếng Việt để tôi luyện nghe và phản xạ. Giữ câu trả lời ngắn gọn, tự nhiên như giao tiếp hàng ngày.";
             
             try {
                 let dpHistory = [{role: 'system', content: systemInstruction}];
@@ -4083,7 +4134,7 @@ const firebaseConfig = {
             if (!l.words) l.words = [];
             l.words.push({ hanzi: h, nghia: n, exHan: eh, exViet: ev, nextReview: Date.now(), rep: 0, ef: 2.5, interval: 0 });
             sync();
-            alert(`Đã lưu "${h}" vào bài "${l.name}" thành công!`);
+            showToast(`Đã lưu "${h}" vào bài "${l.name}" thành công!`);
         }
 
         // --- DICTATION MODE (TINGXIE) ---
