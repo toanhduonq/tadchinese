@@ -1775,7 +1775,7 @@
                     needSync = true;
                 }
 
-                if (needSync) sync('profile');
+                if (needSync) sync();
 
                 updateDashboardUI();
                 document.getElementById('loadingScreen').style.display = 'none';
@@ -3815,50 +3815,17 @@
         let activeChatFriendId = null;
 
         async function callGeminiAPI(prompt, forceSysKey = false) {
-            let key = forceSysKey ? (SYSTEM_ENCODED_KEYS.length > 0 ? atob(SYSTEM_ENCODED_KEYS[0]) : "") : getGeminiKey();
-            if (!key) {
-                alert("Vui lòng nhập Gemini API Key trong phần HỒ SƠ CÁ NHÂN để sử dụng AI!");
-                return null;
-            }
-            
+            let key = getGeminiKey();
+            if (!key) return null;
             try {
-                let model = await getGeminiModel(key);
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
-                
-                const r = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                });
-                
-                const d = await r.json();
-                
-                if (r.ok && d.candidates?.[0]) {
-                    return d.candidates[0].content.parts[0].text;
-                } else if (d.error) {
-                    let errMsg = d.error.message || "";
-                    if (errMsg.includes("Quota exceeded") || errMsg.includes("429")) {
-                        let waitMatch = errMsg.match(/retry in ([\d\.]+)s/);
-                        let waitTime = waitMatch ? Math.ceil(parseFloat(waitMatch[1])) : 0;
-                        if (waitTime > 0) {
-                            alert(`Lỗi AI: Bạn đang dùng quá nhanh! Vui lòng ĐỢI ${waitTime} GIÂY rồi bấm thử lại.`);
-                        } else {
-                            alert("Lỗi AI: Tài khoản API Key của bạn đã HẾT HẠN MỨC MIỄN PHÍ hoặc bị chặn do vị trí địa lý. Vui lòng nâng cấp Google AI Studio hoặc dùng VPN.");
-                        }
-                    } else if (errMsg.includes("API key not valid")) {
-                        alert("Lỗi AI: Gemini API Key của bạn không chính xác. Vui lòng kiểm tra lại.");
-                    } else {
-                        alert("Lỗi AI (" + model + "): " + errMsg);
-                    }
-                    console.error("Gemini Error:", errMsg);
-                }
+                return await callUnifiedAI({text: prompt}, key);
             } catch(e) { 
+                if (!forceSysKey) return await callGeminiAPI(prompt, true);
                 console.error("Fetch error:", e);
-                alert("Lỗi kết nối đến Google AI: " + e.message);
+                alert("Lỗi kết nối đến AI: " + e.message);
             }
             return null;
         }
-
         async function callAI(prompt) {
             return await callGeminiAPI(prompt);
         }
@@ -3871,10 +3838,11 @@
             
             const prompt = `Bạn là giáo viên tiếng Trung chuyên nghiệp. Hãy cung cấp thông tin chi tiết và 1 câu ví dụ CHẤT LƯỢNG CAO cho từ vựng sau:
 - Chữ Hán: "${h}"
+- Nghĩa gợi ý (nếu có): "${n}"
 
 Yêu cầu:
 1. "p": Pinyin của từ "${h}" (có dấu)
-2. "m": Nghĩa tiếng Việt của từ "${h}" (ngắn gọn, chính xác)
+2. "m": Nghĩa tiếng Việt của từ "${h}" (ngắn gọn, chính xác, ưu tiên nghĩa gợi ý nếu phù hợp)
 3. "t": Loại từ (Danh từ, Động từ, Tính từ, Trạng từ...)
 4. "h": Câu ví dụ tự nhiên chứa từ "${h}"
 5. "v": Dịch nghĩa câu ví dụ sang tiếng Việt tự nhiên
@@ -4555,3 +4523,4 @@ CHỈ TRẢ VỀ JSON, KHÔNG CÓ MARKDOWN HAY CHỮ GÌ KHÁC.`;
 </body>
 
 </html>
+
