@@ -3183,6 +3183,54 @@
         let cachedGeminiModel = null;
         let cachedApiKey = null;
 
+        async function callUnifiedAI(promptObj, key, temperature = 0.7) {
+            if (key.startsWith("sk-")) {
+                let messages = [];
+                if (promptObj.system) messages.push({role: "system", content: promptObj.system});
+                if (promptObj.history) {
+                    promptObj.history.forEach(m => {
+                        messages.push({role: m.role === "model" ? "assistant" : "user", content: m.parts[0].text});
+                    });
+                }
+                if (promptObj.text) {
+                    messages.push({role: "user", content: promptObj.text});
+                }
+                
+                const r = await fetch("https://api.deepseek.com/chat/completions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
+                    body: JSON.stringify({ model: "deepseek-chat", messages: messages, temperature: temperature })
+                });
+                const d = await r.json();
+                if (r.ok && d.choices && d.choices[0]) return d.choices[0].message.content;
+                throw new Error(d.error?.message || "Deepseek Error");
+            } else {
+                let model = await getGeminiModel(key);
+                let body = { contents: [] };
+                if (promptObj.system) body.system_instruction = { parts: [{text: promptObj.system}] };
+                if (promptObj.history) {
+                    body.contents = promptObj.history;
+                } else if (promptObj.text) {
+                    body.contents = [{ parts: [{ text: promptObj.text }] }];
+                }
+                body.generationConfig = { temperature: temperature };
+                
+                const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                
+                const d = await r.json();
+                if (r.ok && d.candidates?.[0]) return d.candidates[0].content.parts[0].text;
+                
+                let sysKey = SYSTEM_ENCODED_KEYS.length > 0 ? atob(SYSTEM_ENCODED_KEYS[0]) : "";
+                if (d.error?.code === 400 && key !== sysKey && sysKey) {
+                    return await callUnifiedAI(promptObj, sysKey, temperature);
+                }
+                throw new Error(d.error?.message || "Gemini Error");
+            }
+        }
         async function getGeminiModel(key) {
             if (cachedApiKey !== key) {
                 cachedGeminiModel = null;
@@ -3281,16 +3329,7 @@
             document.getElementById('btnSaveStory').style.display = 'none';
             
             try {
-                let model = await getGeminiModel(key);
-                let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{parts: [{text: promptText}]}] })
-                });
-                let data = await res.json();
-                if (data.error) throw new Error(data.error.message);
-                
-                let text = data.candidates[0].content.parts[0].text;
+                let text = await callUnifiedAI({text: promptText}, key);
                 // Lọc bỏ markdown bold
                 text = text.replace(/\*\*(.*?)\*\*/g, (match, word) => {
                     let wObj = dueWordsObjs.find(w => w.hanzi === word) || {hanzi: word, pinyin: '', nghia: 'Từ trong câu chuyện'};
@@ -3552,19 +3591,7 @@
             history.push({role: "user", parts: [{text: text}]});
             
             try {
-                let model = await getGeminiModel(key);
-                let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        system_instruction: { parts: [{text: systemInstruction}] },
-                        contents: history
-                    })
-                });
-                let data = await res.json();
-                if (data.error) throw new Error(data.error.message);
-                
-                let reply = data.candidates[0].content.parts[0].text;
+                let reply = await callUnifiedAI({system: systemInstruction, history: history}, key);
                 document.getElementById(typingId).remove();
                 
                 chatBox.innerHTML += `
@@ -3787,8 +3814,8 @@
         
         let activeChatFriendId = null;
 
-        async function callGeminiAPI(prompt) {
-            const key = userProfile.apiKey ? userProfile.apiKey.trim() : "";
+        async function callGeminiAPI(prompt, forceSysKey = false) {
+            let key = forceSysKey ? (SYSTEM_ENCODED_KEYS.length > 0 ? atob(SYSTEM_ENCODED_KEYS[0]) : "") : getGeminiKey();
             if (!key) {
                 alert("Vui lòng nhập Gemini API Key trong phần HỒ SƠ CÁ NHÂN để sử dụng AI!");
                 return null;
@@ -3844,17 +3871,17 @@
             
             const prompt = `Bạn là giáo viên tiếng Trung chuyên nghiệp. Hãy cung cấp thông tin chi tiết và 1 câu ví dụ CHẤT LƯỢNG CAO cho từ vựng sau:
 - Chữ Hán: "${h}"
-- Nghĩa gợi ý: "${n}"
 
 Yêu cầu:
 1. "p": Pinyin của từ "${h}" (có dấu)
-2. "t": Loại từ (Danh từ, Động từ, Tính từ, Trạng từ...)
-3. "h": Câu ví dụ tự nhiên chứa từ "${h}"
-4. "v": Dịch nghĩa câu ví dụ sang tiếng Việt tự nhiên
-5. "ep": Pinyin của toàn bộ câu ví dụ (có dấu)
+2. "m": Nghĩa tiếng Việt của từ "${h}" (ngắn gọn, chính xác)
+3. "t": Loại từ (Danh từ, Động từ, Tính từ, Trạng từ...)
+4. "h": Câu ví dụ tự nhiên chứa từ "${h}"
+5. "v": Dịch nghĩa câu ví dụ sang tiếng Việt tự nhiên
+6. "ep": Pinyin của toàn bộ câu ví dụ (có dấu)
 
 Trả về ĐÚNG định dạng JSON này (không thêm gì khác):
-{"p": "pīnyīn từ", "t": "loại từ", "h": "câu ví dụ Hán", "v": "dịch Việt", "ep": "pinyin câu ví dụ"}`;
+{"p": "pīnyīn từ", "m": "nghĩa Việt của từ", "t": "loại từ", "h": "câu ví dụ Hán", "v": "dịch Việt câu ví dụ", "ep": "pinyin câu ví dụ"}`;
 
             let res = await callAI(prompt);
             btn.innerText = "✨ AI";
@@ -3866,6 +3893,7 @@ Trả về ĐÚNG định dạng JSON này (không thêm gì khác):
                     let obj = JSON.parse(clean);
                     
                     document.getElementById('pinyin').value = obj.p || '';
+                    if (obj.m && obj.m.trim() !== "") document.getElementById('nghia').value = obj.m;
                     document.getElementById('wordType').value = obj.t || '';
                     document.getElementById('exHan').value = obj.h || '';
                     document.getElementById('exPinyin').value = obj.ep || '';
@@ -4167,24 +4195,7 @@ Hãy trả về kết quả DƯỚI DẠNG MẢNG JSON, không bao gồm mã mar
 Tuyệt đối chỉ trả về mảng JSON hợp lệ, không giải thích gì thêm.`;
 
             try {
-                let cachedModel = await getGeminiModel(key);
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${cachedModel}:generateContent?key=${key}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: { temperature: 0.2 }
-                    })
-                });
-
-                if (response.status === 429) {
-                    throw new Error("Lỗi 429: API của bạn đã vượt quá giới hạn gọi. Hãy thử cấu hình thêm API key hoặc chờ một chút.");
-                }
-
-                const data = await response.json();
-                if (data.error) throw new Error(data.error.message);
-
-                let aiText = data.candidates[0].content.parts[0].text;
+                let aiText = await callUnifiedAI({text: prompt}, key, 0.2);
                 let jsonStr = aiText.replace(/```json/g, '').replace(/```/g, '').trim();
                 let wordsArray = JSON.parse(jsonStr);
 
@@ -4249,21 +4260,51 @@ Tuyệt đối chỉ trả về mảng JSON hợp lệ, không giải thích gì
                 "你最喜欢的运动是什么？为什么？",
                 "你周末通常做些什么？",
                 "请描述一下你最好的朋友。",
-                "你喜欢吃什么中国菜？"
+                "你喜欢吃什么中国菜？",
+                "你每天怎么去学校（或公司）？需要多长时间？",
+                "你觉得学习汉语难吗？为什么？",
+                "请介绍一下你的家乡。",
+                "你最喜欢的一本书或一部电影是什么？",
+                "你觉得一年中哪个季节最好？为什么？",
+                "如果你有长假，你最想去哪里旅游？",
+                "你平时喜欢听什么类型的音乐？",
+                "你经常去超市买东西吗？一般买什么？",
+                "请谈谈你小时候的一个有趣的故事。",
+                "你觉得手机对我们的生活有什么帮助？"
             ],
             "Trung cấp": [
                 "你认为学习外语最重要的是什么？",
                 "请谈谈你对网络购物的看法。",
                 "你觉得城市生活好还是农村生活好？",
                 "为了保护环境，我们可以做些什么？",
-                "请分享一次难忘的旅行经历。"
+                "请分享一次难忘的旅行经历。",
+                "你认为现在的年轻人面临最大的压力是什么？",
+                "在你的国家，人们怎样庆祝新年？",
+                "请谈谈你对“健康饮食”的理解。",
+                "你更喜欢和家人住在一起还是自己住？为什么？",
+                "你认为朋友在你的生活中扮演什么角色？",
+                "如果让你选择一种新的技能来学习，你会学什么？",
+                "请描述一个你非常敬佩的人。",
+                "你对现在的兼职工作有什么看法？",
+                "怎么看待现代社会中人们越来越少读书的现象？",
+                "如果可以回到过去，你最想改变什么？"
             ],
             "Cao cấp": [
                 "你如何看待现代社会中手机对人们生活的影响？",
                 "请谈谈传统文化在现代社会中的传承与发展。",
                 "有人说“失败是成功之母”，你同意吗？请结合实际谈谈。",
                 "你认为什么是真正的幸福？",
-                "请谈谈你对“终身学习”的理解。"
+                "请谈谈你对“终身学习”的理解。",
+                "科技的快速发展带来了很多便利，但也引发了隐私问题。你怎么看？",
+                "你认为在全球化背景下，保护本土语言和文化重要吗？",
+                "对于“人工智能是否会取代人类工作”的争议，你的观点是什么？",
+                "现代人的生活节奏越来越快，这对我们的身心健康有什么影响？",
+                "你认为学校教育更应该注重知识的传授还是能力的培养？",
+                "有人认为金钱是衡量成功的唯一标准，对此你怎么看？",
+                "在信息爆炸的时代，我们应该如何辨别信息的真伪？",
+                "如何平衡个人生活与职业发展的关系？",
+                "请谈谈你对当前社会人口老龄化问题的看法及应对措施。",
+                "跨文化交流中最大的障碍是什么？我们该如何克服？"
             ]
         };
 
@@ -4466,16 +4507,8 @@ Hãy chấm điểm và nhận xét chi tiết bằng tiếng Việt theo địn
 CHỈ TRẢ VỀ JSON, KHÔNG CÓ MARKDOWN HAY CHỮ GÌ KHÁC.`;
 
             try {
-                let model = await getGeminiModel(key);
-                let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{parts: [{text: prompt}]}] })
-                });
-                let data = await res.json();
-                if (data.error) throw new Error(data.error.message);
-                
-                let rawRes = data.candidates[0].content.parts[0].text.replace(/```json/g,'').replace(/```/g,'').trim();
+                let aiText = await callUnifiedAI({text: prompt}, key);
+                let rawRes = aiText.replace(/`json/g,'').replace(/`/g,'').trim();
                 let jsonRes = JSON.parse(rawRes);
                 
                 document.getElementById('hskkScore').innerText = `Điểm: ${jsonRes.score}/100`;
