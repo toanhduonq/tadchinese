@@ -556,6 +556,7 @@
             color: #34495e;
         }
 
+
         .form-group input,
         .form-group textarea {
             width: 100%;
@@ -595,29 +596,28 @@
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 15px;
         }
 
-        /* --- Flashcard Layer --- */
-        #viewFlashcard {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
+        /* --- Responsive Flashcard --- */
         .fc-scene {
-            width: 400px;
-            height: 500px;
+            width: 100%;
+            max-width: 450px;
+            height: 60vh;
+            max-height: 600px;
+            min-height: 400px;
             perspective: 1000px;
             margin: 0 auto;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .fc-scene {
+                max-width: 360px;
+                height: 65vh;
+                min-height: 400px;
+                padding: 10px;
+            }
         }
 
         .fc-container {
@@ -688,6 +688,38 @@
             100% {
                 transform: rotate(360deg);
             }
+        }
+                .modern-ribbon {
+            position: absolute;
+            top: -5px;
+            right: 40px;
+            width: 36px;
+            height: 60px;
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 6px 15px rgba(255, 65, 108, 0.4);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 20;
+        }
+        .modern-ribbon:hover {
+            height: 70px;
+            box-shadow: 0 8px 20px rgba(255, 65, 108, 0.6);
+        }
+        .modern-ribbon::after {
+            content: '⭐';
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .modern-ribbon.bookmarked {
+            height: 80px;
+            background: linear-gradient(135deg, #00b09b, #96c93d);
+            box-shadow: 0 6px 15px rgba(0, 176, 155, 0.4);
         }
         /* Highlight bài đọc */
         .reading-char {
@@ -956,12 +988,206 @@
             color: white !important;
             background: #3498db;
         }
+
+        /* Tùy chỉnh Story Card */
+        .story-card {
+            background: white; border: 1px solid #eee; border-radius: 10px; padding: 20px; cursor: pointer;
+            transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .story-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); border-color: #3498db; }
+        .story-card h3 { margin: 0 0 10px 0; color: #2c3e50; font-size: 18px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .progress-bar { width: 100%; background: #ecf0f1; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 15px; }
+        .progress-fill { background: #2ecc71; height: 100%; }
+        
+                .reader-theme-default { --reader-bg: #ffffff; --reader-color: #2c3e50; --desk-bg: #ecf0f1; }
+        .reader-theme-sepia { --reader-bg: #fdf6e3; --reader-color: #5c4b37; --desk-bg: #e8dcc4; }
+        .reader-theme-dark { --reader-bg: #1a1a1a; --reader-color: #e0e0e0; --desk-bg: #0f0f0f; }
+        
+        .dict-hoverable { cursor: pointer; }
+        
+        
+
+        .ai-translate-box { background: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 4px solid #f39c12; margin-top: 20px; }
+        body.dark-mode .ai-translate-box { background: #2c2c2c; color: #eee; }
+
+</style>
+<style id="douyin-vibe">
+body {
+    flex-direction: row !important;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe4e1 100%) !important;
+}
+.app-shell-container {
+    display: flex; width: 100vw; height: 100vh; overflow: hidden;
+}
+.left-sidebar {
+    width: 260px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255,182,193,0.3);
+    display: flex; flex-direction: column;
+    padding: 30px 20px;
+    z-index: 100;
+}
+.sidebar-brand { display: flex; align-items: center; gap: 15px; margin-bottom: 40px; cursor: pointer; }
+.sidebar-brand img { height: 40px; }
+.sidebar-brand span { font-size: 24px; font-weight: 800; color: #2d232e; }
+
+.nav-item {
+    display: flex; align-items: center; gap: 15px;
+    padding: 12px 20px; border-radius: 50px; margin-bottom: 8px;
+    cursor: pointer; color: #777; font-weight: 600; font-size: 16px;
+    transition: all 0.3s;
+}
+.nav-item:hover { background: rgba(255,255,255,0.8); color: #ff7675; }
+.nav-item.active { background: #2d232e !important; color: #ffffff !important; box-shadow: 0 6px 15px rgba(45,35,46,0.3) !important; }
+
+.sidebar-bottom-actions { display: flex; flex-direction: column; gap: 15px; }
+.ai-button {
+    background: #ff7675 !important; color: white !important; border-radius: 50px !important;
+    padding: 12px !important; display: flex; justify-content: center; align-items: center; gap: 10px;
+    font-size: 16px !important; font-weight: bold; border:none; box-shadow: 0 4px 15px rgba(255,118,117,0.4) !important;
+    cursor: pointer;
+}
+.user-profile-btn {
+    display: flex; align-items: center; gap: 15px; padding: 10px; cursor: pointer;
+    border-radius: 50px; transition: background 0.3s;
+}
+.user-profile-btn:hover { background: rgba(255,255,255,0.8); }
+.user-profile-btn img { width: 40px; height: 40px; border-radius: 50%; }
+.user-profile-btn span { font-weight: 600; color: #2d232e; }
+
+.bottom-navbar { display: none; }
+
+.main-content {
+    background: transparent !important; padding: 40px 50px !important; display: none; height: auto !important; overflow: visible !important;
+}
+
+.welcome-panel, .panel, .story-card, .srs-card, #readerContentArea, .ai-chat-container, .dictionary-box, .fc-face {
+    background: rgba(255,255,255,0.95) !important;
+    border-radius: 24px !important;
+    border: none !important;
+    box-shadow: 0 10px 40px rgba(255,182,193,0.3) !important;
+}
+.welcome-panel { border-left: none !important; }
+
+#readerColumnsContainer { display: flex; gap: 60px; width: 100%; position: relative; }
+.reader-spine {
+    position: absolute; left: 50%; top: -60px; bottom: -60px; width: 1px;
+    background: linear-gradient(to right, rgba(0,0,0,0.05), rgba(0,0,0,0));
+    box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+}
+.reader-page-col { flex: 1; }
+
+@media (max-width: 900px) {
+    .left-sidebar { display: none !important; }
+    .bottom-navbar {
+        display: flex; justify-content: space-around; align-items: flex-end;
+        background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+        position: fixed; bottom: 0; left: 0; width: 100%; height: 75px; padding-bottom: env(safe-area-inset-bottom);
+        box-shadow: 0 -5px 20px rgba(255,182,193,0.3); z-index: 9999;
+    }
+    .bottom-nav-item {
+        display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 0;
+        color: #b2bec3; font-size: 11px; font-weight: 600; flex: 1; cursor: pointer;
+    }
+    .bottom-nav-item.active { color: #2d232e; }
+    .bottom-nav-item.active svg { stroke: #2d232e; }
+    .ai-btn-special { position: relative; top: -15px; }
+    .ai-circle {
+        width: 50px; height: 50px; border-radius: 50%; background: #ff7675; color: white;
+        display: flex; justify-content: center; align-items: center;
+        box-shadow: 0 4px 15px rgba(255,118,117,0.5);
+    }
+    .main-content-wrapper { padding-bottom: 90px !important; }
+    .main-content { padding: 20px 15px !important; }
+
+    #readerContentArea { padding: 30px 20px !important; }
+    #readerTitle { font-size: 24px !important; margin-bottom: 20px !important; padding-bottom: 15px !important; }
+    .story-reader-toolbar {
+        position: fixed !important; bottom: 90px !important; top: auto !important; width: 90% !important; left: 5% !important;
+        background: rgba(255,255,255,0.95) !important; border-radius: 20px !important;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2) !important;
+        display: flex !important; flex-wrap: nowrap !important; overflow-x: auto !important; padding: 10px !important; gap: 10px !important;
+    }
+    .story-reader-toolbar button { padding: 8px 12px !important; border-radius: 50px !important; }
+    .story-reader-toolbar button span { display: none !important; }
+    #readerBookmarkRibbon { right: 15px !important; top: -5px !important; }
+}
+.reading-char { cursor: pointer !important; }
+
+/* ===== APP THEME VARIANTS ===== */
+body.theme-pink { background: linear-gradient(135deg, #fff5f5 0%, #ffe4e1 100%) !important; }
+body.theme-pink .left-sidebar { background: rgba(255,255,255,0.7); border-right-color: rgba(255,182,193,0.3); }
+body.theme-pink .nav-item.active { background: #2d232e !important; }
+body.theme-pink .welcome-panel, body.theme-pink .panel, body.theme-pink .story-card { box-shadow: 0 10px 40px rgba(255,182,193,0.3) !important; }
+body.theme-pink .ai-button { background: #ff7675 !important; box-shadow: 0 4px 15px rgba(255,118,117,0.4) !important; }
+body.theme-pink .bottom-navbar { box-shadow: 0 -5px 20px rgba(255,182,193,0.3); }
+body.theme-pink .ai-circle { background: #ff7675; box-shadow: 0 4px 15px rgba(255,118,117,0.5); }
+
+body.theme-clean { background: #f5f5f5 !important; }
+body.theme-clean .left-sidebar { background: rgba(255,255,255,0.9); border-right: 1px solid #eee; }
+body.theme-clean .nav-item.active { background: #333 !important; }
+body.theme-clean .nav-item:hover { color: #555; }
+body.theme-clean .welcome-panel, body.theme-clean .panel, body.theme-clean .story-card { box-shadow: 0 4px 20px rgba(0,0,0,0.06) !important; }
+body.theme-clean .ai-button { background: #333 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important; }
+body.theme-clean .bottom-navbar { box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+body.theme-clean .ai-circle { background: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+
+body.theme-dark { background: #1a1a2e !important; color: #e0e0e0; }
+body.theme-dark .left-sidebar { background: rgba(30,30,50,0.95); border-right: 1px solid rgba(255,255,255,0.05); }
+body.theme-dark .sidebar-brand span { color: #e0e0e0; }
+body.theme-dark .nav-item { color: #999; }
+body.theme-dark .nav-item:hover { background: rgba(255,255,255,0.05); color: #ccc; }
+body.theme-dark .nav-item.active { background: #e94560 !important; color: white !important; }
+body.theme-dark .user-profile-btn span { color: #ccc; }
+body.theme-dark .welcome-panel, body.theme-dark .panel, body.theme-dark .story-card,
+body.theme-dark #readerContentArea { background: rgba(30,30,50,0.95) !important; color: #e0e0e0 !important; box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important; }
+body.theme-dark .ai-button { background: #e94560 !important; box-shadow: 0 4px 15px rgba(233,69,96,0.4) !important; }
+body.theme-dark .bottom-navbar { background: rgba(30,30,50,0.98); box-shadow: 0 -5px 20px rgba(0,0,0,0.3); }
+body.theme-dark .bottom-nav-item.active { color: #e94560; }
+body.theme-dark .ai-circle { background: #e94560; }
+body.theme-dark h2, body.theme-dark h3, body.theme-dark h4 { color: #e0e0e0 !important; }
+body.theme-dark input, body.theme-dark textarea { background: #16213e; color: #e0e0e0; border-color: #333 !important; }
+body.theme-dark .main-content { color: #e0e0e0; }
+
+body.theme-blue { background: linear-gradient(135deg, #e8f4fd 0%, #d6eaf8 100%) !important; }
+body.theme-blue .left-sidebar { background: rgba(255,255,255,0.8); border-right-color: rgba(52,152,219,0.15); }
+body.theme-blue .nav-item.active { background: #2980b9 !important; }
+body.theme-blue .nav-item:hover { color: #3498db; }
+body.theme-blue .welcome-panel, body.theme-blue .panel, body.theme-blue .story-card { box-shadow: 0 10px 40px rgba(52,152,219,0.15) !important; }
+body.theme-blue .ai-button { background: #3498db !important; box-shadow: 0 4px 15px rgba(52,152,219,0.4) !important; }
+body.theme-blue .bottom-navbar { box-shadow: 0 -5px 20px rgba(52,152,219,0.15); }
+body.theme-blue .ai-circle { background: #3498db; box-shadow: 0 4px 15px rgba(52,152,219,0.5); }
+
+body.theme-mint { background: linear-gradient(135deg, #e8f8f5 0%, #d1f2eb 100%) !important; }
+body.theme-mint .left-sidebar { background: rgba(255,255,255,0.8); border-right-color: rgba(46,204,113,0.15); }
+body.theme-mint .nav-item.active { background: #1abc9c !important; }
+body.theme-mint .nav-item:hover { color: #1abc9c; }
+body.theme-mint .welcome-panel, body.theme-mint .panel, body.theme-mint .story-card { box-shadow: 0 10px 40px rgba(46,204,113,0.15) !important; }
+body.theme-mint .ai-button { background: #1abc9c !important; box-shadow: 0 4px 15px rgba(26,188,156,0.4) !important; }
+body.theme-mint .bottom-navbar { box-shadow: 0 -5px 20px rgba(46,204,113,0.15); }
+body.theme-mint .ai-circle { background: #1abc9c; box-shadow: 0 4px 15px rgba(26,188,156,0.5); }
+
+.theme-picker { display: flex; gap: 8px; padding: 10px 20px; align-items: center; }
+.theme-dot {
+    width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;
+    transition: all 0.3s; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.theme-dot:hover { transform: scale(1.2); }
+.theme-dot.active-theme { border-color: #333; transform: scale(1.15); }
+.theme-dot.dot-pink { background: linear-gradient(135deg, #ff9a9e, #fad0c4); }
+.theme-dot.dot-clean { background: linear-gradient(135deg, #f5f5f5, #e0e0e0); }
+.theme-dot.dot-dark { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+.theme-dot.dot-blue { background: linear-gradient(135deg, #74b9ff, #0984e3); }
+.theme-dot.dot-mint { background: linear-gradient(135deg, #55efc4, #00b894); }
 </style>
 </head>
+<body class="theme-pink">
+
 
     <!-- Tooltip hiển thị nghĩa -->
     <div id="hmTooltip" style="display:none; position:fixed; background:rgba(0,0,0,0.85); color:white; padding:6px 12px; font-size:12px; border-radius:6px; pointer-events:none; z-index:9999; white-space:nowrap; box-shadow:0 4px 6px rgba(0,0,0,0.2);"></div>
-    <div id="wordTooltip">
+    <div id="wordTooltip" style="display:none;">
         <h4 id="ttHanzi"></h4>
         <div id="ttPinyin" style="font-style:italic; color:#95a5a6; margin-bottom:5px;"></div>
         <p id="ttNghia"></p>
@@ -972,8 +1198,8 @@
     </div>
 
     <div id="authScreen"
-        style="position: absolute; top:0; left:0; right:0; bottom:0; background: #2c3e50; display: flex; justify-content: center; align-items: center; z-index: 100;">
-        <div style="background: white; padding: 40px; border-radius: 15px; width: 350px; text-align: center;">
+        style="position: fixed; top:0; left:0; right:0; bottom:0; background: linear-gradient(135deg, #fff5f5 0%, #ffe4e1 100%); display: flex; justify-content: center; align-items: center; z-index: 9999;">
+        <div style="background: rgba(255,255,255,0.95); padding: 50px 40px; border-radius: 24px; width: 380px; text-align: center; box-shadow: 0 20px 60px rgba(255,182,193,0.4);">
             <h1>TAD Chinese Pro</h1>
             <input type="email" id="authEmail" placeholder="Email (VD: user@gmail.com)"
                 style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
@@ -985,31 +1211,116 @@
         </div>
     </div>
 
-        <nav class="top-navbar">
-        <div class="top-navbar-top" style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-            <div class="navbar-brand" onclick="showDashboard()" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
-                <img src="logo.png" style="height:35px;" alt="Logo"> <span style="font-size:24px; font-weight:800; color:#2c3e50;">Chinese with Toanhduonq</span>
+        <div class="app-shell-container" id="appShellContainer" style="display:none;">
+    <nav class="left-sidebar">
+        <div class="sidebar-brand" onclick="showDashboard()">
+            <img src="logo.png" alt="Logo"> 
+            <span>TadChinese</span>
+        </div>
+        <div class="sidebar-nav-links">
+            <div class="nav-item active" id="menu-courses" onclick="updateNavState('menu-courses'); showCourses()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                <span>Khóa Học</span>
             </div>
-            <div class="nav-profile" style="display:flex; align-items:center; gap:20px;">
-                <button type="button" class="btn" style="margin:0; background:linear-gradient(135deg, #f39c12, #e67e22); border:none; padding:8px 15px; border-radius:20px; color:white; font-weight:bold; box-shadow:0 2px 10px rgba(230,126,34,0.3);" onclick="openAIChat()" title="Trợ Lý AI">🤖 Trợ Lý AI</button>
-                <div id="syncStatus" class="sync-status" style="font-size:12px; font-weight:bold; color:#27ae60; background:#eafaf1; padding:4px 8px; border-radius:12px;">☁️ Đã lưu</div>
-                <img id="sidebarAvatar" class="nav-avatar" onclick="showProfile()" src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png" title="Hồ sơ cá nhân" style="width:40px; height:40px; border-radius:50%; cursor:pointer;">
+            <div class="nav-item" id="menu-public-vocab" onclick="updateNavState('menu-public-vocab'); showPublicVocab()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 12a4 4 0 0 0-8 0"/></svg>
+                <span>Cộng Đồng</span>
+            </div>
+            <div class="nav-item" id="menu-stories" onclick="updateNavState('menu-stories'); showStoryList()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                <span>Đọc Sách</span>
+            </div>
+            <div class="nav-item" id="menu-mandarin" onclick="updateNavState('menu-mandarin'); showMandarinBean()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <span>Mandarin Bean</span>
+            </div>
+            <div class="nav-item" id="menu-hsk" onclick="updateNavState('menu-hsk'); showHSKTest()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>Thi HSK</span>
+            </div>
+            <div class="nav-item" id="menu-hskk" onclick="updateNavState('menu-hskk'); showHSKKTest()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                <span>Thi HSKK</span>
             </div>
         </div>
-        <ul class="nav-menu" style="display:flex; justify-content:flex-start; width:100%; margin-top:15px; border-top:1px solid rgba(0,0,0,0.05); padding-top:10px; padding-bottom:10px; gap:25px; margin-bottom:0; overflow-x:auto; white-space:nowrap; padding-left:0; list-style:none;">
-            <li class="nav-item" id="menu-courses" onclick="showCourses()" style="cursor:pointer; font-weight:600; font-size:16px; color:#7f8c8d; padding:5px 15px; border-radius:20px; transition:all 0.3s;">📚 Khóa Học</li>
-            <li class="nav-item" id="menu-public-vocab" onclick="showPublicVocab()" style="cursor:pointer; font-weight:600; font-size:16px; color:#7f8c8d; padding:5px 15px; border-radius:20px; transition:all 0.3s;">🌐 Kho Từ Vựng</li>
-            <li class="nav-item" id="menu-mandarin" onclick="showMandarinBean()" style="cursor:pointer; font-weight:600; font-size:16px; color:#7f8c8d; padding:5px 15px; border-radius:20px; transition:all 0.3s;">📖 Đọc Truyện</li>
-            <li class="nav-item" id="menu-hsk" onclick="showHSKTest()" style="cursor:pointer; font-weight:600; font-size:16px; color:#7f8c8d; padding:5px 15px; border-radius:20px; transition:all 0.3s;">📝 Thi HSK</li>
-            <li class="nav-item" id="menu-hskk" onclick="showHSKKTest()" style="cursor:pointer; font-weight:600; font-size:16px; color:#7f8c8d; padding:5px 15px; border-radius:20px; transition:all 0.3s;">🗣️ Thi HSKK</li>
-        </ul>
+        <div style="flex-grow:1"></div>
+        <div class="theme-picker">
+            <div class="theme-dot dot-pink active-theme" onclick="setAppTheme('pink', this)" title="Pink Peach"></div>
+            <div class="theme-dot dot-clean" onclick="setAppTheme('clean', this)" title="Clean White"></div>
+            <div class="theme-dot dot-dark" onclick="setAppTheme('dark', this)" title="Dark Mode"></div>
+            <div class="theme-dot dot-blue" onclick="setAppTheme('blue', this)" title="Sky Blue"></div>
+            <div class="theme-dot dot-mint" onclick="setAppTheme('mint', this)" title="Fresh Mint"></div>
+        </div>
+        <div class="sidebar-bottom-actions">
+            <button class="ai-button btn" onclick="openAIChat()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/></svg> 
+                Trợ Lý AI
+            </button>
+            <div id="syncStatus" class="sync-status" style="text-align:center; font-size:12px; font-weight:bold; color:#27ae60; background:#eafaf1; padding:4px 8px; border-radius:12px;">Đã lưu</div>
+            <div class="user-profile-btn" onclick="showProfile()">
+                <img id="sidebarAvatar" src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png">
+                <span>Hồ Sơ</span>
+            </div>
+        </div>
     </nav>
+    
+    <nav class="bottom-navbar">
+        <div class="bottom-nav-item active" id="botmenu-courses" onclick="updateNavState('menu-courses'); showCourses()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+            <span>Khóa Học</span>
+        </div>
+        <div class="bottom-nav-item" id="botmenu-stories" onclick="updateNavState('menu-stories'); showStoryList()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <span>Đọc Sách</span>
+        </div>
+        <div class="bottom-nav-item ai-btn-special" onclick="openAIChat()">
+            <div class="ai-circle">
+               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/></svg>
+            </div>
+        </div>
+        <div class="bottom-nav-item" id="botmenu-hsk" onclick="updateNavState('menu-hsk'); showHSKTest()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>Thi HSK</span>
+        </div>
+        <div class="bottom-nav-item" onclick="showProfile()">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png" style="width:24px;height:24px;border-radius:50%">
+            <span>Hồ Sơ</span>
+        </div>
+    </nav>
+    <div class="main-content-wrapper" style="flex: 1; height: 100vh; overflow-y: auto; overflow-x: hidden;">
+    <script>
+        function setAppTheme(themeName, element) {
+            document.body.className = '';
+            document.body.classList.add('theme-' + themeName);
+            document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active-theme'));
+            if(element) element.classList.add('active-theme');
+            localStorage.setItem('appTheme', themeName);
+        }
+        
+        // Load saved theme on startup
+        document.addEventListener('DOMContentLoaded', () => {
+            let savedTheme = localStorage.getItem('appTheme');
+            if(savedTheme) {
+                let dot = document.querySelector('.dot-' + savedTheme);
+                setAppTheme(savedTheme, dot);
+            }
+        });
 
-    </div>
+        function updateNavState(baseId) {
+            document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+            document.querySelectorAll('.bottom-nav-item').forEach(e => e.classList.remove('active'));
+            if(document.getElementById(baseId)) document.getElementById(baseId).classList.add('active');
+            if(document.getElementById('bot' + baseId)) document.getElementById('bot' + baseId).classList.add('active');
+        }
+            window.addEventListener('resize', () => {
+            if (document.getElementById('viewStoryReader').style.display === 'flex' || document.getElementById('viewStoryReader').style.display === 'block') {
+                if (currentStoryIndex !== -1) renderReaderPage(currentStoryIndex);
+            }
+        });
+    </script>
 
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileMenu()"></div>
     <div class="main-content" id="mainArea">
-        <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">☰ MỞ MENU CHÍNH</button>
         <div id="loadingScreen">
             <div class="loader"></div>
         </div>
@@ -1116,14 +1427,15 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- CÂU CHUYỆN GẦN ĐÂY -->
+                        <!-- Truyện đã lưu -->
                         <div class="panel" style="margin-bottom:0; display:flex; flex-direction:column; flex:1; min-height:200px;">
-                            <h3 class="srs-title" style="margin-top:0; margin-bottom:15px; font-size:16px;">📖 Câu chuyện gần đây</h3>
-                            <div id="recentStoriesList" style="display:flex; flex-direction:column; gap:10px; max-height:250px; overflow-y:auto; padding-right:5px;">
+                            <h3 class="srs-title" style="margin-top:0; margin-bottom:15px; font-size:16px;">📚 Truyện AI đã lưu</h3>
+                            <div class="srs-timeline" id="savedStoriesList" style="flex-grow:1; max-height:220px; overflow-y:auto; padding-right:5px;">
                                 <!-- Render bằng JS -->
+                                <div style="color:#7f8c8d; font-style:italic;">Chưa có truyện nào được lưu.</div>
                             </div>
                         </div>
+
 
                     </div>
                 </div>
@@ -1161,27 +1473,117 @@
         </div>
 
 
-        <!-- MÀN HÌNH MANDARIN BEAN -->
-        <div id="viewMandarinBean" style="display:none; height:100%; flex-direction:column; background:white; border-radius:10px; padding:20px; box-sizing:border-box;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
-                <h2 style="margin:0; color:#2c3e50">Luyện Đọc / Nghe - Mandarin Bean</h2>
+                <!-- DANH SÁCH TRUYỆN -->
+        <div id="viewStoryList" style="display:none; flex-direction:column; background:white; border-radius:10px; padding:20px; box-sizing:border-box; height:100%;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:20px;">
+                <h2 style="margin:0; color:#2c3e50;">📖 Kho Sách / Truyện của tôi</h2>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn" style="background:#f39c12; color:white; font-weight:bold; border-radius:20px; padding:8px 20px;" onclick="openAISuggestStoryModal()">✨ AI Đề Xuất Truyện</button>
+                    <button class="btn" style="background:#3498db; color:white; font-weight:bold; border-radius:20px; padding:8px 20px;" onclick="addStory()">➕ Thêm Sách Mới</button>
+                </div>
             </div>
-            <iframe src="https://mandarinbean.com/all-lessons/" style="width:100%; flex-grow:1; border:1px solid #eee; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.05)"></iframe>
+            <div id="storyGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:20px; overflow-y:auto; padding-bottom:20px;">
+            </div>
         </div>
 
-        <!-- MÀN HÌNH TEST HSK -->
-        <div id="viewHSKTest" style="display:none; height:100%; flex-direction:column; background:white; border-radius:10px; padding:20px; box-sizing:border-box;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
-                <h2 style="margin:0; color:#2c3e50">Test HSK Online - Mandarin Bean</h2>
+        <!-- ĐỌC TRUYỆN -->
+        <div id="viewStoryReader" class="reader-theme-default" style="display:none; flex-direction:column; height:100%; position:relative; box-sizing:border-box; background:var(--desk-bg, #ccd1d1); color:var(--reader-color, #2c3e50); overflow-y:hidden; overflow-x:hidden;">
+            <!-- TOOLBAR TRÊN MẶT BÀN (Nằm ngoài trang giấy, có hiệu ứng kính mờ trong suốt) -->
+            <div style="width:100%; background:rgba(255,255,255,0.85); backdrop-filter:blur(8px); border-bottom:1px solid rgba(0,0,0,0.1); position:sticky; top:0; z-index:50; display:flex; justify-content:space-between; align-items:center; padding:10px 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); color: #2c3e50;">
+                <div style="display:flex; gap:15px; align-items:center;">
+                    <button class="btn btn-back" style="margin:0; box-shadow:none; border:1px solid #ddd;" onclick="readerExit()">⬅ Trở về</button>
+                    
+                    <!-- Nhóm Tùy Chỉnh -->
+                    <div style="border-left:1px solid #ddd; padding-left:15px; display:flex; gap:5px;">
+                        <select id="readerThemeSelect" class="btn" style="margin:0; background:#ecf0f1; border:none; padding:8px;" onchange="setReaderTheme(this.value)" title="Đổi nền">
+                            <option value="default">Sáng</option>
+                            <option value="sepia">Giấy vàng</option>
+                            <option value="dark">Tối</option>
+                        </select>
+                        <button class="btn btn-icon" onclick="changeReaderFontSize(2)" title="Tăng cỡ chữ">A+</button>
+                        <button class="btn btn-icon" onclick="changeReaderFontSize(-2)" title="Giảm cỡ chữ">A-</button>
+                    </div>
+                </div>
+                
+                <div style="display:flex; gap:15px; align-items:center;">
+                    <!-- Nhóm Âm Thanh -->
+                    <div style="display:flex; gap:5px; background:#ecf0f1; border-radius:8px; padding:3px;">
+                        <button class="btn btn-icon" id="btnAudioPlay" onclick="ttsReadPage()" title="Phát âm thanh" style="margin:0;">🔊 Đọc trang</button>
+                        <button class="btn btn-icon" id="btnAudioPause" onclick="ttsPauseResume()" title="Tạm dừng/Tiếp tục" style="display:none; margin:0; background:#f39c12; color:white;">⏸ Dừng</button>
+                    </div>
+                    
+                    <!-- Nhóm AI -->
+                    <div style="border-left:1px solid #ddd; padding-left:15px; display:flex; gap:5px;">
+                        <button class="btn btn-icon" style="background:#f39c12; color:white;" onclick="aiTranslateReaderPage()">✨ AI Dịch</button>
+                        <button class="btn btn-icon" style="background:#9b59b6; color:white;" onclick="aiSimplifyStoryPage()">📉 Giảm độ khó</button>
+                        <button class="btn btn-icon" style="background:#3498db; color:white;" onclick="openAIChatStoryModal()">💬 Thảo luận</button>
+                    </div>
+                    
+                    <!-- Nhóm Từ vựng -->
+                    <button class="btn btn-icon" onclick="openStoryVocab()" title="Từ vựng của truyện">📚 <span id="storyVocabCount" style="background:#e74c3c; color:white; border-radius:10px; padding:2px 6px; font-size:12px;">0</span></button>
+                </div>
             </div>
-            <iframe src="https://mandarinbean.com/hsk-chinese-test-online/" style="width:100%; flex-grow:1; border:1px solid #eee; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.05)"></iframe>
+
+            <!-- TRANG GIẤY THẬT SỰ (Chỉ chứa Title và Nội dung) -->
+            <div style="padding: 40px 20px; display:flex; justify-content:center; align-items:flex-start; min-height:100%; position:relative;">
+                <div id="readerContentArea" style="background:var(--reader-bg, white); width:100%; max-width:850px; box-shadow:0 20px 50px rgba(0,0,0,0.15); border-radius: 4px; padding:60px 80px; position:relative; display:flex; flex-direction:column; overflow:visible;">
+                    
+                    <!-- Bookmark Ribbon now inside relative container -->
+                    <div id="readerBookmarkRibbon" class="modern-ribbon" onclick="toggleStoryBookmark()" title="Đánh dấu trang này"></div>
+
+                    <!-- Navigation Buttons (hanging off edges) -->
+                    <button class="btn-nav-page" onclick="readerPrevPage()" style="position:absolute; left:-25px; top:50%; transform:translateY(-50%); width:50px; height:50px; border-radius:50%; background:white; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.1); cursor:pointer; font-size:20px; color:#2c3e50; z-index:10; display:flex; justify-content:center; align-items:center;">❮</button>
+                    <button class="btn-nav-page" onclick="readerNextPage()" style="position:absolute; right:-25px; top:50%; transform:translateY(-50%); width:50px; height:50px; border-radius:50%; background:white; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.1); cursor:pointer; font-size:20px; color:#2c3e50; z-index:10; display:flex; justify-content:center; align-items:center;">❯</button>
+
+                    <h3 id="readerTitle" style="margin:0 0 40px 0; font-size:32px; text-align:center; border-bottom:2px solid rgba(0,0,0,0.05); padding-bottom:20px; font-weight:700;"></h3>
+                    
+                    <!-- Dịch AI Box -->
+                    <div id="readerAITranslateBox" style="display:none; background:#f9f9f9; color:#333; padding:20px; border-radius:8px; border-left:4px solid #f39c12; margin-bottom:30px; width:100%; box-shadow:0 4px 10px rgba(0,0,0,0.05);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <strong style="color:#e67e22; font-size:16px;">✨ Bản dịch AI (Tham khảo):</strong>
+                            <button class="btn btn-icon" style="padding:4px 10px; font-size:12px;" onclick="document.getElementById('readerAITranslateBox').style.display='none'">Đóng</button>
+                        </div>
+                        <div id="readerAITranslateContent" style="font-size:16px; line-height:1.8; font-family:sans-serif;"></div>
+                    </div>
+                    
+                    <div id="readerTextContainer" style="font-family:'KaiTi', serif; font-size:24px; line-height:2.2; width:100%; transition:all 0.3s; min-height:400px; flex-grow:1; text-align:justify; text-justify:inter-character;">
+                        <!-- Nội dung trang sách tiêm vào đây -->
+                    </div>
+
+                    <!-- Footer / Pagination dính liền vào đáy giấy -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(0,0,0,0.05); padding-top:30px; margin-top:50px;">
+                        <button class="btn" style="background:transparent; color:#34495e; border:1px solid #ddd; border-radius:20px; padding:10px 20px; font-weight:600;" onclick="readerPrevPage()">⬅ Trang trước</button>
+                        <div id="readerPageIndicator" style="font-weight:bold; font-family:sans-serif; color:#7f8c8d; font-size:14px;">Trang 1 / 1</div>
+                        <button class="btn" style="background:transparent; color:#34495e; border:1px solid #ddd; border-radius:20px; padding:10px 20px; font-weight:600;" onclick="readerNextPage()">Trang sau ➡</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Nút thêm từ nổi -->
+            <button id="floatingStoryAddBtn" class="btn btn-primary" style="display:none; position:absolute; z-index:100; box-shadow:0 4px 10px rgba(0,0,0,0.2); border-radius:20px; padding:8px 15px;">➕</button>
         </div>
+
+        
+        <div id="viewMandarinBean" style="display:none; flex-direction:column; height:100%">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:20px">
+                <h2 style="margin:0; color:#2c3e50">Luyện Đọc & Nghe - Mandarin Bean</h2>
+            </div>
+            <iframe src="https://mandarinbean.com/all-lessons/" style="width:100%; flex-grow:1; min-height:80vh; border:1px solid #eee; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.05)"></iframe>
+        </div>
+
+        <div id="viewHSKTest" style="display:none; flex-direction:column; height:100%">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:20px">
+                <h2 style="margin:0; color:#2c3e50">Thi HSK Online - Mandarin Bean</h2>
+            </div>
+            <iframe src="https://mandarinbean.com/hsk-chinese-test-online/" style="width:100%; flex-grow:1; min-height:80vh; border:1px solid #eee; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.05)"></iframe>
+        </div>
+
 
         <div id="viewAIStory" class="panel" style="display:none; padding:20px; border-radius:10px; height:100%; flex-direction:row; gap:20px; box-sizing:border-box;">
-            <div style="flex:7; display:flex; flex-direction:column;">
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:20px">
+            <div style="flex-grow:1; display:flex; flex-direction:column; width:100%;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:20px">
                     <h2 style="margin:0; color:#2c3e50">📖 AI Sinh Truyện</h2>
-                    <div style="display:flex; gap:10px;">
+                    <div style="display:flex; flex-wrap:wrap; gap:10px;">
                         <select id="storyWordCount" class="btn" style="margin:0; background:white; color:#2c3e50; border:1px solid #ddd; padding:8px; width:fit-content; border-radius:5px; height:auto; cursor:pointer;">
                             <option value="5">Ngắn (5 từ)</option>
                             <option value="10" selected>Vừa (10 từ)</option>
@@ -1200,35 +1602,24 @@
                 <div id="storyLoading" style="margin-top:20px; padding:20px; background:#f9f9f9; border-radius:10px; border:1px solid #ddd; display:none; font-size:16px; font-style:italic;">Đang kết nối tới AI (Gemini 1.5 Flash)...</div>
                 <div id="storyResult" style="display:none;"></div>
                 
-                <div id="storySplitView" style="margin-top:20px; display:none; flex-grow:1; gap:15px; min-height:0;">
-                    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
-                        <h4 style="margin:0 0 10px 0; color:#2c3e50; font-size:15px; display:flex; justify-content:space-between; align-items:center;">
-                            <span>🇨🇳 Tiếng Trung</span>
+                
+                <div id="storyUnifiedView" style="margin-top:20px; display:none; flex-grow:1; gap:15px; min-height:0; flex-direction:column;">
+                    <div style="display:flex; flex-direction:column; min-width:0; flex-grow:1;">
+                        <h4 style="margin:0 0 10px 0; color:#2c3e50; font-size:15px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <span>📖 Câu chuyện AI sinh ra</span>
                             <div style="display:flex; gap:5px;">
-                                <button class="btn btn-primary" style="margin:0; padding:5px 10px; font-size:12px; background:#9b59b6;" onclick="speakCurrentStory('zh')">🔊 Phát</button>
+                                <button class="btn btn-primary" id="btnToggleAITranslation" style="margin:0; padding:5px 10px; font-size:12px; background:#e67e22;" onclick="toggleAITranslation()">🌐 Hiện bản dịch</button>
+                                <button class="btn btn-primary" style="margin:0; padding:5px 10px; font-size:12px; background:#9b59b6;" onclick="speakCurrentStory('zh')">🔊 Phát âm</button>
                                 <button class="btn btn-back" style="margin:0; padding:5px 10px; font-size:12px; background:#e74c3c;" onclick="stopSpeech()">⏹ Dừng</button>
                             </div>
                         </h4>
-                        <div id="storyChineseBox" class="panel" style="flex-grow:1; padding:15px; border-radius:8px; border:1px solid #ddd; overflow-y:auto; white-space:pre-wrap; line-height:1.6; font-size:16px; margin-bottom:0; box-shadow:none !important;"></div>
-                    </div>
-                    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
-                        <h4 style="margin:0 0 10px 0; color:#2c3e50; font-size:15px; display:flex; justify-content:space-between; align-items:center;">
-                            <span>🇻🇳 Tiếng Việt</span>
-                            <div style="display:flex; gap:5px;">
-                                <button class="btn btn-primary" style="margin:0; padding:5px 10px; font-size:12px; background:#e67e22;" onclick="speakCurrentStory('vi')">🔊 Phát</button>
-                                <button class="btn btn-back" style="margin:0; padding:5px 10px; font-size:12px; background:#e74c3c;" onclick="stopSpeech()">⏹ Dừng</button>
-                            </div>
-                        </h4>
-                        <div id="storyVietnameseBox" class="panel" style="flex-grow:1; padding:15px; border-radius:8px; border:1px solid #ddd; overflow-y:auto; white-space:pre-wrap; line-height:1.6; font-size:16px; margin-bottom:0; box-shadow:none !important;"></div>
+                        <div id="storyChineseBox" style="flex-grow:1; padding:30px; border-radius:12px; border:1px solid #e0e0e0; background:#fefefe; overflow-y:auto; line-height:2.2; font-size:24px; margin-bottom:0; box-shadow:inset 0 0 10px rgba(0,0,0,0.02); text-align:justify; font-family:'KaiTi', serif;"></div>
+                        <div id="storyVietnameseBox" style="display:none; padding:30px; border-radius:12px; border:1px solid #e0e0e0; background:#fefefe; overflow-y:auto; line-height:1.8; font-size:18px; color:#444; margin-bottom:0; box-shadow:inset 0 0 10px rgba(0,0,0,0.02); text-align:justify;"></div>
                     </div>
                 </div>
+
             </div>
-            <div style="flex:3; border-left:2px solid #eee; padding-left:20px; display:flex; flex-direction:column; overflow:hidden;">
-                <h3 class="srs-title" style="margin-top:0; margin-bottom:15px; font-size:16px;">📖 Câu chuyện gần đây</h3>
-                <div id="aiRecentStoriesList" style="display:flex; flex-direction:column; gap:10px; overflow-y:auto; padding-right:5px; flex-grow:1;">
-                    <!-- Render bằng JS -->
-                </div>
-            </div>
+            
         </div>
 
         <!-- HSKK VIEW -->
@@ -1374,7 +1765,10 @@
                     <div id="lessonReadingDisplay" style="display:none; width:100%; height:100%; padding:15px; border-radius:10px; border:1px solid #ddd; background:white; font-size:32px; font-family:'KaiTi', 'STKaiti', serif; line-height:1.8; overflow-y:auto; box-sizing:border-box; white-space:pre-wrap; cursor:text;"></div>
                     
                     <!-- Nút nổi thêm từ vựng -->
-                    <button id="floatAddVocab" class="btn" style="display:none; position:fixed; z-index:9999; background:#3498db; color:white; padding:5px 12px; border-radius:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2); font-size:13px; font-weight:bold;">➕ Thêm vào từ vựng</button>
+                    <div id="floatAddVocab" style="display:none; position:fixed; z-index:9999; display:flex; gap:10px;">
+                        <button id="floatBtnAddVocab" class="btn" style="background:#3498db; color:white; padding:5px 12px; border-radius:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2); font-size:13px; font-weight:bold;">➕ Thêm vào từ vựng</button>
+                        <button id="floatBtnGrammar" class="btn" style="background:#9b59b6; color:white; padding:5px 12px; border-radius:20px; box-shadow:0 4px 15px rgba(0,0,0,0.2); font-size:13px; font-weight:bold;">🔍 Phân tích ngữ pháp</button>
+                    </div>
                 </div>
             </div>
 
@@ -1566,64 +1960,86 @@
     </div>
 
     <!-- FLASHCARD -->
-    <div id="viewFlashcard">
-        <div style="position:absolute; top:20px; left:30px; right:30px; display:flex; justify-content:space-between; align-items:center;">
-            <button class="btn" style="background:#e74c3c; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" onclick="exitFlashcard()">⬅ Thoát học</button>
-            <div id="fcProgress" style="font-weight:bold; font-size:16px; color:white; background:rgba(0,0,0,0.3); padding:5px 15px; border-radius:20px;"></div>
+    
+    <div id="viewFlashcard" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:99999; background:rgba(255,255,255,0.7); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); flex-direction:column; align-items:center;">
+        
+        <!-- Top Bar -->
+        <div style="width:100%; max-width:500px; padding:20px; display:flex; justify-content:space-between; align-items:center; box-sizing:border-box; margin-top:10px;">
+            <button class="btn" style="background:white; color:#333; width:45px; height:45px; border-radius:50%; box-shadow:0 4px 10px rgba(0,0,0,0.05); display:flex; justify-content:center; align-items:center; border:none; cursor:pointer;" onclick="exitFlashcard()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <div style="font-weight:700; font-size:18px; color:#2c3e50;">Ôn tập Flashcard</div>
+            <div id="fcProgress" style="font-weight:700; font-size:15px; color:#7f8c8d;">0 / 10</div>
         </div>
-        <div style="position:absolute; bottom:20px; text-align:center; color:rgba(255,255,255,0.7); font-size:13px; width:100%; pointer-events:none;">
-            Phím tắt: <b>[Space/Enter]</b> Lật thẻ &nbsp;&bull;&nbsp; <b>[1]</b> Quên &nbsp;&bull;&nbsp; <b>[2]</b> Khó &nbsp;&bull;&nbsp; <b>[3]</b> Nhớ &nbsp;&bull;&nbsp; <b>[4]</b> Dễ
-        </div>
-        <div class="fc-scene" id="fcScene">
-            <div class="fc-container" id="fcCard" onclick="flipCard()">
-                <div class="fc-face" id="fcFront" style="display:flex; flex-direction:column; justify-content:center; align-items:center;">
-                    <h1 id="fcHanzi" style="font-size:100px; margin:0; font-family:'KaiTi', 'STKaiti', serif; font-weight:normal; text-shadow: 2px 2px 4px rgba(0,0,0,0.1)"></h1>
+
+        <!-- The Card -->
+        <div class="fc-scene" id="fcScene" style="flex-grow:1; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box;">
+            <div class="fc-container" id="fcCard" onclick="flipCard()" style="width:100%; height:100%;">
+                
+                <!-- FRONT -->
+                <div class="fc-face" id="fcFront" style="display:flex; flex-direction:column; justify-content:center; align-items:center; background:#ffffff; border-radius:30px; box-shadow:0 10px 40px rgba(0,0,0,0.08); position:relative; padding:30px; border:none;">
                     
-                    <div id="fcListeningIcon" style="display:none; font-size:80px; color:#3498db; cursor:pointer;" onclick="event.stopPropagation(); playAudio(currentCard.hanzi)">🔊</div>
+                    <div id="fcListeningIcon" style="display:none; position:absolute; top:20px; right:20px; width:45px; height:45px; border-radius:50%; border:1px solid #f1f2f6; background:white; cursor:pointer; font-size:20px; color:#555; display:flex; justify-content:center; align-items:center; box-shadow:0 4px 10px rgba(0,0,0,0.05);" onclick="event.stopPropagation(); playAudio(currentCard.hanzi)">🔊</div>
                     
-                    <div id="fcTypingArea" style="display:none; margin-top:20px; width:100%; flex-direction:column; align-items:center;">
-                        <input type="text" id="fcTypingInput" placeholder="Nhập Pinyin (VD: ni3 hao3)..." style="font-size:20px; padding:10px; text-align:center; border-radius:10px; border:2px solid #ccc; width:80%;" onkeydown="if(event.key==='Enter'){event.stopPropagation(); checkTyping();}" onclick="event.stopPropagation();">
-                        <p id="fcTypingFeedback" style="margin-top:10px; font-size:16px; font-weight:bold;"></p>
+                    <h1 id="fcHanzi" style="font-size:80px; margin:0; font-weight:600; color:#2d3436; text-align:center; font-family:'KaiTi', 'STKaiti', serif;"></h1>
+                    <p id="fcPinyin" style="font-size:22px; color:#95a5a6; margin-top:15px; letter-spacing:1px;"></p>
+                    
+                    <div id="fcTypingArea" style="display:none; margin-top:30px; width:100%; flex-direction:column; align-items:center;">
+                        <input type="text" id="fcTypingInput" placeholder="Nhập Pinyin..." style="font-size:18px; padding:15px; text-align:center; border-radius:15px; border:2px solid #eee; width:100%; background:#fcfcfc;" onkeydown="if(event.key==='Enter'){event.stopPropagation(); checkTyping();}" onclick="event.stopPropagation();">
+                        <p id="fcTypingFeedback" style="margin-top:10px; font-size:14px; font-weight:bold;"></p>
                     </div>
 
-                    <p id="fcInstructionText" style="color:#bdc3c7; margin-top:20px">Chạm hoặc nhấn Space để lật</p>
+                    <p id="fcInstructionText" style="position:absolute; bottom:30px; color:#b2bec3; font-size:14px;">Chạm hoặc nhấn Space để lật</p>
                 </div>
-                <div class="fc-face fc-face-back" id="fcBack">
-                    <h2 id="fcHanziBack" style="margin:0; font-size:55px; color:#2c3e50; font-family:'KaiTi', 'STKaiti', serif; font-weight:normal; text-shadow: 1px 1px 2px rgba(0,0,0,0.1)"></h2>
-                    <h3 id="fcNghia" style="color:#e74c3c; font-size:24px; margin:10px 0"></h3>
-                    <div
-                        style="margin-top:20px; padding:20px; background:#f4f7f6; border-radius:10px; border-left:4px solid #3498db; width: 100%; box-sizing: border-box;">
-                        <p id="fcExHan" style="font-size:20px; margin:0; font-weight:500; color:#34495e"></p>
-                        <p id="fcExViet" style="font-size:16px; color:#7f8c8d; margin:8px 0 0 0; font-style:italic"></p>
+                
+                <!-- BACK -->
+                <div class="fc-face fc-face-back" id="fcBack" style="display:flex; flex-direction:column; justify-content:flex-start; align-items:stretch; background:#ffffff; border-radius:30px; box-shadow:0 10px 40px rgba(0,0,0,0.08); padding:40px 30px; border:none; overflow-y:auto;">
+                    
+                    <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:30px;">
+                        <h2 id="fcHanziBack" style="margin:0; font-size:50px; font-weight:600; color:#2d3436; text-align:center; font-family:'KaiTi', 'STKaiti', serif;"></h2>
+                        <p id="fcPinyinBack" style="font-size:18px; color:#95a5a6; margin-top:10px; letter-spacing:1px;"></p>
                     </div>
-                    <img id="fcImg" src=""
-                        style="max-width:200px; max-height:150px; margin-top:20px; border-radius:8px; display:none">
+                    
+                    <div style="width:100%; height:1px; background:#f1f2f6; margin-bottom:30px;"></div>
+                    
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px; background:#fff9f9; padding:15px; border-radius:15px;">
+                        <span style="background:#ffeaa7; color:#d35400; font-size:12px; font-weight:bold; padding:4px 8px; border-radius:6px;">Từ vựng</span>
+                        <h3 id="fcNghia" style="margin:0; color:#2d3436; font-size:20px; font-weight:700;"></h3>
+                    </div>
+                    
+                    <div style="padding:20px; background:#e8f8f5; border-radius:15px; width: 100%; box-sizing: border-box;">
+                        <p id="fcExHan" style="font-size:18px; margin:0; font-weight:500; color:#2d3436"></p>
+                        <p id="fcExViet" style="font-size:15px; color:#16a085; margin:10px 0 0 0;"></p>
+                    </div>
+                    <img id="fcImg" src="" style="max-width:100%; border-radius:12px; margin-top:20px; display:none;">
                 </div>
             </div>
         </div>
-        <div id="fcControls" style="display:none; margin-top:30px; gap:15px; justify-content: center;">
-            <button class="btn"
-                style="background:#e74c3c; padding:10px 20px; font-size:16px; flex-direction:column; min-width:90px"
-                onclick="nextCard(1)">
-                <span>🔴 Quên sạch</span><span id="int1" style="font-size:12px; font-weight:normal; opacity:0.9">Học lại ngay</span>
+
+        <!-- Controls -->
+        <div id="fcControls" style="display:none; width:100%; max-width:500px; padding:0 20px 40px 20px; box-sizing:border-box; flex-direction:row; gap:12px; justify-content:space-between;">
+            <button onclick="nextCard(1)" style="flex:1; background:#fff0f5; color:#ff4757; border:none; border-radius:25px; padding:18px 0; display:flex; flex-direction:column; align-items:center; cursor:pointer; box-shadow:0 4px 10px rgba(255,118,117,0.1); transition:transform 0.2s;">
+                <span style="font-size:16px; font-weight:700;">Quên</span>
+                <span id="int1" style="font-size:12px; opacity:0.7; margin-top:4px;">Học lại ngay</span>
             </button>
-            <button class="btn"
-                style="background:#e67e22; padding:10px 20px; font-size:16px; flex-direction:column; min-width:90px"
-                onclick="nextCard(2)">
-                <span>🟠 Hơi gượng</span><span id="int2" style="font-size:12px; font-weight:normal; opacity:0.9"></span>
+            <button onclick="nextCard(2)" style="flex:1; background:#fff7e6; color:#e1b12c; border:none; border-radius:25px; padding:18px 0; display:flex; flex-direction:column; align-items:center; cursor:pointer; box-shadow:0 4px 10px rgba(225,177,44,0.1); transition:transform 0.2s;">
+                <span style="font-size:16px; font-weight:700;">Khó</span>
+                <span id="int2" style="font-size:12px; opacity:0.7; margin-top:4px;"></span>
             </button>
-            <button class="btn"
-                style="background:#2ecc71; padding:10px 20px; font-size:16px; flex-direction:column; min-width:90px"
-                onclick="nextCard(3)">
-                <span>🟢 Nhớ tốt</span><span id="int3" style="font-size:12px; font-weight:normal; opacity:0.9"></span>
+            <button onclick="nextCard(3)" style="flex:1; background:#e8f8f5; color:#20bf6b; border:none; border-radius:25px; padding:18px 0; display:flex; flex-direction:column; align-items:center; cursor:pointer; box-shadow:0 4px 10px rgba(32,191,107,0.1); transition:transform 0.2s;">
+                <span style="font-size:16px; font-weight:700;">Nhớ</span>
+                <span id="int3" style="font-size:12px; opacity:0.7; margin-top:4px;"></span>
             </button>
-            <button class="btn"
-                style="background:#3498db; padding:10px 20px; font-size:16px; flex-direction:column; min-width:90px"
-                onclick="nextCard(4)">
-                <span>🔵 Quá dễ</span><span id="int4" style="font-size:12px; font-weight:normal; opacity:0.9"></span>
+            <button onclick="nextCard(4)" style="flex:1; background:#e8f4fd; color:#2980b9; border:none; border-radius:25px; padding:18px 0; display:flex; flex-direction:column; align-items:center; cursor:pointer; box-shadow:0 4px 10px rgba(41,128,185,0.1); transition:transform 0.2s;">
+                <span style="font-size:16px; font-weight:700;">Dễ</span>
+                <span id="int4" style="font-size:12px; opacity:0.7; margin-top:4px;"></span>
             </button>
         </div>
-        <div id="fcEnd" style="display:none; text-align:center">
+        
+        <div style="position:absolute; bottom:15px; color:#a4b0be; font-size:12px; pointer-events:none;">Phím tắt: [Space] Lật • [1] Quên • [2] Khó • [3] Nhớ • [4] Dễ</div>
+    </div>
+
+    <div id="fcEnd" style="display:none; text-align:center">
             <h1 style="font-size:40px">Hoàn thành xuất sắc! 🎉</h1>
             <p style="font-size:18px; color:#bdc3c7; margin-bottom:30px">Bạn đã hoàn tất mốc ôn tập này.</p>
             <button class="btn btn-primary" style="font-size:18px; padding:12px 30px" onclick="exitFlashcard()">Xác
@@ -1631,9 +2047,24 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js">        window.addEventListener('resize', () => {
+            if (document.getElementById('viewStoryReader').style.display === 'flex' || document.getElementById('viewStoryReader').style.display === 'block') {
+                if (currentStoryIndex !== -1) renderReaderPage(currentStoryIndex);
+            }
+        });
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-auth-compat.js">        window.addEventListener('resize', () => {
+            if (document.getElementById('viewStoryReader').style.display === 'flex' || document.getElementById('viewStoryReader').style.display === 'block') {
+                if (currentStoryIndex !== -1) renderReaderPage(currentStoryIndex);
+            }
+        });
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore-compat.js">        window.addEventListener('resize', () => {
+            if (document.getElementById('viewStoryReader').style.display === 'flex' || document.getElementById('viewStoryReader').style.display === 'block') {
+                if (currentStoryIndex !== -1) renderReaderPage(currentStoryIndex);
+            }
+        });
+    </script>
 
     <script>
         const firebaseConfig = {
@@ -1648,7 +2079,7 @@
         const auth = firebase.auth(), db = firebase.firestore();
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-        let cloudDoc = null, unsubscribeSnapshot = null, courses = [], userProfile = {};
+        let cloudDoc = null, unsubscribeSnapshot = null, courses = [], userStories = [], currentStoryIndex = -1, userProfile = {};
         let currentCourseIndex = -1, currentLessonIndex = -1, editingIndex = -1, returnView = 'dashboard';
         const DEFAULT_QUOTE = "拼尽全力之后，一切顺其自然。人的手本来就小，握不住的东西实在太多了。要学会包容并与自己和解；因为得到的未必是福，失去的也未必是祸。你以为的遗憾，其实可能是躲过了一劫。拐个弯，微笑着与生活和解吧。";
         const DEFAULT_QUOTE_VI = "Sau khi đã cố gắng hết sức, vạn sự hãy cứ tùy duyên. Bàn tay con người vốn dĩ nhỏ bé, thứ không thể nắm giữ thực sự quá nhiều. Phải học cách bao dung và làm hòa với chính mình; bởi lẽ đạt được chưa chắc đã là phúc, mà mất đi cũng chưa hẳn là họa. Điều ta ngỡ là nuối tiếc khôn nguôi, thực chất lại là may mắn tránh được một kiếp nạn. Rẽ một bước ngoặt, mỉm cười và làm hòa với cuộc đời.";
@@ -1678,7 +2109,7 @@
         auth.onAuthStateChanged(user => {
             if (user && user.emailVerified) {
                 document.getElementById('authScreen').style.display = 'none';
-                document.querySelector('.top-navbar').style.display = 'flex';
+                document.getElementById('appShellContainer').style.display = 'flex';
                 document.getElementById('mainArea').style.display = 'block';
                 hide(); // Luôn reset về trạng thái ẩn để hàm refreshView gọi Dashboard lên đầu tiên
                 cloudDoc = db.collection("users").doc(user.uid);
@@ -1686,7 +2117,7 @@
                 setTimeout(updateOnlineStatus, 2000); // Cập nhật online ngay sau khi load
             } else {
                 document.getElementById('authScreen').style.display = 'flex';
-                document.querySelector('.top-navbar').style.display = 'none';
+                document.getElementById('appShellContainer').style.display = 'none';
                 document.getElementById('mainArea').style.display = 'none';
             }
         });
@@ -1733,9 +2164,11 @@
                 let isReviewing = document.getElementById('viewFlashcard') && document.getElementById('viewFlashcard').style.display === 'flex';
                 if (!isReviewing) {
                     courses = data.courses || [];
+                    userStories = data.stories || [];
                 } else {
                     if (!courses || courses.length === 0) {
                         courses = data.courses || [];
+                    userStories = data.stories || [];
                     } else {
                         mergeInPlace(courses, data.courses || []);
                     }
@@ -1775,7 +2208,7 @@
                     needSync = true;
                 }
 
-                if (needSync) sync();
+                if (needSync) sync('profile');
 
                 updateDashboardUI();
                 document.getElementById('loadingScreen').style.display = 'none';
@@ -1792,6 +2225,9 @@
             let dataToSave = {};
             if (!syncType || syncType === 'courses') {
                 dataToSave.courses = courses;
+            }
+            if (!syncType || syncType === 'stories') {
+                dataToSave.stories = userStories;
             }
             if (!syncType || syncType === 'profile') {
                 dataToSave.profile = userProfile;
@@ -1986,6 +2422,26 @@
                 }).join('');
             }
             
+            // --- Render SAVED STORIES ---
+            let savedListEl = document.getElementById('savedStoriesList');
+            if (savedListEl) {
+                if (!userProfile.savedStories || userProfile.savedStories.length === 0) {
+                    savedListEl.innerHTML = `<div style="color:#7f8c8d; font-style:italic; padding:10px;">Bạn chưa lưu câu chuyện AI nào.</div>`;
+                } else {
+                    savedListEl.innerHTML = userProfile.savedStories.map(s => {
+                        let dateStr = new Date(s.timestamp).toLocaleString('vi-VN');
+                        return `<div class="srs-timeline-item" style="border-left-color: #3498db; cursor:pointer;" onclick="viewSavedStory(${s.timestamp})">
+                            <div class="srs-timeline-dot" style="background: linear-gradient(135deg, #2980b9, #3498db);">📚</div>
+                            <div class="srs-timeline-info">
+                                <div class="srs-timeline-label" style="color:#2c3e50; font-weight:bold;">${s.title || "Câu chuyện AI"}</div>
+                                <div class="srs-timeline-date" style="font-size:11px;">Lưu lúc: ${dateStr}</div>
+                            </div>
+                            <button class="btn btn-back" style="margin:0; padding:2px 8px; font-size:12px; height:fit-content;" onclick="event.stopPropagation(); deleteSavedStory(${s.timestamp})">Xóa</button>
+                        </div>`;
+                    }).join('');
+                }
+            }
+            
             renderHeatmap();
 
             loadLeaderboard();
@@ -2033,26 +2489,6 @@
                 if (iterDate > today && iterDate.getDay() === 0) break; 
             }
             container.innerHTML = html;
-
-            // Render CÂU CHUYỆN GẦN ĐÂY
-            let stories = [...(userProfile.savedStories || [])].sort((a, b) => b.timestamp - a.timestamp);
-            let recentList = document.getElementById('recentStoriesList');
-            let aiRecentList = document.getElementById('aiRecentStoriesList');
-            let renderHtml = '';
-            
-            if (stories.length === 0) {
-                renderHtml = `<div style="text-align:center; color:#95a5a6; font-size:13px; padding:15px;">Chưa có câu chuyện nào được lưu.</div>`;
-            } else {
-                renderHtml = stories.map(s => `
-                    <div style="padding:10px; border-radius:8px; background:#f9f9f9; border:1px solid #eee; cursor:pointer; position:relative;" onclick="viewSavedStory(${s.timestamp})">
-                        <button onclick="event.stopPropagation(); deleteSavedStory(${s.timestamp})" style="position:absolute; top:10px; right:10px; background:none; border:none; color:#e74c3c; cursor:pointer; font-size:16px; padding:0; line-height:1;" title="Xóa câu chuyện">✖</button>
-                        <div style="font-weight:bold; font-size:14px; color:#2c3e50; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-right:20px;">${s.title}</div>
-                        <div style="font-size:12px; color:#7f8c8d; margin-top:4px;">Lưu ngày: ${new Date(s.timestamp).toLocaleDateString('vi-VN')} lúc ${new Date(s.timestamp).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'})}</div>
-                    </div>
-                `).join('');
-            }
-            if (recentList) recentList.innerHTML = renderHtml;
-            if (aiRecentList) aiRecentList.innerHTML = renderHtml;
         }
 
         function showHmTooltip(e, dateStr, count) {
@@ -2070,7 +2506,7 @@
         }
 
         function refreshView() {
-            let activeViews = ['viewFlashcard', 'viewAIStory', 'viewAIChat', 'viewPublicVocab', 'viewHSKTest', 'viewMandarinBean', 'viewProfile', 'viewCourseList', 'viewHSKK'];
+            let activeViews = ['viewStoryList', 'viewStoryReader', 'viewFlashcard', 'viewAIStory', 'viewAIChat', 'viewPublicVocab', 'viewHSKTest', 'viewMandarinBean', 'viewProfile', 'viewCourseList', 'viewHSKK'];
             for (let id of activeViews) {
                 let el = document.getElementById(id);
                 if (el && el.style.display !== 'none' && el.style.display !== '') return;
@@ -2085,7 +2521,8 @@
             if(document.getElementById(id)) document.getElementById(id).classList.add('active');
         }
 
-        function showDashboard() { 
+        function showDashboard() {
+            if(typeof stopReadingAudio === 'function') stopReadingAudio(); 
             hide(); 
             document.getElementById('viewDashboard').style.display = 'block'; 
             setActiveMenu('menu-dashboard'); 
@@ -2469,7 +2906,13 @@
             window.speechSynthesis.speak(u);
         }
 
-        function stopReadingAudio() {
+                function stopReadingAudio() {
+            if(document.getElementById('btnAudioPlay')) {
+                document.getElementById('btnAudioPlay').style.display = 'inline-block';
+                document.getElementById('btnAudioPause').style.display = 'none';
+                document.getElementById('btnAudioPause').innerText = '⏸ Dừng';
+            }
+            isAudioPaused = false;
             window.speechSynthesis.cancel();
             const spans = document.querySelectorAll('.reading-char');
             spans.forEach(s => s.classList.remove('active-word'));
@@ -2483,38 +2926,40 @@
             let selectionTimeout;
             
             // Lắng nghe sự kiện selectionchange (Tuyệt đối tin cậy trên các trình duyệt Mobile/Tablet như Safari, Samsung Internet)
-            document.addEventListener('selectionchange', () => {
-                clearTimeout(selectionTimeout);
-                // Debounce 400ms để chờ người dùng kéo xong thanh bôi đen
-                selectionTimeout = setTimeout(() => {
-                    const selection = window.getSelection();
-                    const selectedText = selection.toString().trim();
-
-                    if (selectedText && selection.rangeCount > 0) {
-                        let range = selection.getRangeAt(0);
-                        if (disp.contains(range.commonAncestorContainer) || disp === range.commonAncestorContainer) {
-                            let rect = range.getBoundingClientRect();
-                            if (rect.width > 0 && rect.height > 0) {
-                                floatBtn.style.display = 'block';
-                                floatBtn.style.left = `${rect.left + (rect.width / 2) - 60}px`;
-                                floatBtn.style.top = `${rect.top - 55}px`; // Đẩy lên cao thêm 1 chút để tránh ngón tay che khuất
-                                
-                                if (parseFloat(floatBtn.style.top) < 0) floatBtn.style.top = '10px';
-                                if (parseFloat(floatBtn.style.left) < 0) floatBtn.style.left = '10px';
-                                
-                                floatBtn.onclick = (event) => {
-                                    event.stopPropagation();
-                                    addSelectedToVocab(selectedText);
-                                    window.getSelection().removeAllRanges();
-                                    floatBtn.style.display = 'none';
-                                };
-                                return;
-                            }
-                        }
-                    }
-                    floatBtn.style.display = 'none';
-                }, 400); 
-            });
+                    document.addEventListener('selectionchange', () => {
+            let s = window.getSelection();
+            if (!s || s.rangeCount === 0 || s.toString().trim() === '') {
+                document.getElementById('floatAddVocab').style.display = 'none';
+                return;
+            }
+            let r = s.getRangeAt(0);
+            let p = r.commonAncestorContainer;
+            if (p.nodeType === 3) p = p.parentNode;
+            let lessonDisp = document.getElementById('lessonReadingDisplay');
+            let storyDisp = document.getElementById('readerContentArea');
+            if ((lessonDisp && lessonDisp.contains(p)) || (storyDisp && storyDisp.contains(p))) {
+                let rect = r.getBoundingClientRect();
+                let btn = document.getElementById('floatAddVocab');
+                btn.style.left = rect.left + window.scrollX + 'px';
+                btn.style.top = rect.bottom + window.scrollY + 5 + 'px';
+                btn.style.display = 'flex';
+                
+                document.getElementById('floatBtnAddVocab').onclick = (event) => {
+                    event.stopPropagation();
+                    addSelectedToVocab(s.toString().trim());
+                    window.getSelection().removeAllRanges();
+                    btn.style.display = 'none';
+                };
+                document.getElementById('floatBtnGrammar').onclick = (event) => {
+                    event.stopPropagation();
+                    analyzeGrammar(s.toString().trim());
+                    window.getSelection().removeAllRanges();
+                    btn.style.display = 'none';
+                };
+            } else {
+                document.getElementById('floatAddVocab').style.display = 'none';
+            }
+        });
 
             // Ẩn nút ngay lập tức khi người dùng bắt đầu chạm màn hình để bôi đen chỗ khác
             const hideBtnOnTap = (e) => {
@@ -2526,20 +2971,13 @@
             document.addEventListener('touchstart', hideBtnOnTap, {passive: true});
         });
 
-        async function addSelectedToVocab(text) {
+                async function addSelectedToVocab(text) {
             const floatBtn = document.getElementById('floatAddVocab');
             floatBtn.innerText = "⌛ AI đang tra từ...";
             floatBtn.style.background = "#e67e22";
-
-            window.returnToReading = true; // Flag to return to reading tab after save
-            switchLessonTab('vocab');
-            openWordForm();
-            document.getElementById('chuHan').value = text;
-            document.getElementById('pinyin').value = "Đang lấy...";
-            document.getElementById('nghia').value = "Đang lấy...";
+            floatBtn.style.display = 'block';
             
-            const prompt = `Bạn là giáo viên tiếng Trung. Cung cấp thông tin JSON cho từ: "${text}"
-{"p": "pinyin", "t": "loại từ", "n": "nghĩa", "h": "ví dụ Hán", "v": "dịch Việt", "ep": "pinyin ví dụ"}`;
+            const prompt = `Bạn là giáo viên tiếng Trung. Cung cấp thông tin JSON cho từ: "${text}"\n{"p": "pinyin", "t": "loại từ", "n": "nghĩa", "h": "ví dụ Hán", "v": "dịch Việt", "ep": "pinyin ví dụ"}`;
 
             let res = await callAI(prompt);
             
@@ -2547,36 +2985,649 @@
             floatBtn.style.background = "#3498db";
             floatBtn.style.display = 'none';
 
+            let wordData = null;
             if (res && typeof res === 'string') {
                 try {
                     let clean = res.replace(/```json|```/g, '').trim();
                     let jsonMatch = clean.match(/\{[\s\S]*\}/);
                     if (jsonMatch) clean = jsonMatch[0];
-                    let obj = JSON.parse(clean);
-                    
-                    document.getElementById('pinyin').value = obj.p || '';
-                    document.getElementById('wordType').value = obj.t || '';
-                    document.getElementById('nghia').value = obj.n || '';
-                    document.getElementById('exHan').value = obj.h || '';
-                    document.getElementById('exPinyin').value = obj.ep || '';
-                    document.getElementById('exViet').value = obj.v || '';
-                } catch(e) { 
-                    console.error("Lỗi xử lý JSON:", e);
-                    resetFormFields();
+                    wordData = JSON.parse(clean);
+                } catch (e) {
+                    console.log("JSON parse error:", e);
+                }
+            }
+
+            if (!wordData) {
+                alert("Lỗi: AI không thể phân tích từ này.");
+                return;
+            }
+
+            let isStory = document.getElementById('viewStoryReader') && document.getElementById('viewStoryReader').style.display === 'flex';
+            if (isStory) {
+                let s = userStories[currentStoryIndex];
+                if (!s.vocab) s.vocab = [];
+                s.vocab.push({
+                    word: text,
+                    pinyin: wordData.p || "",
+                    type: wordData.t || "",
+                    mean: wordData.n || "",
+                    exHan: wordData.h || "",
+                    exViet: wordData.v || "",
+                    exPinyin: wordData.ep || "",
+                    isLearned: false
+                });
+                sync('stories');
+                if (typeof highlightVocabInReader === 'function') highlightVocabInReader();
+                if (document.getElementById('storyVocabCount')) {
+                    document.getElementById('storyVocabCount').innerText = s.vocab.length;
                 }
             } else {
-                resetFormFields();
-                if (!res) alert("AI không phản hồi, bạn hãy điền thủ công nhé!");
+                if (!courses[currentCourseIndex].lessons[currentLessonIndex].vocab) {
+                    courses[currentCourseIndex].lessons[currentLessonIndex].vocab = [];
+                }
+                courses[currentCourseIndex].lessons[currentLessonIndex].vocab.push({
+                    word: text,
+                    pinyin: wordData.p || "",
+                    type: wordData.t || "",
+                    mean: wordData.n || "",
+                    exHan: wordData.h || "",
+                    exViet: wordData.v || "",
+                    exPinyin: wordData.ep || "",
+                    isLearned: false
+                });
+                sync('courses');
+                if (typeof highlightVocabInReading === 'function') highlightVocabInReading();
+                if (typeof renderLessonDetail === 'function') renderLessonDetail(currentLessonIndex);
             }
+            alert("Đã thêm từ: " + text);
         }
 
         function resetFormFields() {
-            if (document.getElementById('pinyin').value === "Đang lấy...") document.getElementById('pinyin').value = "";
-            if (document.getElementById('nghia').value === "Đang lấy...") document.getElementById('nghia').value = "";
+            // Không còn dùng
         }
 
         // GRAMMAR LOGIC
         let editingGrammarIndex = -1;
+
+        
+        function showStoryList() {
+            hide();
+            document.getElementById('viewStoryList').style.display = 'flex';
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.style.color = '#7f8c8d';
+                el.style.background = 'transparent';
+            });
+            document.getElementById('menu-stories').style.color = '#2c3e50';
+            document.getElementById('menu-stories').style.background = 'rgba(0,0,0,0.05)';
+            renderStories();
+        }
+
+        function renderStories() {
+            let grid = document.getElementById('storyGrid');
+            if(!grid) return;
+            if(userStories.length === 0) {
+                grid.innerHTML = "<p style='color:#7f8c8d'>Chưa có sách/truyện nào. Hãy thêm nhé!</p>";
+                return;
+            }
+            let html = '';
+            let bookGradients = [
+                'linear-gradient(135deg, #f6d365 0%, #fda085 100%)',
+                'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)',
+                'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+                'linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)',
+                'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)',
+                'linear-gradient(135deg, #fdcbf1 0%, #fdcbf1 1%, #e6dee9 100%)',
+                'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)'
+            ];
+            for(let i=0; i<userStories.length; i++) {
+                let s = userStories[i];
+                let pct = s.totalPages > 0 ? Math.round(((s.currentPage - 1) / s.totalPages) * 100) : 0;
+                let grad = bookGradients[i % bookGradients.length];
+                html += `<div class="story-card" style="background: ${grad}; color: #333; min-height: 250px; display: flex; flex-direction: column; justify-content: space-between; border-radius: 12px 24px 24px 12px; position: relative; box-shadow: -5px 0 15px rgba(0,0,0,0.1) inset, 0 10px 20px rgba(0,0,0,0.1); padding:0; overflow:hidden;" onclick="openStory(${i})">
+                    <div style="position: absolute; left: 15px; top: 0; bottom: 0; width: 4px; background: rgba(0,0,0,0.1); box-shadow: 1px 0 2px rgba(255,255,255,0.3); z-index:2;"></div>
+                    <div style="flex-grow:1; display:flex; align-items:center; justify-content:center; padding: 20px 20px 20px 35px; text-align:center; position:relative; z-index:1;">
+                        <h3 style="margin:0; font-size: 22px; font-weight: bold; text-shadow: 1px 1px 0px rgba(255,255,255,0.5); line-height:1.4;">${s.title}</h3>
+                    </div>
+                    <div style="padding: 15px 15px 15px 30px; background: rgba(255,255,255,0.6); backdrop-filter: blur(5px); position:relative; z-index:1;">
+                        <div style="font-size:14px; font-weight: bold; display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                            <span>Trang ${s.currentPage} / ${s.totalPages}</span>
+                            <button class="btn btn-icon" onclick="event.stopPropagation(); deleteStory(${i})" style="color:#e74c3c; background:white; width:28px; height:28px; border-radius:50%; box-shadow:0 2px 5px rgba(0,0,0,0.1); display:flex; align-items:center; justify-content:center; margin:0; padding:0;">❌</button>
+                        </div>
+                        <div class="progress-bar" style="background: rgba(0,0,0,0.1); height:6px; margin:0;"><div class="progress-fill" style="width:${pct}%; background:#2c3e50;"></div></div>
+                    </div>
+                </div>`;
+            }
+            grid.innerHTML = html;
+        }
+
+                function openAISuggestStoryModal() {
+            document.getElementById('aiSuggestStoryModal').style.display = 'flex';
+            document.getElementById('aiSuggestResults').style.display = 'none';
+            document.getElementById('aiSuggestResults').innerHTML = '';
+            document.getElementById('aiSuggestLoading').style.display = 'none';
+            document.getElementById('btnFetchAISuggestions').disabled = false;
+        }
+
+        function closeAISuggestStoryModal() {
+            document.getElementById('aiSuggestStoryModal').style.display = 'none';
+        }
+
+        async function fetchAIStorySuggestions() {
+            let level = document.getElementById('aiSuggestHskLevel').value;
+            let loading = document.getElementById('aiSuggestLoading');
+            let results = document.getElementById('aiSuggestResults');
+            let btn = document.getElementById('btnFetchAISuggestions');
+
+            loading.style.display = 'block';
+            results.style.display = 'none';
+            btn.disabled = true;
+
+            let prompt = `Bạn là một chuyên gia văn học Trung Quốc. Hãy gợi ý cho tôi 3 mẩu truyện cực ngắn (khoảng 300-500 chữ) phù hợp với trình độ tiếng Trung ${level}. 
+Nếu trình độ là HSK 1-4, hãy tự viết một câu chuyện đơn giản, hoặc cải biên truyện cổ tích.
+Nếu trình độ HSK 5-6 hoặc Idiom, hãy dùng một câu chuyện thành ngữ hoặc văn bản nổi tiếng có thật.
+
+Yêu cầu trả về JSON mảng với cấu trúc sau:
+[
+    {
+        "title": "Tên truyện tiếng Trung",
+        "desc": "Tóm tắt ngắn gọn bằng tiếng Việt (1-2 câu)"
+    }
+]
+CHỈ TRẢ VỀ JSON, không có text markdown hay giải thích nào khác.`;
+
+            let res = await callAI(prompt);
+            loading.style.display = 'none';
+            btn.disabled = false;
+
+            if (!res) {
+                alert("Lỗi khi gọi AI. Vui lòng thử lại!");
+                return;
+            }
+
+            try {
+                let clean = res.replace(/```json|```/g, '').trim();
+                let match = clean.match(/\[[\s\S]*\]/);
+                if(match) clean = match[0];
+                let list = JSON.parse(clean);
+                
+                let html = '';
+                list.forEach((item, index) => {
+                    html += `
+                        <div style="background:#f9f9f9; padding:15px; border-radius:8px; border-left:4px solid #3498db; display:flex; justify-content:space-between; align-items:center;">
+                            <div style="flex-grow:1; padding-right:15px;">
+                                <h3 style="margin:0 0 5px 0; color:#2c3e50;">${item.title}</h3>
+                                <p style="margin:0; font-size:14px; color:#555;">${item.desc}</p>
+                            </div>
+                            <button class="btn" style="background:#2ecc71; color:white; min-width:120px;" onclick="addAIStorySuggestionToLibrary('${item.title.replace(/'/g, "\\'")}', this)">📥 Tải & Thêm</button>
+                        </div>
+                    `;
+                });
+                results.innerHTML = html;
+                results.style.display = 'flex';
+            } catch(e) {
+                console.error("Parse JSON story suggest failed:", e);
+                alert("AI trả về sai định dạng. Vui lòng thử lại!");
+            }
+        }
+
+        async function addAIStorySuggestionToLibrary(title, btnElement) {
+            let originalText = btnElement.innerText;
+            btnElement.innerText = "⏳ Đang tải...";
+            btnElement.disabled = true;
+            btnElement.style.background = "#95a5a6";
+
+            let level = document.getElementById('aiSuggestHskLevel').value;
+            let prompt = `Bạn là một nhà văn xuất sắc. Hãy cung cấp toàn bộ nội dung tiếng Trung của mẩu truyện ngắn có tên "${title}" phù hợp với trình độ tiếng Trung ${level}. 
+Yêu cầu:
+- Độ dài khoảng 300 - 800 chữ.
+- Nội dung hấp dẫn, văn phong chuẩn tiếng Trung.
+- CHỈ TRẢ VỀ ĐÚNG NỘI DUNG TRUYỆN (Tiếng Trung), không giải thích, không dịch tiếng Việt, không kèm tiêu đề.`;
+
+            let content = await callAI(prompt);
+            
+            btnElement.innerText = originalText;
+            btnElement.disabled = false;
+            btnElement.style.background = "#2ecc71";
+
+            if (!content || content.trim() === '') {
+                alert("Lỗi khi tải nội dung truyện!");
+                return;
+            }
+
+            document.getElementById('addStoryTitle').value = title;
+            document.getElementById('addStoryContent').value = content.trim();
+            saveNewStory();
+            
+            alert(`Đã thêm truyện "${title}" vào kho sách của bạn!`);
+            closeAISuggestStoryModal();
+        }
+
+        async function analyzeGrammar(text) {
+            let modal = document.getElementById('aiGrammarModal');
+            let content = document.getElementById('aiGrammarContent');
+            modal.style.display = 'flex';
+            content.innerHTML = "⏳ Đang phân tích ngữ pháp, vui lòng đợi...";
+
+            let prompt = `Bạn là chuyên gia ngôn ngữ học tiếng Trung. Hãy phân tích ngữ pháp của câu/đoạn sau:\n\n"${text}"\n\nYêu cầu phân tích chi tiết:
+1. Xác định Cấu trúc câu (Chủ ngữ - Vị ngữ - Trạng ngữ - Tân ngữ).
+2. Phân tích các điểm ngữ pháp khó (như chữ 把, 被, bổ ngữ kết quả, bổ ngữ phương hướng...).
+3. Nếu có thành ngữ (Idiom), hãy giải thích ngắn gọn.
+Trình bày bằng HTML cơ bản (<p>, <ul>, <li>, <strong>) để hiển thị trên web.`;
+
+            let res = await callAI(prompt);
+            if(res) {
+                content.innerHTML = res;
+            } else {
+                content.innerHTML = "❌ Lỗi: AI không phản hồi.";
+            }
+        }
+
+        async function aiSimplifyStoryPage() {
+            let s = userStories[currentStoryIndex];
+            let plainText = s.pages[s.currentPage - 1];
+            
+            let box = document.getElementById('readerAITranslateBox');
+            let content = document.getElementById('readerAITranslateContent');
+            box.style.display = 'block';
+            content.innerHTML = "⏳ AI đang viết lại trang này bằng từ vựng đơn giản (HSK3-4), vui lòng đợi...";
+            
+            let prompt = `Bạn là một giáo viên tiếng Trung. Hãy viết lại toàn bộ đoạn văn sau bằng cách sử dụng TỪ VỰNG ĐƠN GIẢN HƠN (tương đương trình độ HSK 3 - HSK 4) để người mới học dễ hiểu. Giữ nguyên ý nghĩa cốt lõi.\n\n"${plainText}"`;
+            
+            let res = await callAI(prompt);
+            if (res) {
+                content.innerHTML = "<strong>👇 Bản rút gọn đơn giản (HSK3-4):</strong><br><br>" + res.replace(/\n/g, '<br>');
+            } else {
+                content.innerHTML = "❌ Lỗi: AI không phản hồi.";
+            }
+        }
+
+        function openAIChatStoryModal() {
+            document.getElementById('aiChatStoryModal').style.display = 'flex';
+        }
+
+        async function sendStoryChat() {
+            let input = document.getElementById('aiChatStoryInput');
+            let text = input.value.trim();
+            if(!text) return;
+            
+            let s = userStories[currentStoryIndex];
+            let storyText = s.pages[s.currentPage - 1];
+
+            let chatContent = document.getElementById('aiChatStoryContent');
+            
+            // Add user message
+            chatContent.innerHTML += `<div style="background:#3498db; color:white; padding:10px; border-radius:10px; max-width:80%; align-self:flex-end;">${text}</div>`;
+            input.value = "";
+            chatContent.scrollTop = chatContent.scrollHeight;
+
+            let prompt = `Bối cảnh là nội dung trang truyện sau:\n"${storyText}"\n\nNgười dùng vừa hỏi: "${text}"\nHãy đóng vai gia sư tiếng Trung, trả lời ngắn gọn, thân thiện và tập trung vào nội dung trang truyện này.`;
+            
+            // Add AI typing placeholder
+            let tempId = "msg-" + Date.now();
+            chatContent.innerHTML += `<div id="${tempId}" style="background:#ecf0f1; padding:10px; border-radius:10px; max-width:80%; align-self:flex-start;">⏳ AI đang suy nghĩ...</div>`;
+            chatContent.scrollTop = chatContent.scrollHeight;
+
+            let res = await callAI(prompt);
+            let aiMsg = document.getElementById(tempId);
+            if(aiMsg) {
+                if(res) aiMsg.innerHTML = res.replace(/\n/g, '<br>');
+                else aiMsg.innerHTML = "❌ Lỗi kết nối AI.";
+            }
+            chatContent.scrollTop = chatContent.scrollHeight;
+        }
+
+        function addStory() {
+            document.getElementById('addStoryTitle').value = "";
+            document.getElementById('addStoryContent').value = "";
+            document.getElementById('addStoryModal').style.display = 'flex';
+        }
+
+        function saveNewStory() {
+            let t = document.getElementById('addStoryTitle').value.trim();
+            let c = document.getElementById('addStoryContent').value.trim();
+            if(!t || !c) return alert("Vui lòng nhập đủ tên và nội dung.");
+            
+            // Chia trang tĩnh (ví dụ: mỗi trang 400 ký tự)
+            let pages = [];
+            let pageSize = 200;
+            for (let i = 0; i < c.length; i += pageSize) {
+                pages.push(c.substring(i, i + pageSize));
+            }
+            
+            userStories.push({
+                title: t,
+                pages: pages,
+                totalPages: pages.length,
+                currentPage: 1,
+                vocab: [],
+                lastRead: Date.now()
+            });
+            sync('stories');
+            document.getElementById('addStoryModal').style.display = 'none';
+            renderStories();
+        }
+
+        function deleteStory(index) {
+            if(confirm("Bạn có chắc chắn muốn xóa truyện này?")) {
+                userStories.splice(index, 1);
+                sync('stories');
+                renderStories();
+            }
+        }
+
+        function openStory(index) {
+            currentStoryIndex = index;
+            let s = userStories[index];
+            
+            // Always rechunk to ensure correct pageSize
+            let textContent = s.content || s.chineseText || s.rawText;
+            if (!textContent && s.pages) textContent = s.pages.join('');
+            if (textContent) {
+                let pages = [];
+                let pageSize = 200;
+                let c = textContent.replace(/<[^>]*>?/gm, '');
+                for (let i = 0; i < c.length; i += pageSize) {
+                    pages.push(c.substring(i, i + pageSize));
+                }
+                s.pages = pages;
+                s.totalPages = pages.length;
+                if (!s.currentPage || s.currentPage > s.totalPages) s.currentPage = 1;
+            }
+            if(!s.currentPage) s.currentPage = 1;
+            if(!s.totalPages) s.totalPages = 1;
+            if(!s.pages) s.pages = ["Nội dung trống."];
+            
+            document.getElementById('viewStoryList').style.display = 'none';
+            document.getElementById('viewStoryReader').style.display = 'flex';
+            
+            document.getElementById('readerTitle').innerText = s.title;
+            document.getElementById('storyVocabCount').innerText = s.vocab ? s.vocab.length : 0;
+            document.getElementById('readerAITranslateBox').style.display = 'none';
+            
+            s.lastRead = Date.now();
+            sync('stories');
+            
+            renderReaderPage(index);
+        }
+
+                function buildHtmlForText(text, offsetIdx) {
+            if(!text) return "";
+            let html = "";
+            let chars = text.split('');
+            let charWordMap = [];
+            try {
+                let segmenter = new Intl.Segmenter('zh-CN', { granularity: 'word' });
+                let segments = segmenter.segment(text);
+                for(let seg of segments) {
+                    if(seg.isWordLike) {
+                        for(let i=0; i<seg.segment.length; i++) {
+                            charWordMap[seg.index + i] = { w: seg.segment, start: seg.index + offsetIdx, len: seg.segment.length };
+                        }
+                    }
+                }
+            } catch(e) {}
+
+            for(let c=0; c<chars.length; c++) {
+                let segData = charWordMap[c] || { w: chars[c], start: c + offsetIdx, len: 1 };
+                let safeW = segData.w.replace(/'/g, "&#39;");
+                html += `<span class='reading-char' id='sr-char-${c + offsetIdx}' data-word='${safeW}' data-wstart='${segData.start}' data-wlen='${segData.len}' onclick='handleReaderCharClick(${c + offsetIdx}, this)'>${chars[c]}</span>`;
+            }
+            return html;
+        }
+
+        function prepareReaderDisplay(plainText, rightPlainText = null) {
+            let container = document.getElementById('readerTextContainer');
+            let leftHtml = buildHtmlForText(plainText, 0);
+            
+            if (rightPlainText !== null) {
+                let rightHtml = buildHtmlForText(rightPlainText, plainText.length);
+                container.innerHTML = `
+                    <div id="readerColumnsContainer">
+                        <div class="reader-page-col">${leftHtml}</div>
+                        <div class="reader-spine"></div>
+                        <div class="reader-page-col">${rightHtml}</div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = leftHtml;
+            }
+            highlightVocabInReader();
+        }
+
+        function renderReaderPage(index) {
+            let s = userStories[index];
+            let ribbon = document.getElementById('readerBookmarkRibbon');
+            if(ribbon) { if(s.bookmarkedPage === s.currentPage) ribbon.classList.add('bookmarked'); else ribbon.classList.remove('bookmarked'); }
+            
+            let isTwoPage = window.innerWidth >= 768 && window.innerWidth <= 1024 && window.innerWidth > window.innerHeight;
+            
+            if (isTwoPage) {
+                if (s.currentPage % 2 === 0 && s.currentPage > 1) s.currentPage--;
+                let leftText = s.pages[s.currentPage - 1] || "";
+                let rightText = s.pages[s.currentPage] || null;
+                
+                let pageInd = "Trang " + s.currentPage;
+                if (s.currentPage < s.totalPages && rightText) pageInd += "-" + (s.currentPage + 1);
+                pageInd += " / " + s.totalPages;
+                document.getElementById('readerPageIndicator').innerText = pageInd;
+                
+                prepareReaderDisplay(leftText, rightText);
+            } else {
+                document.getElementById('readerPageIndicator').innerText = "Trang " + s.currentPage + " / " + s.totalPages;
+                let text = s.pages[s.currentPage - 1];
+                prepareReaderDisplay(text, null);
+            }
+            
+            document.getElementById('readerContentArea').scrollTop = 0;
+            if(typeof stopReadingAudio === 'function') stopReadingAudio();
+        }
+
+        function readerNextPage() {
+            let s = userStories[currentStoryIndex];
+            let isTwoPage = window.innerWidth >= 768 && window.innerWidth <= 1024 && window.innerWidth > window.innerHeight;
+            let step = isTwoPage ? 2 : 1;
+            if (s.currentPage + step <= s.totalPages || (isTwoPage && s.currentPage < s.totalPages)) {
+                s.currentPage += step;
+                document.getElementById('readerAITranslateBox').style.display = 'none';
+                sync('stories');
+                renderReaderPage(currentStoryIndex);
+            }
+        }
+
+        function readerPrevPage() {
+            let s = userStories[currentStoryIndex];
+            let isTwoPage = window.innerWidth >= 768 && window.innerWidth <= 1024 && window.innerWidth > window.innerHeight;
+            let step = isTwoPage ? 2 : 1;
+            if (s.currentPage > 1) {
+                s.currentPage -= step;
+                if(s.currentPage < 1) s.currentPage = 1;
+                document.getElementById('readerAITranslateBox').style.display = 'none';
+                sync('stories');
+                renderReaderPage(currentStoryIndex);
+            }
+        }
+
+        // ===== TỪ ĐIỂN CLICK & VOCAB CACHE =====
+        let globalVocabCache = {};
+        let autoDictEnabled = true;
+
+        function showDictToast(msg, isSuccess = false) {
+            let toast = document.getElementById('dictToast');
+            if(!toast) {
+                toast = document.createElement('div');
+                toast.id = 'dictToast';
+                toast.style.cssText = 'position:fixed; bottom:20px; left:20px; background:rgba(44,62,80,0.9); color:white; padding:10px 20px; border-radius:30px; font-size:14px; box-shadow:0 4px 15px rgba(0,0,0,0.2); z-index:9999; transition:all 0.3s; opacity:0; pointer-events:none;';
+                document.body.appendChild(toast);
+            }
+            toast.innerText = msg;
+            if(isSuccess) toast.style.background = 'rgba(39,174,96,0.9)';
+            else toast.style.background = 'rgba(44,62,80,0.9)';
+            toast.style.opacity = '1';
+            toast.style.bottom = '40px';
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.bottom = '20px'; }, 3000);
+        }
+
+        async function handleReaderCharClick(charIdx, span) {
+            if(!autoDictEnabled) return;
+            if(window.getSelection().toString().trim().length > 0) return;
+            document.querySelectorAll('#readerTextContainer .reading-char').forEach(s => {
+                s.style.background = ''; s.style.borderBottom = '';
+            });
+            let w = span.getAttribute('data-word');
+            if(w) w = w.replace(/&#39;/g, "'");
+            let wStart = parseInt(span.getAttribute('data-wstart'));
+            let wLen = parseInt(span.getAttribute('data-wlen'));
+            if(!w || w.trim().length === 0 || /^[.,?!:;()"'""''。，？！：；（）《》【】]+$/.test(w)) return;
+            for(let j=0; j<wLen; j++) {
+                let s = document.getElementById('sr-char-' + (wStart + j));
+                if(s) { s.style.background = 'rgba(52,152,219,0.2)'; s.style.borderBottom = '2px solid #3498db'; }
+            }
+            if(globalVocabCache[w]) {
+                showHoverTooltipBySpan(span, w, globalVocabCache[w].p, globalVocabCache[w].m);
+            } else {
+                showDictToast('⏳ Đang dịch: "' + w + '"...');
+                const prompt = 'Phân tích từ vựng tiếng Trung sau: ' + w + '.\nTrả về MỘT mảng JSON duy nhất (không markdown). Cấu trúc: [{"w":"từ","p":"pinyin","m":"nghĩa ngắn gọn tiếng Việt"}]';
+                try {
+                    let res = await callAI(prompt);
+                    let clean = res.replace(/```json|```/g, '').trim();
+                    let match = clean.match(/\[[\s\S]*\]/);
+                    if(match) {
+                        let parsed = JSON.parse(match[0]);
+                        if(parsed[0] && parsed[0].w) {
+                            globalVocabCache[parsed[0].w] = { p: parsed[0].p, m: parsed[0].m };
+                            showHoverTooltipBySpan(span, parsed[0].w, parsed[0].p, parsed[0].m);
+                            showDictToast('✅ Đã dịch xong!', true);
+                        }
+                    }
+                } catch(e) { showDictToast('❌ Dịch lỗi! Vui lòng thử lại.'); }
+            }
+        }
+
+        function showHoverTooltipBySpan(span, word, pinyin, mean) {
+            let rect = span.getBoundingClientRect();
+            let tt = document.getElementById('wordTooltip');
+            document.getElementById('ttHanzi').innerText = word;
+            document.getElementById('ttPinyin').innerText = pinyin || '';
+            document.getElementById('ttNghia').innerText = mean || '';
+            tt.style.display = 'block';
+            tt.style.left = rect.left + 'px';
+            if (rect.bottom + 150 > window.innerHeight) {
+                tt.style.top = (rect.top - tt.offsetHeight - 10) + 'px';
+            } else {
+                tt.style.top = (rect.bottom + 10) + 'px';
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            if(!e.target.classList.contains('reading-char') && !e.target.closest('#wordTooltip')) {
+                let tt = document.getElementById('wordTooltip');
+                if(tt) tt.style.display = 'none';
+                document.querySelectorAll('#readerTextContainer .reading-char').forEach(s => {
+                    s.style.background = ''; s.style.borderBottom = '';
+                });
+            }
+        });
+
+        function highlightVocabInReader() {
+            if(currentStoryIndex === -1) return;
+            let s = userStories[currentStoryIndex];
+            if (!s || !s.vocab) return;
+            const spans = document.querySelectorAll('#readerTextContainer .reading-char');
+            spans.forEach(span => span.classList.remove('active-word'));
+            s.vocab.forEach(v => {
+                let w = typeof v === 'string' ? v : (v.word || "");
+                if (!w) return;
+                let len = w.length;
+                for (let i = 0; i <= spans.length - len; i++) {
+                    let match = true;
+                    for (let j = 0; j < len; j++) {
+                        if (spans[i + j].textContent !== w[j]) { match = false; break; }
+                    }
+                    if (match) { for (let j = 0; j < len; j++) spans[i + j].classList.add('active-word'); }
+                }
+            });
+        }
+
+        function toggleStoryBookmark() {
+            if (currentStoryIndex === -1) return;
+            let s = userStories[currentStoryIndex];
+            let ribbon = document.getElementById('readerBookmarkRibbon');
+            if (s.bookmarkedPage === s.currentPage) {
+                s.bookmarkedPage = -1;
+                ribbon.classList.remove('bookmarked');
+                showDictToast("Đã bỏ đánh dấu trang!");
+            } else {
+                s.bookmarkedPage = s.currentPage;
+                ribbon.classList.add('bookmarked');
+                showDictToast("Đã đánh dấu trang " + s.currentPage + "!", true);
+            }
+            saveData();
+        }
+
+        function changeReaderFontSize(delta) {
+            let c = document.getElementById('readerTextContainer');
+            let size = parseInt(window.getComputedStyle(c).fontSize);
+            c.style.fontSize = (size + delta) + 'px';
+        }
+
+        function setReaderTheme(theme) {
+            let r = document.getElementById('viewStoryReader');
+            r.className = 'reader-theme-' + theme;
+        }
+
+        function openStoryVocab() {
+            alert("Vui lòng vào tab KHÓA HỌC/BÀI HỌC để quản lý từ vựng tổng quát cho thống nhất hệ thống.");
+        }
+
+        async function aiTranslateReaderPage() {
+            let s = userStories[currentStoryIndex];
+            let plainText = s.pages[s.currentPage - 1];
+            
+            let box = document.getElementById('readerAITranslateBox');
+            let content = document.getElementById('readerAITranslateContent');
+            box.style.display = 'block';
+            content.innerHTML = "⏳ AI đang dịch trang này sang tiếng Việt, vui lòng đợi...";
+            
+            let prompt = `Bạn là biên dịch viên tiếng Trung xuất sắc. Hãy dịch đoạn văn bản sau sang tiếng Việt mượt mà và tự nhiên nhất:\n\n"${plainText}"`;
+            let res = await callAI(prompt);
+            if (res) {
+                content.innerHTML = res.replace(/\n/g, '<br>');
+            } else {
+                content.innerHTML = "❌ Lỗi: AI không phản hồi.";
+            }
+        }
+
+                let isAudioPaused = false;
+        function ttsPauseResume() {
+            if (!window.speechSynthesis) return;
+            if (isAudioPaused) {
+                window.speechSynthesis.resume();
+                isAudioPaused = false;
+                document.getElementById('btnAudioPause').innerText = '⏸ Dừng';
+                document.getElementById('btnAudioPause').style.background = '#f39c12';
+            } else {
+                window.speechSynthesis.pause();
+                isAudioPaused = true;
+                document.getElementById('btnAudioPause').innerText = '▶ Tiếp';
+                document.getElementById('btnAudioPause').style.background = '#27ae60';
+            }
+        }
+
+        function ttsReadPage() {
+            document.getElementById('btnAudioPlay').style.display = 'none';
+            document.getElementById('btnAudioPause').style.display = 'inline-block';
+            isAudioPaused = false;
+            let s = userStories[currentStoryIndex];
+            let plainText = s.pages[s.currentPage - 1];
+            if ('speechSynthesis' in window) {
+                let u = new SpeechSynthesisUtterance(plainText);
+                u.lang = 'zh-CN';
+                window.speechSynthesis.speak(u);
+            } else {
+                alert("Trình duyệt không hỗ trợ đọc văn bản.");
+            }
+        }
 
         function renderGrammarList() {
             let list = document.getElementById('grammarListArea');
@@ -2952,87 +4003,9 @@
                 if (daysFilter === 'later_today') {
                     alert("Chưa đến giờ ôn tập lại! Hãy quay lại vào lúc khác trong ngày.");
                 } else {
-                    alert("Hôm nay bạn chưa có từ nào cần ôn! Hãy quay lại vào đúng ngày hẹn.");
-                }
-                return;
-            }
-            queue = queue.sort(() => Math.random() - 0.5);
-            openFlashcardUI();
-        }
-
-        function openFlashcardUI() {
-            hide(); document.getElementById('viewFlashcard').style.display = 'flex'; fcCorrect = 0; fcIncorrect = 0; loadNextCard();
-        }
-
-        function formatInterval(days) {
-            days = Math.round(days);
-            if (days < 1) return "< 1 phút";
-            // Tính ngày cụ thể sẽ ôn
-            let d = new Date(Date.now() + days * 86400000);
-            let dateStr = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}`;
-            if (days < 30) return `${days} ngày (${dateStr})`;
-            let m = Math.floor(days / 30);
-            return `${m} tháng (${dateStr})`;
-        }
-
-        let fcMode = 'standard';
-        function changeFcMode() {
-            fcMode = document.getElementById('fcModeSelect').value;
-            if (currentCard && !isFlipped) renderCardFront();
-        }
-
-        function renderCardFront() {
-            document.getElementById('fcHanzi').style.display = 'none';
-            document.getElementById('fcListeningIcon').style.display = 'none';
-            document.getElementById('fcTypingArea').style.display = 'none';
-            document.getElementById('fcInstructionText').style.display = 'block';
-            document.getElementById('fcFront').onclick = flipCard;
-
-            if (fcMode === 'standard') {
-                document.getElementById('fcHanzi').style.display = 'block';
-                document.getElementById('fcHanzi').innerText = currentCard.hanzi;
-                document.getElementById('fcHanzi').style.fontSize = '100px';
-            } else if (fcMode === 'listening') {
-                document.getElementById('fcListeningIcon').style.display = 'block';
-                playAudio(currentCard.hanzi);
-            } else if (fcMode === 'reverse') {
-                document.getElementById('fcHanzi').style.display = 'block';
-                document.getElementById('fcHanzi').innerText = currentCard.nghia || "(Không có nghĩa)";
-                document.getElementById('fcHanzi').style.fontSize = '40px';
-            } else if (fcMode === 'typing') {
-                document.getElementById('fcHanzi').style.display = 'block';
-                document.getElementById('fcHanzi').innerText = currentCard.nghia || "(Không có nghĩa)";
-                document.getElementById('fcHanzi').style.fontSize = '40px';
-                document.getElementById('fcTypingArea').style.display = 'flex';
-                document.getElementById('fcInstructionText').style.display = 'none';
-                let inp = document.getElementById('fcTypingInput');
-                inp.value = '';
-                inp.disabled = false;
-                setTimeout(() => inp.focus(), 100);
-                document.getElementById('fcTypingFeedback').innerText = '';
-                document.getElementById('fcFront').onclick = function(e) { e.stopPropagation(); }; 
-            }
-        }
-        
-        function checkTyping() {
-            let inp = document.getElementById('fcTypingInput').value.trim().toLowerCase().replace(/\s+/g, '');
-            let expected = (currentCard.pinyin || "").trim().toLowerCase().replace(/\s+/g, '');
-            let isCorrect = inp === expected || inp === currentCard.hanzi; 
-            if (isCorrect) {
-                document.getElementById('fcTypingFeedback').innerText = "✅ Chính xác!";
-                document.getElementById('fcTypingFeedback').style.color = "#27ae60";
-                setTimeout(() => flipCard(), 500);
-            } else {
-                document.getElementById('fcTypingFeedback').innerText = "❌ Sai rồi! Pinyin: " + currentCard.pinyin + " | Hán tự: " + currentCard.hanzi;
-                document.getElementById('fcTypingFeedback').style.color = "#e74c3c";
-                document.getElementById('fcTypingInput').disabled = true;
-                setTimeout(() => flipCard(), 2500);
-            }
-        }
-
-        function loadNextCard() {
-            if (queue.length === 0) { document.getElementById('fcScene').style.display = 'none'; document.getElementById('fcControls').style.display = 'none'; document.getElementById('fcEnd').style.display = 'block'; return; }
-            currentCard = queue[0]; isFlipped = false;
+                    alert("Hôm nay bạn không có từ vựng nào đến hạn ôn để AI sinh truyện!");
+                    alert("Hôm nay bạn không có từ vựng nào đến hạn ôn!");
+                } return; }
             document.getElementById('fcCard').classList.remove('is-flipped');
             document.getElementById('fcScene').style.display = 'block';
             document.getElementById('fcControls').style.display = 'none';
@@ -3167,7 +4140,7 @@
             window.speechSynthesis.speak(u); 
         }
         function playAudioInput() { playAudio(document.getElementById('chuHan').value); }
-        function hide() { ['viewDashboard', 'viewCourseList', 'viewMandarinBean', 'viewHSKTest', 'viewCourseDetail', 'viewLessonDetail', 'viewProfile', 'viewFlashcard', 'viewPublicVocab', 'viewAIStory', 'viewAIChat', 'viewHSKK'].forEach(id => { let el = document.getElementById(id); if (el) el.style.display = 'none'; }); }
+        function hide() { ['viewStoryList', 'viewStoryReader', 'viewDashboard', 'viewCourseList', 'viewMandarinBean', 'viewHSKTest', 'viewCourseDetail', 'viewLessonDetail', 'viewProfile', 'viewFlashcard', 'viewPublicVocab', 'viewAIStory', 'viewAIChat', 'viewHSKK'].forEach(id => { let el = document.getElementById(id); if (el) el.style.display = 'none'; }); }
 
         // --- TÍNH NĂNG AI ---
         function openAIStory() {
@@ -3239,38 +4212,27 @@
             if (!cachedGeminiModel) {
                 const modelUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`;
                 const modelsRes = await fetch(modelUrl);
-                if (!modelsRes.ok) throw new Error("API Key không hợp lệ hoặc lỗi kết nối.");
                 const modelsData = await modelsRes.json();
-                let validModels = [];
-                if (modelsData.models) {
-                    validModels = modelsData.models
-                        .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent"))
-                        .map(m => m.name.replace('models/', ''));
-                }
-                if (validModels.length === 0) throw new Error("Tài khoản API Key không hỗ trợ generateContent hoặc bị hạn chế vùng.");
-                
-                cachedGeminiModel = validModels.find(m => m.includes('2.5-flash') && !m.includes('preview') && !m.includes('lite') && !m.includes('image')) ||
-                                    validModels.find(m => m.includes('2.0-flash') && !m.includes('lite')) || 
+                const validModels = modelsData.models.filter(m => m.name.includes("models/gemini")).map(m => m.name.split("models/")[1]);
+                if (validModels.length > 0) {
+                    cachedGeminiModel = validModels.find(m => m.includes('2.0-flash') && !m.includes('lite')) || 
                                     validModels.find(m => m.includes('1.5-flash')) || 
                                     validModels.find(m => m.includes('pro')) || 
                                     validModels[0];
+                }
             }
             return cachedGeminiModel;
         }
 
-        // Các key mặc định của hệ thống được mã hóa Base64 để tránh GitHub tự động quét và thu hồi (Cảnh báo).
-        // Bạn có thể dùng trang base64encode.org để mã hóa các API Key của bạn rồi dán vào đây.
         const SYSTEM_ENCODED_KEYS = [
-            "QUl6YVN5QWg0a3pTNXI2ZVQxbmU1eEdJNzhONUFXeE1iRnJUaXJR" // Đã mã hóa an toàn
+            "QUl6YVN5QWg0a3pTNXI2ZVQxbmU1eEdJNzhONUFXeE1iRnJUaXJR"
         ];
 
         function getGeminiKey() {
             let userKey = userProfile.apiKey || localStorage.getItem('geminiApiKey');
             if (userKey) return userKey.trim();
             
-            // Fallback sang API Key hệ thống (nếu có)
             if (SYSTEM_ENCODED_KEYS.length > 0) {
-                // Chọn ngẫu nhiên 1 key để giảm tải nếu có nhiều key
                 let randKey = SYSTEM_ENCODED_KEYS[Math.floor(Math.random() * SYSTEM_ENCODED_KEYS.length)];
                 try {
                     return atob(randKey).trim();
@@ -3281,6 +4243,46 @@
             
             alert("Bạn chưa thiết lập mã API cho tính năng AI (hoặc hệ thống chưa cấu hình mã mặc định).\nVui lòng vào mục 'Hồ sơ cá nhân' (ở cột menu bên trái) để điền API Key nhé!\n(Lấy miễn phí tại: aistudio.google.com/app/apikey)");
             return null;
+        }
+
+        function buildHtmlForAIStory(cnText) {
+            let lines = cnText.split('\n');
+            let html = "";
+            let globalCharIndex = 100000;
+            
+            for(let line of lines) {
+                if (!line.trim()) { html += "<br>"; continue; }
+                let parts = line.split(/(\*\*.*?\*\*)/g);
+                for(let part of parts) {
+                    if(!part) continue;
+                    let isBold = part.startsWith('**') && part.endsWith('**');
+
+                    let text = isBold ? part.slice(2, -2) : part;
+                    
+                    let segmenter = new Intl.Segmenter('zh-CN', { granularity: 'word' });
+                    let segments = segmenter.segment(text);
+                    let charWordMap = [];
+                    let baseIdx = globalCharIndex;
+                    for(let seg of segments) {
+                        if(seg.isWordLike) {
+                            for(let i=0; i<seg.segment.length; i++) {
+                                charWordMap[seg.index + i] = { w: seg.segment, start: baseIdx + seg.index, len: seg.segment.length };
+                            }
+                        }
+                    }
+                    
+                    let chars = text.split('');
+                    for(let c=0; c<chars.length; c++) {
+                        let segData = charWordMap[c] || { w: chars[c], start: baseIdx + c, len: 1 };
+                        let safeW = segData.w.replace(/'/g, "&#39;");
+                        let extraStyle = isBold ? "color:#2980b9; font-weight:bold; border-bottom:1px dashed #2980b9; cursor:pointer;" : "cursor:pointer;";
+                        html += `<span class='reading-char' style='${extraStyle}' id='sr-char-${segData.start}' data-word='${safeW}' data-wstart='${segData.start}' data-wlen='${segData.len}' onclick='handleReaderCharClick(${segData.start}, this)'>${chars[c]}</span>`;
+                    }
+                    globalCharIndex += chars.length;
+                }
+                html += "<br>";
+            }
+            return html;
         }
 
         async function generateStory() {
@@ -3311,19 +4313,20 @@
             
             let dueWordsTexts = dueWordsObjs.map(w => w.hanzi + " (" + (w.pinyin || '') + "): " + w.nghia);
             
-            let promptText = `Hãy viết một câu chuyện ${lengthPrompt} bằng tiếng Trung, có nội dung hài hước hoặc thú vị, bắt buộc phải sử dụng tất cả các từ vựng sau:\n${dueWordsTexts.join('\n')}\n\nBắt buộc cấu trúc phản hồi của bạn gồm 2 phần rõ rệt, phân cách bằng dòng chứa đúng 3 dấu gạch ngang (---).\nPhần 1: Câu chuyện tiếng Trung (Dòng ĐẦU TIÊN BẮT BUỘC phải là Tiêu đề câu chuyện).\nPhần 2: Bản dịch tiếng Việt.\nTuyệt đối KHÔNG viết thêm các câu mào đầu như 'Đây là câu chuyện...'.\nTrong phần tiếng Trung, hãy in đậm các từ vựng được yêu cầu (ví dụ: **từ vựng**). Trong phần tiếng Việt, chỉ in đậm nghĩa tiếng Việt tương ứng, TUYỆT ĐỐI KHÔNG chèn tiếng Trung vào phần tiếng Việt.`;
+            let promptText = `Hãy viết một câu chuyện ${lengthPrompt} bằng tiếng Trung, có nội dung hài hước hoặc thú vị, bắt buộc phải sử dụng tất cả các từ vựng sau:\n${dueWordsTexts.join('\n')}\n\nBắt buộc cấu trúc phản hồi của bạn gồm 2 phần rõ rệt, phân cách bằng ĐÚNG TỪ KHÓA SAU ĐÂY NẰM TRÊN MỘT DÒNG RIÊNG BIỆT: [VIETNAMESE_TRANSLATION]\nPhần 1: Câu chuyện tiếng Trung. BẮT BUỘC: Dòng đầu tiên của Phần 1 phải là Tiêu đề ngắn gọn (KHÔNG giải thích), tiếp theo PHẢI có dấu XUỐNG DÒNG, sau đó mới bắt đầu nội dung câu chuyện từng đoạn.\nPhần 2: Bản dịch tiếng Việt. Tương tự, dòng đầu là Tiêu đề tiếng Việt, tiếp theo XUỐNG DÒNG rồi dịch các đoạn tương ứng.\nTuyệt đối KHÔNG viết thêm các câu mào đầu như 'Đây là câu chuyện...'.\nTrong phần tiếng Trung, hãy in đậm các từ vựng được yêu cầu (ví dụ: **từ vựng**). Trong phần tiếng Việt, chỉ in đậm nghĩa tiếng Việt tương ứng, TUYỆT ĐỐI KHÔNG chèn tiếng Trung vào phần tiếng Việt.`;
             
             let btn = document.getElementById('btnGenerateStory');
             let resDiv = document.getElementById('storyResult');
             let splitView = document.getElementById('storySplitView');
+            let unifiedView = document.getElementById('storyUnifiedView');
             let cnBox = document.getElementById('storyChineseBox');
             let viBox = document.getElementById('storyVietnameseBox');
             let loadingBox = document.getElementById('storyLoading');
             
-            btn.innerText = "Vui lòng chờ AI đang xử lý..";
+            btn.innerText = "Vui l\u00f2ng ch\u1edd AI \u0111ang x\u1eed l\u00fd...";
             btn.disabled = true;
             resDiv.style.display = 'none';
-            splitView.style.display = 'none';
+            if(splitView) splitView.style.display = 'none'; if(unifiedView) unifiedView.style.display = 'none';
             loadingBox.style.display = 'block';
             
             document.getElementById('btnSaveStory').style.display = 'none';
@@ -3331,25 +4334,68 @@
             try {
                 let text = await callUnifiedAI({text: promptText}, key);
                 // Lọc bỏ markdown bold
-                text = text.replace(/\*\*(.*?)\*\*/g, (match, word) => {
-                    let wObj = dueWordsObjs.find(w => w.hanzi === word) || {hanzi: word, pinyin: '', nghia: 'Từ trong câu chuyện'};
-                    let strObj = encodeURIComponent(JSON.stringify(wObj));
-                    return `<span class="ai-story-word" style="color:#2980b9; font-weight:bold; cursor:pointer; border-bottom:1px dashed #2980b9;" onmouseenter="showAITooltip(event, '${strObj}')">${word}</span>`;
-                });
-                
-                let parts = text.split('---');
+                let parts = text.split(/\[VIETNAMESE_TRANSLATION\]|---+/i);
                 let cnText = parts[0] ? parts[0].trim() : text;
                 let viText = parts[1] ? parts[1].trim() : "Không tìm thấy bản dịch.";
-                
-                // Loại bỏ dòng mào đầu thừa thãi
                 cnText = cnText.replace(/^[\s\S]*?(\*\*?)?(Đây là câu chuyện|Câu chuyện tiếng Trung|Câu chuyện)(\*\*?)?.*?(\n|<br>)/i, '').trim();
                 viText = viText.replace(/^[\s\S]*?(\*\*?)?(Bản dịch tiếng Việt|Bản dịch|Tiếng Việt)(\*\*?)?.*?(\n|<br>)/i, '').trim();
+                cnText = cnText.replace(/\*\*/g, '');
                 
-                cnBox.innerHTML = cnText.replace(/\n/g, '<br>');
-                viBox.innerHTML = viText.replace(/\n/g, '<br>');
+                let currentOffset = 100000;
+                let formattedCnHtml = "";
+                let lines = cnText.split('\n');
+                let isFirstLineTitle = (lines.length > 1 && lines[0].length < 60);
+                for (let i = 0; i < lines.length; i++) {
+                    let line = lines[i];
+                    if (i === 0 && isFirstLineTitle) {
+                        formattedCnHtml += `<div style="text-align:center; font-weight:bold; font-size:1.2em; margin-bottom:20px; color:#c0392b;">${buildHtmlForText(line, currentOffset)}</div>`;
+                    } else if (line.trim().length > 0) {
+                        formattedCnHtml += `<div style="margin-bottom:15px; text-indent:2em;">${buildHtmlForText(line, currentOffset)}</div>`;
+                    } else {
+                        formattedCnHtml += `<div style="height:15px;"></div>`;
+                    }
+                    currentOffset += line.length + 1;
+                }
+                cnBox.innerHTML = formattedCnHtml;
                 
+                let viLines = viText.split('\n');
+                let formattedViHtml = "";
+                for (let i = 0; i < viLines.length; i++) {
+                    let line = viLines[i];
+                    if (i === 0 && isFirstLineTitle) {
+                        formattedViHtml += `<div style="text-align:center; font-weight:bold; font-size:1.2em; margin-bottom:20px; color:#c0392b;">${line}</div>`;
+                    } else if (line.trim().length > 0) {
+                        formattedViHtml += `<div style="margin-bottom:15px; text-indent:2em;">${line}</div>`;
+                    } else {
+                        formattedViHtml += `<div style="height:15px;"></div>`;
+                    }
+                }
+                viBox.innerHTML = formattedViHtml;
                 loadingBox.style.display = 'none';
-                splitView.style.display = 'flex';
+                let unifiedView = document.getElementById('storyUnifiedView');
+                if(unifiedView) unifiedView.style.display = 'flex';
+                
+                window.currentStoryVocab = dueWordsObjs;
+                dueWordsObjs.forEach((item) => {
+                    let hanzi = item.hanzi;
+                    if (!hanzi || hanzi.length === 0) return;
+                    let startPos = 0;
+                    while ((startPos = cnText.indexOf(hanzi, startPos)) !== -1) {
+                        for (let i = 0; i < hanzi.length; i++) {
+                            let span = document.getElementById("sr-char-" + (startPos + i + 100000));
+                            if (span) {
+                                span.classList.add('is-vocab-added');
+                                span.title = item.pinyin + ": " + item.nghia;
+                                span.style.cursor = 'help';
+                            }
+                        }
+                        startPos += hanzi.length;
+                    }
+                });
+                let btnToggle = document.getElementById('btnToggleAITranslation');
+                if(btnToggle) btnToggle.innerText = '🌐 Hiện bản dịch';
+                viBox.style.display = 'none';
+                cnBox.style.display = 'block';
                 
                 // Lưu data attribute để dùng cho Save / Speak
                 resDiv.innerHTML = text.replace(/\n/g, '<br>'); // Backup html cho viewSavedStory cũ nếu cần
@@ -3363,6 +4409,23 @@
             } finally {
                 btn.innerHTML = "✨ Bắt đầu Sinh Truyện";
                 btn.disabled = false;
+            }
+        }
+
+        function toggleAITranslation() {
+            let cnBox = document.getElementById('storyChineseBox');
+            let viBox = document.getElementById('storyVietnameseBox');
+            let btnToggle = document.getElementById('btnToggleAITranslation');
+            if(!cnBox || !viBox || !btnToggle) return;
+            
+            if(cnBox.style.display !== 'none') {
+                cnBox.style.display = 'none';
+                viBox.style.display = 'block';
+                btnToggle.innerText = '📖 Hiện Tiếng Trung';
+            } else {
+                viBox.style.display = 'none';
+                cnBox.style.display = 'block';
+                btnToggle.innerText = '🌐 Hiện bản dịch';
             }
         }
 
@@ -3402,7 +4465,8 @@
                 rawText: rawText,
                 chineseText: chineseText,
                 vietnameseText: vietnameseText,
-                title: title
+                title: title,
+                vocab: window.currentStoryVocab || []
             };
             
             userProfile.savedStories = userProfile.savedStories || [];
@@ -3510,7 +4574,7 @@
             document.getElementById('viewAIStory').style.display = 'flex';
             
             let resDiv = document.getElementById('storyResult');
-            let splitView = document.getElementById('storySplitView');
+            let splitView = document.getElementById('storySplitView'); let unifiedView = document.getElementById('storyUnifiedView');
             let cnBox = document.getElementById('storyChineseBox');
             let viBox = document.getElementById('storyVietnameseBox');
             let loadingBox = document.getElementById('storyLoading');
@@ -3520,14 +4584,17 @@
             let cnTextToDisplay = "";
             let viTextToDisplay = "";
 
-            if (s.chineseText && s.rawText && s.rawText.includes('---')) {
-                let parts = s.rawText.split('---');
-                cnTextToDisplay = parts[0];
-                viTextToDisplay = parts[1] || "";
-            } else if (s.rawText) {
-                let parts = s.rawText.split(/Bản dịch.*?:/i);
-                cnTextToDisplay = parts[0];
-                viTextToDisplay = parts[1] || "";
+            if (s.rawText) {
+                let parts = s.rawText.split(/\[VIETNAMESE_TRANSLATION\]|---+/i);
+                cnTextToDisplay = parts[0] ? parts[0].trim() : s.rawText;
+                viTextToDisplay = parts[1] ? parts[1].trim() : "";
+                if (!parts[1]) {
+                    let altParts = s.rawText.split(/Bản dịch.*?:/i);
+                    if (altParts[1]) {
+                        cnTextToDisplay = altParts[0].trim();
+                        viTextToDisplay = altParts[1].trim();
+                    }
+                }
             } else {
                 cnTextToDisplay = s.chineseText || s.htmlContent;
                 viTextToDisplay = s.vietnameseText || "";
@@ -3536,14 +4603,63 @@
             if (cnTextToDisplay || viTextToDisplay) {
                 cnTextToDisplay = cnTextToDisplay.replace(/^[\s\S]*?(\*\*?)?(Đây là câu chuyện|Câu chuyện tiếng Trung|Câu chuyện)(\*\*?)?.*?(\n|<br>)/i, '').trim();
                 viTextToDisplay = viTextToDisplay.replace(/^[\s\S]*?(\*\*?)?(Bản dịch tiếng Việt|Bản dịch|Tiếng Việt)(\*\*?)?.*?(\n|<br>)/i, '').trim();
-
-                cnBox.innerHTML = cnTextToDisplay.replace(/\n/g, '<br>');
-                viBox.innerHTML = viTextToDisplay.replace(/\n/g, '<br>');
                 
-                splitView.style.display = 'flex';
+                cnTextToDisplay = cnTextToDisplay.replace(/\*\*/g, '');
+                viTextToDisplay = viTextToDisplay.replace(/\*\*/g, '');
+
+                let currentOffset = 200000;
+                let formattedCnHtml = "";
+                let lines = cnTextToDisplay.split('\n');
+                let isFirstLineTitle = (lines.length > 1 && lines[0].length < 60);
+                for (let i = 0; i < lines.length; i++) {
+                    let line = lines[i];
+                    if (i === 0 && isFirstLineTitle) {
+                        formattedCnHtml += `<div style="text-align:center; font-weight:bold; font-size:1.2em; margin-bottom:20px; color:#c0392b;">${buildHtmlForText(line, currentOffset)}</div>`;
+                    } else if (line.trim().length > 0) {
+                        formattedCnHtml += `<div style="margin-bottom:15px; text-indent:2em;">${buildHtmlForText(line, currentOffset)}</div>`;
+                    } else {
+                        formattedCnHtml += `<div style="height:15px;"></div>`;
+                    }
+                    currentOffset += line.length + 1;
+                }
+                cnBox.innerHTML = formattedCnHtml;
+                
+                let vocab = s.vocab || [];
+                vocab.forEach((item) => {
+                    let hanzi = item.hanzi;
+                    if (!hanzi || hanzi.length === 0) return;
+                    let startPos = 0;
+                    while ((startPos = cnTextToDisplay.indexOf(hanzi, startPos)) !== -1) {
+                        for (let i = 0; i < hanzi.length; i++) {
+                            let span = document.getElementById("sr-char-" + (startPos + i + 200000));
+                            if (span) {
+                                span.classList.add('is-vocab-added');
+                                span.title = item.pinyin + ": " + item.nghia;
+                                span.style.cursor = 'help';
+                            }
+                        }
+                        startPos += hanzi.length;
+                    }
+                });
+                
+                let viLines = viTextToDisplay.split('\n');
+                let formattedViHtml = "";
+                for (let i = 0; i < viLines.length; i++) {
+                    let line = viLines[i];
+                    if (i === 0 && isFirstLineTitle) {
+                        formattedViHtml += `<div style="text-align:center; font-weight:bold; font-size:1.2em; margin-bottom:20px; color:#c0392b;">${line}</div>`;
+                    } else if (line.trim().length > 0) {
+                        formattedViHtml += `<div style="margin-bottom:15px; text-indent:2em;">${line}</div>`;
+                    } else {
+                        formattedViHtml += `<div style="height:15px;"></div>`;
+                    }
+                }
+                viBox.innerHTML = formattedViHtml;
+                
+                if(splitView) splitView.style.display = 'flex'; if(unifiedView) unifiedView.style.display = 'flex';
                 resDiv.style.display = 'none';
             } else {
-                splitView.style.display = 'none';
+                if(splitView) splitView.style.display = 'none'; if(unifiedView) unifiedView.style.display = 'none';
                 resDiv.innerHTML = s.htmlContent;
                 resDiv.style.display = 'block';
             }
@@ -3838,11 +4954,10 @@
             
             const prompt = `Bạn là giáo viên tiếng Trung chuyên nghiệp. Hãy cung cấp thông tin chi tiết và 1 câu ví dụ CHẤT LƯỢNG CAO cho từ vựng sau:
 - Chữ Hán: "${h}"
-- Nghĩa gợi ý (nếu có): "${n}"
 
 Yêu cầu:
 1. "p": Pinyin của từ "${h}" (có dấu)
-2. "m": Nghĩa tiếng Việt của từ "${h}" (ngắn gọn, chính xác, ưu tiên nghĩa gợi ý nếu phù hợp)
+2. "m": Nghĩa tiếng Việt của từ "${h}" (ngắn gọn, chính xác)
 3. "t": Loại từ (Danh từ, Động từ, Tính từ, Trạng từ...)
 4. "h": Câu ví dụ tự nhiên chứa từ "${h}"
 5. "v": Dịch nghĩa câu ví dụ sang tiếng Việt tự nhiên
@@ -4020,7 +5135,97 @@ Trả về ĐÚNG định dạng JSON này (không thêm gì khác):
             }
         }
         setInterval(updateOnlineStatus, 120000);
+            window.addEventListener('resize', () => {
+            if (document.getElementById('viewStoryReader').style.display === 'flex' || document.getElementById('viewStoryReader').style.display === 'block') {
+                if (currentStoryIndex !== -1) renderReaderPage(currentStoryIndex);
+            }
+        });
     </script>
+        <!-- MODAL AI GỢI Ý TRUYỆN -->
+    <div id="aiSuggestStoryModal" class="modal-overlay" style="display:none; z-index:1100;">
+        <div class="modal-content" style="max-width: 600px; display: flex; flex-direction: column;">
+            <h2 style="margin-top:0; color:#f39c12;">✨ AI Gợi Ý Truyện</h2>
+            <p style="margin-bottom:15px; color:#555;">Chọn trình độ mong muốn, AI sẽ tìm kiếm và đề xuất 3 mẩu truyện ngắn phù hợp với bạn.</p>
+            
+            <label style="font-weight:bold; margin-bottom:5px;">Trình độ tiếng Trung:</label>
+            <select id="aiSuggestHskLevel" class="form-control" style="margin-bottom:15px; padding:10px; border-radius:5px; border:1px solid #ccc;">
+                <option value="HSK 1-2">HSK 1 - HSK 2 (Cơ bản)</option>
+                <option value="HSK 3-4" selected>HSK 3 - HSK 4 (Trung cấp)</option>
+                <option value="HSK 5">HSK 5 (Cao cấp)</option>
+                <option value="HSK 6">HSK 6 (Thành thạo)</option>
+                <option value="Idiom">Câu chuyện Thành ngữ (Thú vị)</option>
+            </select>
+            
+            <label style="font-weight:bold; margin-bottom:5px;">Chủ đề (Lĩnh vực):</label>
+            <input type="text" id="aiSuggestTopic" class="form-control" style="margin-bottom:15px; padding:10px; border-radius:5px; border:1px solid #ccc;" placeholder="Ví dụ: nhân sinh, chữa lành, trinh thám..." value="Tự do (Bất kỳ)">
+            
+            <label style="font-weight:bold; margin-bottom:5px;">Độ dài:</label>
+            <select id="aiSuggestLength" class="form-control" style="margin-bottom:15px; padding:10px; border-radius:5px; border:1px solid #ccc;">
+                <option value="Ngắn (khoảng 150-300 chữ)">Ngắn (150-300 chữ)</option>
+                <option value="Vừa (khoảng 300-500 chữ)" selected>Vừa (300-500 chữ)</option>
+                <option value="Dài (khoảng 600-800 chữ)">Dài (600-800 chữ)</option>
+            </select>
+            
+            <div id="aiSuggestLoading" style="display:none; color:#f39c12; font-weight:bold; margin-bottom:15px; text-align:center;">
+                ⏳ AI đang tìm kiếm các câu chuyện phù hợp. Vui lòng đợi trong giây lát...
+            </div>
+            
+            <div id="aiSuggestResults" style="display:none; flex-direction:column; gap:15px; margin-bottom:20px; max-height:300px; overflow-y:auto; padding-right:5px;">
+                <!-- Results will be injected here -->
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button class="btn" style="background:#e74c3c; color:white;" onclick="closeAISuggestStoryModal()">Đóng</button>
+                <button id="btnFetchAISuggestions" class="btn" style="background:#2ecc71; color:white;" onclick="fetchAIStorySuggestions()">Tìm Kiếm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PHÂN TÍCH NGỮ PHÁP -->
+    <div id="aiGrammarModal" class="modal-overlay" style="display:none; z-index:1150;">
+        <div class="modal-content" style="max-width: 600px; display: flex; flex-direction: column;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h2 style="margin:0; color:#9b59b6;">🔍 Phân Tích Ngữ Pháp</h2>
+                <button class="btn btn-icon" onclick="document.getElementById('aiGrammarModal').style.display='none'">❌</button>
+            </div>
+            <div id="aiGrammarContent" style="font-size:16px; line-height:1.6; font-family:sans-serif; color:#333; max-height:400px; overflow-y:auto;">
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CHAT STORY -->
+    <div id="aiChatStoryModal" class="modal-overlay" style="display:none; z-index:1150;">
+        <div class="modal-content" style="max-width: 600px; display: flex; flex-direction: column;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h2 style="margin:0; color:#3498db;">💬 Thảo luận truyện</h2>
+                <button class="btn btn-icon" onclick="document.getElementById('aiChatStoryModal').style.display='none'">❌</button>
+            </div>
+            <div id="aiChatStoryContent" style="flex-grow:1; display:flex; flex-direction:column; gap:10px; max-height:400px; overflow-y:auto; margin-bottom:15px; padding-right:5px;">
+                <div style="background:#ecf0f1; padding:10px; border-radius:10px; max-width:80%; align-self:flex-start;">
+                    Xin chào! Bạn có câu hỏi gì về chương truyện này không? Hoặc bạn muốn mình đặt câu hỏi để kiểm tra bài đọc hiểu?
+                </div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="aiChatStoryInput" class="form-control" style="flex-grow:1; padding:10px; border-radius:5px; border:1px solid #ccc;" placeholder="Nhập tin nhắn..." onkeypress="if(event.key==='Enter') sendStoryChat()">
+                <button class="btn btn-primary" onclick="sendStoryChat()">Gửi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL THÊM TRUYỆN -->
+    <div id="addStoryModal" class="modal-overlay" style="display:none; z-index:1100;">
+        <div class="modal-content" style="max-width: 600px; display: flex; flex-direction: column;">
+            <h2 style="margin-top:0; color:#2c3e50;">Thêm Sách/Truyện Mới</h2>
+            <label style="font-weight:bold; margin-bottom:5px;">Tên truyện/sách:</label>
+            <input type="text" id="addStoryTitle" class="form-control" style="margin-bottom:15px; padding:10px; border-radius:5px; border:1px solid #ccc;">
+            <label style="font-weight:bold; margin-bottom:5px;">Nội dung (Tiếng Trung):</label>
+            <textarea id="addStoryContent" class="form-control" style="height:250px; margin-bottom:20px; padding:10px; border-radius:5px; border:1px solid #ccc; font-family:'KaiTi', serif; font-size:18px;"></textarea>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button class="btn" style="background:#e74c3c; color:white;" onclick="document.getElementById('addStoryModal').style.display='none'">Hủy</button>
+                <button class="btn" style="background:#2ecc71; color:white;" onclick="saveNewStory()">Lưu Truyện</button>
+            </div>
+        </div>
+    </div>
     <div id="customReviewModal" class="modal-overlay" style="display:none; z-index:1100;">
         <div class="modal-content" style="max-width: 600px; max-height: 80vh; display: flex; flex-direction: column;">
             <h2 style="margin-top:0;">Ôn Tập Tùy Chọn</h2>
@@ -4491,36 +5696,13 @@ CHỈ TRẢ VỀ JSON, KHÔNG CÓ MARKDOWN HAY CHỮ GÌ KHÁC.`;
                 btn.disabled = false;
             }
         }
+            window.addEventListener('resize', () => {
+            if (document.getElementById('viewStoryReader').style.display === 'flex' || document.getElementById('viewStoryReader').style.display === 'block') {
+                if (currentStoryIndex !== -1) renderReaderPage(currentStoryIndex);
+            }
+        });
     </script>
-    <div id="customReviewModal" class="modal-overlay" style="display:none; z-index:1100;">
-        <div class="modal-content" style="max-width: 600px; max-height: 80vh; display: flex; flex-direction: column;">
-            <h2 style="margin-top:0;">Ôn Tập Tùy Chọn</h2>
-            <p style="color:#7f8c8d; font-size:14px;">Chọn các bài học bạn muốn ôn tập. Tất cả từ vựng trong bài sẽ được đưa vào Flashcard. Việc ôn sớm vẫn đẩy lịch ôn tập đi xa hơn.</p>
-            <div id="crTagsContainer" style="margin-bottom:15px; border-bottom:1px solid #ddd; padding-bottom:15px; display:flex; flex-wrap:wrap; gap:5px;"></div>
-            <div id="customReviewChecklist" style="overflow-y:auto; flex-grow:1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-bottom: 20px;">
-                <!-- Rendered by JS -->
-            </div>
-            <div style="display:flex; justify-content:flex-end; gap:10px;">
-                <button class="btn btn-back" style="margin:0;" onclick="closeCustomReviewModal()">Hủy</button>
-                <button class="btn btn-primary" onclick="startCustomReview()">Bắt đầu Ôn Tập</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modal Bulk Add -->
-    <div id="bulkAddModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
-        <div style="background:white; padding:30px; border-radius:15px; width:90%; max-width:600px; max-height:90vh; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
-            <h3 style="margin-top:0; color:#2c3e50;">⚡ Thêm Từ Vựng Hàng Loạt (AI)</h3>
-            <p style="color:#7f8c8d; font-size:14px; line-height:1.5;">Dán 1 đoạn văn tiếng Trung hoặc danh sách các từ vào đây. AI sẽ tự động quét, trích xuất tất cả từ vựng mới, tự tra Pinyin và dịch nghĩa tiếng Việt chỉ với <b>1 lần gọi API duy nhất</b>!</p>
-            <textarea id="bulkAddInput" style="width:100%; height:180px; padding:15px; border-radius:10px; border:1px solid #ddd; font-size:16px; margin-bottom:15px; box-sizing:border-box; resize:vertical; outline:none; font-family:inherit;" placeholder="Ví dụ: 我今天去学校学习汉语..."></textarea>
-            <div id="bulkAddStatus" style="display:none; padding:15px; background:#e1f5fe; color:#0288d1; border-radius:8px; margin-bottom:15px; font-weight:bold; text-align:center;">Đang quét và phân tích dữ liệu...</div>
-            <div style="display:flex; justify-content:flex-end; gap:10px;">
-                <button class="btn btn-back" style="margin:0;" onclick="closeBulkAddForm()">Hủy bỏ</button>
-                <button class="btn btn-primary" id="btnRunBulkAdd" style="margin:0; background:#9b59b6; border:none;" onclick="runBulkAddAI()">🚀 Quét & Thêm ngay</button>
-            </div>
-        </div>
-    </div>
-</body>
+        </body>
 
 </html>
 
