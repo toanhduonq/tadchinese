@@ -601,72 +601,169 @@
         /* --- Flashcard Layer --- */
         #viewFlashcard {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(160deg, #0f172a 0%, #1e293b 40%, #0f172a 100%);
             z-index: 1000;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
+        #viewFlashcard::before {
+            content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.15) 0%, transparent 60%),
+                        radial-gradient(ellipse at 70% 80%, rgba(244,63,94,0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
 
         .fc-scene {
-            width: min(550px, 90vw);
-            height: min(550px, 70vh);
-            perspective: 1000px;
+            width: min(480px, 88vw);
+            height: min(520px, 68vh);
+            perspective: 1200px;
             margin: 0 auto;
         }
 
         .fc-container {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             position: relative;
-            transition: transform 0.6s;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
             cursor: pointer;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            border-radius: 20px;
+            border-radius: 24px;
         }
-
-        .fc-container.is-flipped {
-            transform: rotateY(180deg);
-        }
+        .fc-container.is-flipped { transform: rotateY(180deg); }
 
         .fc-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(160deg, #ffffff 0%, #f8f9fc 50%, #f0f2f8 100%);
+            position: absolute; width: 100%; height: 100%;
+            background: linear-gradient(165deg, #ffffff 0%, #f8fafc 100%);
             border-radius: 24px;
             backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 50px;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: 40px 36px;
             box-sizing: border-box;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
-            color: #2c3e50;
-            border: none;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+            color: #1e293b;
             overflow: hidden;
         }
         .fc-face::before {
-            content: '';
-            position: absolute;
-            top: -2px; left: -2px; right: -2px; bottom: -2px;
-            background: linear-gradient(135deg, var(--primary-color, #e94560) 0%, #3498db 100%);
-            border-radius: 26px;
-            z-index: -1;
-            opacity: 0.15;
+            content: ""; position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, #6366f1, #ec4899, #f43f5e);
+            border-radius: 24px 24px 0 0;
+        }
+        .fc-face::after {
+            content: ""; position: absolute;
+            bottom: -50%; right: -20%; width: 60%; height: 80%;
+            background: radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%);
+            pointer-events: none;
         }
 
-        #fcNghia, #fcExViet, #fcInstructionText, #fcTypingInput, #fcTypingFeedback { font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important; }
-        .fc-face-back {
-            transform: rotateY(180deg);
+        #fcNghia, #fcExViet, #fcInstructionText, #fcTypingInput, #fcTypingFeedback { font-family: "Inter", "Segoe UI", Arial, sans-serif !important; }
+        .fc-face-back { transform: rotateY(180deg); }
+
+
+        /* --- FC AI Deep Dive Panel --- */
+        #viewFlashcard.ai-open .fc-scene, #viewFlashcard.ai-open #fcControls {
+            transform: translateX(-30%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .fc-scene { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        #fcAIPanel {
+            position: absolute;
+            top: 60px; right: 20px; bottom: 80px;
+            width: 420px; max-width: 40vw;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            display: none; flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+        #fcAIPanel.open { display: flex; animation: slideInRight 0.35s ease; }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        #fcAIPanelHeader {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.03);
+        }
+        #fcAIPanelHeader h4 { margin: 0; color: #e2e8f0; font-size: 14px; font-weight: 600; }
+        #fcAIChatMessages {
+            flex: 1; overflow-y: auto; padding: 16px;
+            display: flex; flex-direction: column; gap: 10px;
+            scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent;
+        }
+        .fc-ai-msg {
+            max-width: 88%; padding: 10px 14px;
+            border-radius: 14px; font-size: 13px; line-height: 1.55;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            animation: fadeInUp 0.25s ease;
+        }
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+        .fc-ai-msg.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white; border-bottom-right-radius: 4px;
+        }
+        .fc-ai-msg.ai {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.08);
+            color: #e2e8f0; border-bottom-left-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .fc-ai-msg.ai .ai-typing { display: inline-block; }
+        .fc-ai-msg.ai .ai-typing::after { content: '...'; animation: dots 1.2s steps(4,end) infinite; }
+        @keyframes dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
+        #fcAIChatInput {
+            padding: 12px 16px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            display: flex; gap: 8px; align-items: center;
+            background: rgba(255,255,255,0.03);
+        }
+        #fcAIChatInput input {
+            flex: 1; background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px; padding: 10px 14px;
+            color: #e2e8f0; font-size: 13px;
+            font-family: 'Inter', sans-serif; outline: none;
+            transition: border-color 0.2s;
+        }
+        #fcAIChatInput input:focus { border-color: #6366f1; }
+        #fcAIChatInput input::placeholder { color: rgba(255,255,255,0.3); }
+        #fcAIChatInput button {
+            width: 38px; height: 38px; border-radius: 12px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none; color: white; font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.15s;
+        }
+        #fcAIChatInput button:hover { transform: scale(1.05); }
+        .fc-ai-quick-btns { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 10px; }
+        .fc-ai-quick-btn {
+            padding: 5px 12px; border-radius: 20px; font-size: 11px;
+            background: rgba(99,102,241,0.15); color: #a5b4fc;
+            border: 1px solid rgba(99,102,241,0.2); cursor: pointer;
+            transition: all 0.15s; font-family: 'Inter', sans-serif;
+        }
+        .fc-ai-quick-btn:hover { background: rgba(99,102,241,0.3); color: white; }
+        /* SRS Buttons */
+        #fcControls { position: relative; z-index: 1; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        #fcControls .btn {
+            border-radius: 14px; padding: 12px 18px !important;
+            font-size: 14px !important; min-width: 100px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15) !important;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        #fcControls .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+
 
         #loadingScreen {
             position: absolute;
@@ -821,8 +918,10 @@
             background-color: #2c2c2c !important; color: #e0e0e0 !important; border-color: #444 !important;
         }
         body.dark-mode .hm-cell.level-0 { background-color: #333 !important; }
-        body.dark-mode .fc-face { background: linear-gradient(135deg, #2c2c2c 0%, #1e1e1e 100%); color: #e0e0e0; }
-        body.dark-mode #fcHanziBack { color: #e0e0e0 !important; }
+        body.dark-mode .fc-face { background: linear-gradient(165deg, #1e1e2e 0%, #141420 100%); color: #e2e8f0; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05); }
+        body.dark-mode #fcHanziBack { color: #e2e8f0 !important; }
+        body.dark-mode #fcNghia { color: #818cf8 !important; }
+        body.dark-mode .fc-face::after { background: radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%); }
 
         /* ================= MOBILE & TABLET RESPONSIVE ================= */
         .mobile-menu-btn { display: none; }
@@ -2087,6 +2186,10 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:20px">
                     <h2 style="margin:0; color:#2c3e50">📖 AI Sinh Truyện</h2>
                     <div style="display:flex; gap:10px;">
+                        <select id="storyWordSource" class="btn" style="margin:0; background:white; color:#2c3e50; border:1px solid #ddd; padding:8px; width:fit-content; border-radius:5px; height:auto; cursor:pointer;" onchange="updateStorySourceInfo()">
+                            <option value="due">📋 Từ cần ôn hôm nay</option>
+                            <option value="all">📚 Tất cả từ vựng</option>
+                        </select>
                         <select id="storyWordCount" class="btn" style="margin:0; background:white; color:#2c3e50; border:1px solid #ddd; padding:8px; width:fit-content; border-radius:5px; height:auto; cursor:pointer;">
                             <option value="5">Ngắn (5 từ)</option>
                             <option value="10" selected>Vừa (10 từ)</option>
@@ -2101,30 +2204,34 @@
                         <button class="btn btn-back" style="margin:0;" onclick="showDashboard()">⬅ Trở về</button>
                     </div>
                 </div>
-                <p style="color:#7f8c8d;">Hệ thống sẽ lấy ngẫu nhiên các từ vựng <b>bạn cần ôn hôm nay</b> để sáng tác thành một câu chuyện theo độ dài bạn chọn. Việc học trong ngữ cảnh giúp bạn ghi nhớ cực lâu!</p>
+                <p id="storySourceInfo" style="color:#7f8c8d;">Hệ thống sẽ lấy ngẫu nhiên các từ vựng <b>bạn cần ôn hôm nay</b> để sáng tác thành một câu chuyện theo độ dài bạn chọn. Việc học trong ngữ cảnh giúp bạn ghi nhớ cực lâu!</p>
                 <div id="storyLoading" style="margin-top:20px; padding:20px; background:#f9f9f9; border-radius:10px; border:1px solid #ddd; display:none; font-size:16px; font-style:italic;">⏳ Vui lòng chờ trong ít phút, AI đang sáng tác...</div>
                 <div id="storyResult" style="display:none;"></div>
                 
-                <div id="storySplitView" style="margin-top:20px; display:none; flex-grow:1; gap:15px; min-height:0;">
+                <div id="storySplitView" style="margin-top:20px; display:none; flex-grow:1; gap:15px; min-height:0; flex-direction:column;">
+                    <!-- Tiếng Trung (luôn hiện) -->
                     <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
-                        <h4 style="margin:0 0 10px 0; color:#2c3e50; font-size:15px; display:flex; justify-content:space-between; align-items:center;">
+                        <h4 style="margin:0 0 10px 0; color:#2c3e50; font-size:15px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
                             <span>🇨🇳 Tiếng Trung</span>
-                            <div style="display:flex; gap:5px;">
+                            <div style="display:flex; gap:5px; flex-wrap:wrap;">
                                 <button class="btn btn-primary" style="margin:0; padding:5px 10px; font-size:12px; background:#9b59b6;" onclick="speakCurrentStory('zh')">🔊 Phát</button>
                                 <button class="btn btn-back" style="margin:0; padding:5px 10px; font-size:12px; background:#e74c3c;" onclick="stopSpeech()">⏹ Dừng</button>
+                                <button class="btn" id="btnShowTranslation" style="margin:0; padding:5px 12px; font-size:12px; background:#3498db; color:white; border-radius:6px;" onclick="toggleTranslation()">🇻🇳 Hiện bản dịch</button>
                             </div>
                         </h4>
-                        <div id="storyChineseBox" class="panel" style="flex-grow:1; padding:15px; border-radius:8px; border:1px solid #ddd; overflow-y:auto; white-space:pre-wrap; line-height:1.6; font-size:16px; margin-bottom:0; box-shadow:none !important;"></div>
+                        <div id="storyChineseBox" class="panel" style="flex-grow:1; padding:18px; border-radius:10px; border:1px solid #ddd; overflow-y:auto; white-space:pre-wrap; line-height:1.8; font-size:17px; margin-bottom:0; box-shadow:none !important; user-select:text;"></div>
+                        <small style="color:#95a5a6; margin-top:6px; font-size:11px;">💡 Nhấn giữ vào từ/cụm chữ để tra nghĩa nhanh</small>
                     </div>
-                    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+                    <!-- Tiếng Việt (ẩn mặc định) -->
+                    <div id="storyViPanel" style="display:none; flex-direction:column; min-width:0; border-top:1px solid #eee; padding-top:12px; margin-top:5px;">
                         <h4 style="margin:0 0 10px 0; color:#2c3e50; font-size:15px; display:flex; justify-content:space-between; align-items:center;">
-                            <span>🇻🇳 Tiếng Việt</span>
+                            <span>🇻🇳 Bản dịch tiếng Việt</span>
                             <div style="display:flex; gap:5px;">
                                 <button class="btn btn-primary" style="margin:0; padding:5px 10px; font-size:12px; background:#e67e22;" onclick="speakCurrentStory('vi')">🔊 Phát</button>
                                 <button class="btn btn-back" style="margin:0; padding:5px 10px; font-size:12px; background:#e74c3c;" onclick="stopSpeech()">⏹ Dừng</button>
                             </div>
                         </h4>
-                        <div id="storyVietnameseBox" class="panel" style="flex-grow:1; padding:15px; border-radius:8px; border:1px solid #ddd; overflow-y:auto; white-space:pre-wrap; line-height:1.6; font-size:16px; margin-bottom:0; box-shadow:none !important;"></div>
+                        <div id="storyVietnameseBox" class="panel" style="flex-grow:1; padding:15px; border-radius:10px; border:1px solid #ddd; overflow-y:auto; white-space:pre-wrap; line-height:1.6; font-size:16px; margin-bottom:0; box-shadow:none !important;"></div>
                     </div>
                 </div>
             </div>
@@ -2486,9 +2593,18 @@
                         </div>
                         <small style="color:#95a5a6; display:block; margin-top:5px; font-size:12px;">Ảnh được lưu vĩnh viễn và đồng bộ trên mọi thiết bị.</small>
                     </div>
-                    <div class="form-group">
-                        <label>Gemini API Key (Cho tính năng AI)</label>
-                        <input type="password" id="profApiKey" placeholder="AIzaSy...">
+                    <div style="display:flex; gap:12px;">
+                        <div class="form-group" style="flex:1;">
+                            <label>Mô hình AI</label>
+                            <select id="profAiProvider" style="width:100%; padding:10px; border-radius:12px; border:1px solid #ddd; background:#f9f9f9;">
+                                <option value="deepseek">DeepSeek (Khuyên dùng)</option>
+                                <option value="gemini">Gemini</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex:2;">
+                            <label>API Key cá nhân</label>
+                            <input type="password" id="profApiKey" placeholder="Nhập API Key của bạn...">
+                        </div>
                     </div>
 
                     <div style="margin-top:15px; padding:18px; background:#f8f9fa; border-radius:12px; border:1px dashed #ddd;">
@@ -2546,10 +2662,10 @@
     <!-- FLASHCARD -->
     <div id="viewFlashcard">
         <div style="position:absolute; top:20px; left:30px; right:30px; display:flex; justify-content:space-between; align-items:center;">
-            <button class="btn" style="background:#e74c3c; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" onclick="exitFlashcard()">⬅ Thoát học</button>
-            <div id="fcProgress" style="font-weight:bold; font-size:16px; color:white; background:rgba(0,0,0,0.3); padding:5px 15px; border-radius:20px;"></div>
+            <button class="btn" style="background:rgba(255,255,255,0.1); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.15); color:white; font-size:13px;" onclick="exitFlashcard()">← Thoát</button>
+            <div id="fcProgress" style="font-weight:600; font-size:13px; color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.08); backdrop-filter:blur(10px); padding:6px 16px; border-radius:20px; border:1px solid rgba(255,255,255,0.1);"></div>
         </div>
-        <div style="position:absolute; bottom:20px; text-align:center; color:rgba(255,255,255,0.7); font-size:13px; width:100%; pointer-events:none;">
+        <div style="position:absolute; bottom:16px; text-align:center; color:rgba(255,255,255,0.35); font-size:11px; width:100%; pointer-events:none; letter-spacing:0.02em;">
             Phím tắt: <b>[Space/Enter]</b> Lật thẻ &nbsp;&bull;&nbsp; <b>[1]</b> Quên &nbsp;&bull;&nbsp; <b>[2]</b> Khó &nbsp;&bull;&nbsp; <b>[3]</b> Nhớ &nbsp;&bull;&nbsp; <b>[4]</b> Dễ
         </div>
         <div class="fc-scene" id="fcScene">
@@ -2564,19 +2680,43 @@
                         <p id="fcTypingFeedback" style="margin-top:10px; font-size:16px; font-weight:bold;"></p>
                     </div>
 
-                    <p id="fcInstructionText" style="color:#bdc3c7; margin-top:20px; font-family:'Inter', 'Segoe UI', Arial, sans-serif; font-size:15px;">Chạm hoặc nhấn Space để lật</p>
+                    <p id="fcInstructionText" style="color:#94a3b8; margin-top:24px; font-family:'Inter', 'Segoe UI', Arial, sans-serif; font-size:13px; letter-spacing:0.03em;">Chạm hoặc nhấn Space để lật</p>
                 </div>
                 <div class="fc-face fc-face-back" id="fcBack">
-                    <h2 id="fcHanziBack" style="margin:0; font-size:55px; color:#2c3e50; font-family:'KaiTi', 'STKaiti', serif; font-weight:normal; text-shadow: 1px 1px 2px rgba(0,0,0,0.1)"></h2>
-                    <h3 id="fcNghia" style="color:#e74c3c; font-size:22px; margin:10px 0; font-family:'Inter', 'Segoe UI', Arial, sans-serif !important; font-weight:600;"></h3>
+                    <h2 id="fcHanziBack" style="margin:0; font-size:42px; color:#1e293b; font-family:'KaiTi', 'STKaiti', 'Noto Serif SC', serif; font-weight:normal; letter-spacing:0.05em;"></h2>
+                    <h3 id="fcNghia" style="color:#6366f1; font-size:20px; margin:12px 0; font-family:'Inter', 'Segoe UI', Arial, sans-serif !important; font-weight:700; letter-spacing:-0.01em;"></h3>
                     <div
-                        style="margin-top:20px; padding:20px; background:#f4f7f6; border-radius:10px; border-left:4px solid #3498db; width: 100%; box-sizing: border-box;">
+                        style="margin-top:16px; padding:16px 18px; background:linear-gradient(135deg,#f8fafc,#f1f5f9); border-radius:12px; border-left:3px solid #6366f1; width:100%; box-sizing:border-box;">
                         <p id="fcExHan" style="font-size:20px; margin:0; font-weight:500; color:#34495e"></p>
                         <p id="fcExViet" style="font-size:15px; color:#7f8c8d; margin:8px 0 0 0; font-style:italic; font-family:'Inter', 'Segoe UI', Arial, sans-serif !important;"></p>
                     </div>
                     <img id="fcImg" src=""
                         style="max-width:200px; max-height:150px; margin-top:20px; border-radius:8px; display:none">
+                    <button id="btnDeepDive" onclick="event.stopPropagation(); toggleFcAI()"
+                        style="margin-top:14px; padding:8px 20px; border-radius:12px; border:1.5px solid #6366f1; background:transparent; color:#6366f1; font-size:13px; font-weight:600; cursor:pointer; font-family:Inter,sans-serif; transition:all 0.2s; display:flex; align-items:center; gap:6px;"
+                        onmouseenter="this.style.background='#6366f1';this.style.color='white'"
+                        onmouseleave="this.style.background='transparent';this.style.color='#6366f1'">
+                        <span style="font-size:15px;">🤖</span> Hiểu rõ hơn
+                    </button>
                 </div>
+            </div>
+        </div>
+        <!-- FC AI Deep Dive Panel -->
+        <div id="fcAIPanel">
+            <div id="fcAIPanelHeader">
+                <h4 id="fcAIPanelTitle">🤖 Hiểu sâu hơn</h4>
+                <button onclick="toggleFcAI()" style="background:none; border:none; color:rgba(255,255,255,0.5); font-size:18px; cursor:pointer; padding:4px;">✕</button>
+            </div>
+            <div id="fcAIChatMessages"></div>
+            <div class="fc-ai-quick-btns" id="fcAIQuickBtns">
+                <span class="fc-ai-quick-btn" onclick="sendFcAIQuick('Cho tôi thêm ví dụ sử dụng từ này')">📝 Thêm ví dụ</span>
+                <span class="fc-ai-quick-btn" onclick="sendFcAIQuick('Phân tích cách dùng chi tiết')">🔍 Cách dùng</span>
+                <span class="fc-ai-quick-btn" onclick="sendFcAIQuick('Có từ nào dễ nhầm lẫn không?')">⚡ Từ dễ nhầm</span>
+                <span class="fc-ai-quick-btn" onclick="sendFcAIQuick('Giải thích gốc từ và cách nhớ')">🧠 Mẹo nhớ</span>
+            </div>
+            <div id="fcAIChatInput">
+                <input type="text" id="fcAIChatInputField" placeholder="Hỏi gì về từ này..." onkeydown="if(event.key==='Enter')sendFcAIMessage()" onclick="event.stopPropagation()">
+                <button onclick="sendFcAIMessage()">➤</button>
             </div>
         </div>
         <div id="fcControls" style="display:none; margin-top:30px; gap:15px; justify-content: center;">
@@ -2600,6 +2740,24 @@
                 onclick="nextCard(4)">
                 <span>🔵 Quá dễ</span><span id="int4" style="font-size:12px; font-weight:normal; opacity:0.9"></span>
             </button>
+        </div>
+        <!-- FC AI Deep Dive Panel -->
+        <div id="fcAIPanel">
+            <div id="fcAIPanelHeader">
+                <h4 id="fcAIPanelTitle">🤖 Hiểu sâu hơn</h4>
+                <button onclick="toggleFcAI()" style="background:none; border:none; color:rgba(255,255,255,0.5); font-size:18px; cursor:pointer; padding:4px;">✕</button>
+            </div>
+            <div id="fcAIChatMessages"></div>
+            <div class="fc-ai-quick-btns" id="fcAIQuickBtns">
+                <span class="fc-ai-quick-btn" onclick="sendFcAIQuick('Cho tôi thêm ví dụ sử dụng từ này')">📝 Thêm ví dụ</span>
+                <span class="fc-ai-quick-btn" onclick="sendFcAIQuick('Phân tích cách dùng chi tiết')">🔍 Cách dùng</span>
+                <span class="fc-ai-quick-btn" onclick="sendFcAIQuick('Có từ nào dễ nhầm lẫn không?')">⚡ Từ dễ nhầm</span>
+                <span class="fc-ai-quick-btn" onclick="sendFcAIQuick('Giải thích gốc từ và cách nhớ')">🧠 Mẹo nhớ</span>
+            </div>
+            <div id="fcAIChatInput">
+                <input type="text" id="fcAIChatInputField" placeholder="Hỏi gì về từ này..." onkeydown="if(event.key==='Enter')sendFcAIMessage()">
+                <button onclick="sendFcAIMessage()">➤</button>
+            </div>
         </div>
         <div id="fcEnd" style="display:none; text-align:center">
             <h1 style="font-size:40px">Hoàn thành xuất sắc! 🎉</h1>
@@ -2762,6 +2920,7 @@
                     quote: dbProfile.quote || DEFAULT_QUOTE,
                     avatarUrl: dbProfile.avatarUrl || "",
                     apiKey: dbProfile.apiKey || "",
+                    aiProvider: dbProfile.aiProvider || "deepseek",
                     friends: dbProfile.friends || [],
                     email: auth.currentUser.email,
                     dailyReviewedWords: dbProfile.dailyReviewedWords || 0,
@@ -3980,6 +4139,7 @@
             document.getElementById('profQuote').value = userProfile.quote || "";
             document.getElementById('profAvatar').value = userProfile.avatarUrl || "";
             document.getElementById('profApiKey').value = userProfile.apiKey || "";
+            document.getElementById('profAiProvider').value = userProfile.aiProvider || "deepseek";
             calculateAge();
             // Update avatar preview in modal
             let modalAvt = document.getElementById('profAvatarPreviewModal');
@@ -4001,6 +4161,7 @@
             userProfile.quote = document.getElementById('profQuote').value || DEFAULT_QUOTE;
             userProfile.avatarUrl = document.getElementById('profAvatar').value;
             userProfile.apiKey = document.getElementById('profApiKey').value;
+            userProfile.aiProvider = document.getElementById('profAiProvider').value;
             // Update avatars everywhere
             let topRight = document.getElementById('topRightAvatar'); if (topRight && userProfile.avatarUrl) topRight.src = userProfile.avatarUrl; let avtPrev = document.getElementById('sidebarAvatarPreview');
             if (avtPrev && userProfile.avatarUrl) {
@@ -4102,6 +4263,9 @@
         }
         function renderCardFront() {
             document.getElementById('fcHanzi').style.display = 'none';
+            // Close AI panel on new card
+            let aiP = document.getElementById('fcAIPanel'); if (aiP) aiP.classList.remove('open');
+            document.getElementById('viewFlashcard').classList.remove('ai-open');
             document.getElementById('fcListeningIcon').style.display = 'none';
             document.getElementById('fcTypingArea').style.display = 'none';
             document.getElementById('fcInstructionText').style.display = 'block';
@@ -4585,7 +4749,12 @@
         let cachedApiKey = null;
 
         async function callUnifiedAI(promptObj, key, temperature = 0.7) {
-            if (key.startsWith("sk-")) {
+            let provider = userProfile.aiProvider || "auto";
+            if (provider === "auto") {
+                provider = key.startsWith("sk-") ? "deepseek" : "gemini";
+            }
+            console.log("[AI] Provider:", provider, "| Key prefix:", key.substring(0,6) + "...");
+            if (provider === "deepseek") {
                 let messages = [];
                 if (promptObj.system) messages.push({role: "system", content: promptObj.system});
                 if (promptObj.history) {
@@ -4596,7 +4765,6 @@
                 if (promptObj.text) {
                     messages.push({role: "user", content: promptObj.text});
                 }
-                
                 const r = await fetch("https://api.deepseek.com/chat/completions", {
                     method: "POST",
                     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
@@ -4604,7 +4772,7 @@
                 });
                 const d = await r.json();
                 if (r.ok && d.choices && d.choices[0]) return d.choices[0].message.content;
-                throw new Error(d.error?.message || "Deepseek Error");
+                throw new Error(d.error?.message || "DeepSeek Error");
             } else {
                 let model = await getGeminiModel(key);
                 let body = { contents: [] };
@@ -4615,16 +4783,13 @@
                     body.contents = [{ parts: [{ text: promptObj.text }] }];
                 }
                 body.generationConfig = { temperature: temperature };
-                
                 const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(body)
                 });
-                
                 const d = await r.json();
                 if (r.ok && d.candidates?.[0]) return d.candidates[0].content.parts[0].text;
-                
                 let sysKey = SYSTEM_ENCODED_KEYS.length > 0 ? atob(SYSTEM_ENCODED_KEYS[0]) : "";
                 if (d.error?.code === 400 && key !== sysKey && sysKey) {
                     return await callUnifiedAI(promptObj, sysKey, temperature);
@@ -4665,22 +4830,44 @@
             "QUl6YVN5QWg0a3pTNXI2ZVQxbmU1eEdJNzhONUFXeE1iRnJUaXJR" // Đã mã hóa an toàn
         ];
 
-        function getGeminiKey() {
+        function getGeminiKey(forceSysKey = false) {
+            // 1. Ưu tiên tuyệt đối: API Key cá nhân
             let userKey = userProfile.apiKey || localStorage.getItem('geminiApiKey');
-            if (userKey) return userKey.trim();
+            if (userKey && userKey.trim() && !forceSysKey) {
+                console.log("[AI] ✅ Dùng API Key cá nhân | Provider:", userProfile.aiProvider || "auto");
+                return userKey.trim();
+            }
             
-            // Fallback sang API Key hệ thống (nếu có)
+            // 2. Nếu user chọn DeepSeek mà chưa nhập key → KHÔNG fallback Gemini
+            let chosenProvider = userProfile.aiProvider || "auto";
+            if (chosenProvider === "deepseek") {
+                alert("Bạn đã chọn DeepSeek nhưng chưa nhập API Key.\nVui lòng vào Hồ sơ → dán DeepSeek API Key vào nhé!");
+                return null;
+            }
+            
+            // 3. Fallback sang Gemini system key (chỉ khi KHÔNG phải DeepSeek)
             if (SYSTEM_ENCODED_KEYS.length > 0) {
                 let randKey = SYSTEM_ENCODED_KEYS[Math.floor(Math.random() * SYSTEM_ENCODED_KEYS.length)];
                 try {
+                    console.log("[AI] ⚠️ Fallback sang Gemini system key");
                     return atob(randKey).trim();
                 } catch(e) {
                     console.error("Lỗi giải mã API key hệ thống", e);
                 }
             }
             
-            alert("Bạn chưa thiết lập mã API cho tính năng AI (hoặc hệ thống chưa cấu hình mã mặc định).\nVui lòng vào mục 'Hồ sơ cá nhân' (ở cột menu bên trái) để điền API Key nhé!\n(Lấy miễn phí tại: aistudio.google.com/app/apikey)");
+            alert("Bạn chưa thiết lập API Key.\nVui lòng vào Hồ sơ để nhập API Key nhé!");
             return null;
+        }
+
+        function updateStorySourceInfo() {
+            let el = document.getElementById('storySourceInfo');
+            let src = document.getElementById('storyWordSource').value;
+            if (src === 'all') {
+                el.innerHTML = 'Hệ thống sẽ lấy ngẫu nhiên từ <b>tất cả từ vựng bạn đã thêm</b> (kể cả đã nhớ) để sáng tác truyện. Đọc nhiều giúp ôn lại từ cũ và ghi nhớ sâu hơn!';
+            } else {
+                el.innerHTML = 'Hệ thống sẽ lấy ngẫu nhiên các từ vựng <b>bạn cần ôn hôm nay</b> để sáng tác thành một câu chuyện theo độ dài bạn chọn. Việc học trong ngữ cảnh giúp bạn ghi nhớ cực lâu!';
+            }
         }
 
         async function generateStory() {
@@ -4705,7 +4892,11 @@
             }
             
             if (dueWordsObjs.length === 0) {
-                alert("Hôm nay bạn không có từ vựng nào đến hạn ôn để AI sinh truyện!");
+                if (wordSource === 'all') {
+                    alert("Bạn chưa có từ vựng nào trong hệ thống! Hãy thêm từ vựng trước nhé.");
+                } else {
+                    alert("Hôm nay bạn không có từ vựng nào đến hạn ôn!\nThử chuyển sang chế độ 'Tất cả từ vựng' để ôn lại từ cũ nhé!");
+                }
                 return;
             }
             
@@ -4750,6 +4941,13 @@
                 
                 loadingBox.style.display = 'none';
                 splitView.style.display = 'flex';
+                // Ẩn bản dịch mặc định
+                let viP = document.getElementById('storyViPanel');
+                if (viP) viP.style.display = 'none';
+                let trBtn = document.getElementById('btnShowTranslation');
+                if (trBtn) { trBtn.innerText = '🇻🇳 Hiện bản dịch'; trBtn.style.background = '#3498db'; }
+                // Kích hoạt long-press tra từ
+                setupStoryLongPress();
                 
                 // Lưu data attribute để dùng cho Save / Speak
                 resDiv.innerHTML = text.replace(/\n/g, '<br>'); // Backup html cho viewSavedStory cũ nếu cần
@@ -4766,6 +4964,89 @@
             }
         }
 
+        function toggleTranslation() {
+            let viPanel = document.getElementById('storyViPanel');
+            let btn = document.getElementById('btnShowTranslation');
+            if (viPanel.style.display === 'none') {
+                viPanel.style.display = 'flex';
+                btn.innerText = '🇻🇳 Ẩn bản dịch';
+                btn.style.background = '#e67e22';
+            } else {
+                viPanel.style.display = 'none';
+                btn.innerText = '🇻🇳 Hiện bản dịch';
+                btn.style.background = '#3498db';
+            }
+        }
+
+        // Long press tra từ
+        let storyLongPressTimer = null;
+        function setupStoryLongPress() {
+            let cnBox = document.getElementById('storyChineseBox');
+            if (!cnBox) return;
+            
+            cnBox.addEventListener('pointerdown', function(e) {
+                storyLongPressTimer = setTimeout(function() {
+                    let sel = window.getSelection();
+                    let text = sel.toString().trim();
+                    if (!text) {
+                        // Nếu chưa select, lấy chữ tại vị trí nhấn
+                        let range = document.caretRangeFromPoint ? document.caretRangeFromPoint(e.clientX, e.clientY) : null;
+                        if (range) {
+                            let node = range.startContainer;
+                            let content = node.textContent || '';
+                            let offset = range.startOffset;
+                            // Lấy 1-4 chữ từ vị trí nhấn
+                            text = content.substring(offset, offset + 4).replace(/[^\u4e00-\u9fff]/g, '');
+                            if (!text) text = content.substring(Math.max(0, offset-1), offset + 3).replace(/[^\u4e00-\u9fff]/g, '');
+                        }
+                    }
+                    if (text && /[\u4e00-\u9fff]/.test(text)) {
+                        showDictLookup(e, text);
+                    }
+                }, 500);
+            });
+            cnBox.addEventListener('pointerup', function() { clearTimeout(storyLongPressTimer); });
+            cnBox.addEventListener('pointercancel', function() { clearTimeout(storyLongPressTimer); });
+        }
+
+        function showDictLookup(e, text) {
+            // Tìm trong từ vựng đã thêm trước
+            let found = null;
+            courses.forEach(c => (c.vocab || []).forEach(l => (l.words || []).forEach(w => {
+                if (w.hanzi === text && !found) found = w;
+            })));
+            // Thử tìm từ ngắn hơn nếu không khớp chính xác
+            if (!found && text.length > 1) {
+                for (let len = text.length; len >= 1; len--) {
+                    let sub = text.substring(0, len);
+                    courses.forEach(c => (c.vocab || []).forEach(l => (l.words || []).forEach(w => {
+                        if (w.hanzi === sub && !found) found = w;
+                    })));
+                    if (found) break;
+                }
+            }
+            
+            const tt = document.getElementById('wordTooltip');
+            if (found) {
+                document.getElementById('ttHanzi').innerHTML = found.hanzi + getHSKBadge(found.hanzi, buildHSKMap());
+                document.getElementById('ttPinyin').innerText = found.pinyin || '';
+                document.getElementById('ttNghia').innerText = found.nghia || '';
+            } else {
+                document.getElementById('ttHanzi').innerHTML = text + ' <span style="font-size:11px; color:#95a5a6;">(chưa có trong kho từ)</span>';
+                document.getElementById('ttPinyin').innerText = '';
+                document.getElementById('ttNghia').innerText = 'Nhấn giữ lâu hơn hoặc bôi đen chính xác từ cần tra';
+            }
+            let actionBtns = document.getElementById('ttActionBtns');
+            if(actionBtns) actionBtns.style.display = 'none';
+            
+            tt.style.display = 'block';
+            let x = Math.min(e.clientX, window.innerWidth - 260);
+            let y = e.clientY + 20;
+            if (y + 120 > window.innerHeight) y = e.clientY - 120;
+            tt.style.left = x + 'px';
+            tt.style.top = y + 'px';
+            tt.onmouseleave = () => { tt.style.display = 'none'; };
+        }
         function showAITooltip(e, wordObjStr) {
             let w = JSON.parse(decodeURIComponent(wordObjStr));
             activeTooltipInfo = null;
@@ -4785,6 +5066,136 @@
             };
         }
 
+
+        // === FC AI Deep Dive ===
+        let fcAIChatHistory = {}; // Keyed by hanzi
+
+        function toggleFcAI() {
+            let panel = document.getElementById('fcAIPanel');
+            let fc = document.getElementById('viewFlashcard');
+            if (panel.classList.contains('open')) {
+                panel.classList.remove('open');
+                fc.classList.remove('ai-open');
+            } else {
+                panel.classList.add('open');
+                fc.classList.add('ai-open');
+                loadFcAIChat();
+            }
+        }
+
+        function loadFcAIChat() {
+            if (!currentCard) return;
+            let hz = currentCard.hanzi;
+            let title = document.getElementById('fcAIPanelTitle');
+            title.innerHTML = `🤖 <span style="color:#a5b4fc;">${hz}</span> — Hiểu sâu hơn`;
+            
+            let msgBox = document.getElementById('fcAIChatMessages');
+            
+            // Load saved history
+            if (!fcAIChatHistory[hz]) {
+                // Try loading from localStorage
+                try {
+                    let saved = JSON.parse(localStorage.getItem('fcAIChats') || '{}');
+                    fcAIChatHistory = saved;
+                } catch(e) {}
+            }
+            
+            if (fcAIChatHistory[hz] && fcAIChatHistory[hz].length > 0) {
+                renderFcAIMessages(hz);
+            } else {
+                fcAIChatHistory[hz] = [];
+                msgBox.innerHTML = '<div style="text-align:center; color:rgba(255,255,255,0.3); font-size:12px; padding:30px 10px; font-family:Inter,sans-serif;">Hỏi bất cứ điều gì về từ <b style="color:#a5b4fc;">' + hz + '</b><br>để hiểu sâu hơn cách dùng!</div>';
+            }
+        }
+
+        function renderFcAIMessages(hz) {
+            let msgBox = document.getElementById('fcAIChatMessages');
+            let msgs = fcAIChatHistory[hz] || [];
+            msgBox.innerHTML = msgs.map(m => 
+                `<div class="fc-ai-msg ${m.role}">${m.content.replace(/\n/g, '<br>')}</div>`
+            ).join('');
+            msgBox.scrollTop = msgBox.scrollHeight;
+        }
+
+        function saveFcAIChats() {
+            try {
+                localStorage.setItem('fcAIChats', JSON.stringify(fcAIChatHistory));
+            } catch(e) { console.warn('Cannot save FC AI chats', e); }
+        }
+
+        function sendFcAIQuick(text) {
+            document.getElementById('fcAIChatInputField').value = text;
+            sendFcAIMessage();
+        }
+
+        async function sendFcAIMessage() {
+            let input = document.getElementById('fcAIChatInputField');
+            let text = input.value.trim();
+            if (!text || !currentCard) return;
+            input.value = '';
+            
+            let hz = currentCard.hanzi;
+            if (!fcAIChatHistory[hz]) fcAIChatHistory[hz] = [];
+            
+            // Add user message
+            fcAIChatHistory[hz].push({ role: 'user', content: text });
+            renderFcAIMessages(hz);
+            
+            // Show typing indicator
+            let msgBox = document.getElementById('fcAIChatMessages');
+            let typingEl = document.createElement('div');
+            typingEl.className = 'fc-ai-msg ai';
+            typingEl.innerHTML = '<span class="ai-typing">Đang suy nghĩ</span>';
+            msgBox.appendChild(typingEl);
+            msgBox.scrollTop = msgBox.scrollHeight;
+            
+            try {
+                let key = getGeminiKey();
+                if (!key) { typingEl.remove(); return; }
+                
+                let sysPrompt = `Bạn là trợ lý dạy tiếng Trung. Người dùng đang học từ: "${currentCard.hanzi}" (${currentCard.pinyin || ''}) - nghĩa: "${currentCard.nghia || ''}". Ví dụ: "${currentCard.exHan || ''}" - "${currentCard.exViet || ''}". Hãy trả lời ngắn gọn, rõ ràng, dễ hiểu bằng tiếng Việt. Khi cho ví dụ tiếng Trung hãy kèm pinyin và nghĩa Việt.`;
+                
+                let history = fcAIChatHistory[hz].slice(0, -1).map(m => ({
+                    role: m.role === 'user' ? 'user' : 'model',
+                    parts: [{ text: m.content }]
+                }));
+                
+                let reply = await callUnifiedAI({
+                    system: sysPrompt,
+                    history: history.length > 0 ? history : undefined,
+                    text: text
+                }, key);
+                
+                typingEl.remove();
+                fcAIChatHistory[hz].push({ role: 'ai', content: reply });
+                renderFcAIMessages(hz);
+                saveFcAIChats();
+            } catch(e) {
+                typingEl.innerHTML = `<span style="color:#f87171;">Lỗi: ${e.message}</span>`;
+                console.error('FC AI Error:', e);
+            }
+        }
+
+        // Close AI panel when loading next card
+        let origNextCard = typeof nextCard === 'function' ? nextCard : null;
+
+        function toggleMobileMore() {
+            let menu = document.getElementById('mobileMoreMenu');
+            let overlay = document.getElementById('mobileMoreOverlay');
+            if (menu.style.display === 'none' || !menu.style.display) {
+                menu.style.display = 'block';
+                overlay.style.display = 'block';
+                menu.style.animation = 'fadeInUp 0.2s ease';
+            } else {
+                closeMobileMore();
+            }
+        }
+        function closeMobileMore() {
+            let menu = document.getElementById('mobileMoreMenu');
+            let overlay = document.getElementById('mobileMoreOverlay');
+            if (menu) menu.style.display = 'none';
+            if (overlay) overlay.style.display = 'none';
+        }
         function saveCurrentStory() {
             let resDiv = document.getElementById('storyResult');
             let rawText = resDiv.getAttribute('data-raw-text');
@@ -4806,9 +5217,19 @@
             };
             
             userProfile.savedStories = userProfile.savedStories || [];
-            userProfile.savedStories.unshift(newStory); // Mới nhất lên đầu
-            if (userProfile.savedStories.length > 50) userProfile.savedStories.length = 50; // Giới hạn 50 truyện
-            sync();
+            userProfile.savedStories.unshift(newStory);
+            if (userProfile.savedStories.length > 50) userProfile.savedStories.length = 50;
+            
+            // Backup vào localStorage phòng mất dữ liệu
+            try {
+                localStorage.setItem('tadchinese_savedStories', JSON.stringify(userProfile.savedStories));
+            } catch(e) { console.warn("Không thể backup stories vào localStorage", e); }
+            
+            // Sync lên Firebase (cả trong profile và node riêng)
+            sync('profile');
+            if (cloudDoc) {
+                cloudDoc.set({ savedStories: userProfile.savedStories }, { merge: true });
+            }
             updateDashboardUI();
             
             document.getElementById('btnSaveStory').style.display = 'none';
@@ -5243,7 +5664,7 @@
         let activeChatFriendId = null;
 
         async function callGeminiAPI(prompt, forceSysKey = false) {
-            let key = getGeminiKey();
+            let key = getGeminiKey(forceSysKey);
             if (!key) return null;
             try {
                 return await callUnifiedAI({text: prompt}, key);
@@ -5952,26 +6373,44 @@ CHỈ TRẢ VỀ JSON, KHÔNG CÓ MARKDOWN HAY CHỮ GÌ KHÁC.`;
 </div><!-- End app-shell-container -->
 
 <nav class="bottom-navbar">
-    <div class="bottom-nav-item active" id="menu-dashboard-mb" onclick="updateNavState('menu-dashboard'); showDashboard()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    <div class="bottom-nav-item active" id="menu-dashboard-mb" onclick="updateNavState('menu-dashboard'); showDashboard(); closeMobileMore()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         <span>Trang Chủ</span>
     </div>
-    <div class="bottom-nav-item" id="menu-courses-mb" onclick="updateNavState('menu-courses'); showCourses()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+    <div class="bottom-nav-item" id="menu-courses-mb" onclick="updateNavState('menu-courses'); showCourses(); closeMobileMore()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
         <span>Khóa Học</span>
     </div>
-    <div class="bottom-nav-item" id="menu-public-vocab-mb" onclick="updateNavState('menu-public-vocab'); showPublicVocab()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 12a4 4 0 0 0-8 0"/></svg>
-        <span>Cộng Đồng</span>
-    </div>
-    <div class="bottom-nav-item" id="menu-mandarin-mb" onclick="updateNavState('menu-mandarin'); showStoryList()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    <div class="bottom-nav-item" id="menu-mandarin-mb" onclick="updateNavState('menu-mandarin'); showStoryList(); closeMobileMore()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
         <span>Truyện</span>
     </div>
-    <div class="bottom-nav-item" id="menu-hsk-test-mb" onclick="updateNavState('menu-hsk-test'); showHSKTest()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <div class="bottom-nav-item" id="menu-hsk-test-mb" onclick="updateNavState('menu-hsk-test'); showHSKTest(); closeMobileMore()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         <span>Thi HSK</span>
     </div>
+    <div class="bottom-nav-item" id="menu-more-mb" onclick="toggleMobileMore()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+        <span>Thêm</span>
+    </div>
+</nav>
+
+<!-- Mobile More Menu -->
+<div id="mobileMoreMenu" style="display:none; position:fixed; bottom:65px; right:8px; z-index:10001; background:rgba(255,255,255,0.97); backdrop-filter:blur(20px); border-radius:16px; box-shadow:0 -8px 40px rgba(0,0,0,0.15); padding:8px; min-width:180px; border:1px solid rgba(0,0,0,0.06);">
+    <div class="mb-more-item" onclick="updateNavState('menu-public-vocab'); showPublicVocab(); closeMobileMore()">
+        <span style="font-size:16px;">🌐</span><span>Cộng Đồng</span>
+    </div>
+    <div class="mb-more-item" onclick="updateNavState('menu-mandarin-bean'); showMandarinBean(); closeMobileMore()">
+        <span style="font-size:16px;">📖</span><span>Luyện Đọc</span>
+    </div>
+    <div class="mb-more-item" onclick="updateNavState('menu-hskk'); showHSKKTest(); closeMobileMore()">
+        <span style="font-size:16px;">🎙️</span><span>Thi HSKK</span>
+    </div>
+    <div class="mb-more-item" onclick="showProfile(); closeMobileMore()">
+        <span style="font-size:16px;">👤</span><span>Hồ Sơ</span>
+    </div>
+</div>
+<div id="mobileMoreOverlay" onclick="closeMobileMore()" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:10000;"></div>
 </nav>
 </body>
 
